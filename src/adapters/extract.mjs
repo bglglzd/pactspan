@@ -3,6 +3,7 @@ import { fields, jsonData, canonical } from '../core/data.mjs';
 import { makeSource, citation } from '../core/source.mjs';
 import { terms } from '../core/terms.mjs';
 import { EXTRACTION_VERSION, EXTRACTION_PROMPT, EXTRACTION_SCHEMA, CANDIDATE_SCHEMA } from './extraction-prompt.mjs';
+import { DEADLINE_VERSION, resolveDeadline, deadlineUnknowns } from './deadline.mjs';
 
 const MAX_REQUEST_BYTES = 65_536;
 const MAX_RESPONSE_BYTES = 262_144;
@@ -38,7 +39,7 @@ export function extractionConfig(options) {
   const config = configuration(options);
   const identity = { version: EXTRACTION_VERSION, ...config, temperature: 0, seed: 42, stream: false,
     chat_template_kwargs: { enable_thinking: false }, max_request_bytes: MAX_REQUEST_BYTES,
-    max_response_bytes: MAX_RESPONSE_BYTES, prompt_sha256: hash(EXTRACTION_PROMPT), schema_sha256: hash(EXTRACTION_SCHEMA) };
+    max_response_bytes: MAX_RESPONSE_BYTES, deadline_version: DEADLINE_VERSION, prompt_sha256: hash(EXTRACTION_PROMPT), schema_sha256: hash(EXTRACTION_SCHEMA) };
   return { ...identity, config_sha256: hash(identity) };
 }
 
@@ -88,6 +89,10 @@ function normalizeCandidate(raw, rawIndex, source) {
   });
   try {
     result.terms = terms(raw.terms);
+    result.deadline_resolution = resolveDeadline(result.terms.due, source);
+    result.terms.due = result.deadline_resolution.due;
+    result.unknown_fields = deadlineUnknowns(result.unknown_fields, result.deadline_resolution);
+    if (result.deadline_resolution.unsupported) diagnostics.push({ code: 'unsupported_deadline', message: result.deadline_resolution.reason });
     if (raw.terms.conditions.some(condition => condition.status === 'unknown' && condition.value !== null)) throw new Error();
   } catch { diagnostics.push({ code: 'invalid_terms', message: 'Candidate terms failed local domain validation' }); }
   if (raw.terms.owner !== null && !source.participants.some(person => person.person_id === raw.terms.owner)) {

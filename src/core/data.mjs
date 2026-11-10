@@ -101,7 +101,9 @@ export function instant(value, path) {
   requireValue(parts[0] >= 2020 && parts[0] <= 2100 && calendar.getUTCFullYear() === parts[0]
     && calendar.getUTCMonth() === parts[1] - 1 && calendar.getUTCDate() === parts[2]
     && parts[3] < 24 && parts[4] < 60 && parts[5] < 60, `${path} has an invalid or unsupported calendar date`);
-  return new Date(value).toISOString();
+  const resolved = new Date(value);
+  requireValue(resolved.getUTCFullYear() >= 2020 && resolved.getUTCFullYear() <= 2100, `${path} resolves outside the supported calendar range`);
+  return resolved.toISOString();
 }
 
 export function zone(value, path, { nullable = false } = {}) {
