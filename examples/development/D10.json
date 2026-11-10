@@ -163,7 +163,7 @@
     {
       "action": "confirm",
       "annotation": "D10-A2",
-      "version": 1,
+      "version": 2,
       "actor": "manager",
       "expected_state": "disputed",
       "conflicting_annotation": "D10-A1"
@@ -185,7 +185,7 @@
     {
       "action": "approve_action",
       "annotation": "D10-A2",
-      "version": 1,
+      "version": 2,
       "entity_id": "O1",
       "amount": "9000",
       "currency": "EUR",
@@ -204,7 +204,7 @@
       },
       {
         "annotation": "D10-A2",
-        "version": 1,
+        "version": 2,
         "state": "disputed",
         "receipt_count": 0
       }
