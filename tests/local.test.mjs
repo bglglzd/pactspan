@@ -6,6 +6,7 @@ import path from 'node:path';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { WorkspaceController } from '../src/local/controller.mjs';
 import { WorkspaceStore, WorkspaceStoreError } from '../src/local/store.mjs';
+import { Pactspan } from '../src/core/engine.mjs';
 import { startServer } from '../src/local/server.mjs';
 import { EspoCRM } from '../src/adapters/espo.mjs';
 import { beforeState } from '../src/core/terms.mjs';
@@ -132,6 +133,38 @@ test('a deterministic store-size refusal preserves state and permits another val
   mocked.mock.restore(); assert.equal(WorkspaceStore.prototype.save, original);
   await controller.dispatch('importSource', { document: { segments: [{ speaker: 'Alex', start_secs: 0, end_secs: 1, text: 'A valid smaller source' }] } });
   assert.equal(Object.keys(controller.snapshot().domain.sources).length, 1);
+});
+
+test('the complete disk frame reserves room for ACK, separate reconciliation and receipt when metadata approaches its growth limit', async t => {
+  const folder = await directory(); let controller = await WorkspaceController.open({ directory: folder }); t.after(() => controller.close());
+  await controller.dispatch('loadExample', { id: 'D01' });
+  const candidate = Object.values(controller.snapshot().domain.candidates)[0];
+  const { version } = await controller.dispatch('confirm', { candidate_id: candidate.id, options: { actor: 'manager' } });
+  const fresh = await controller.dispatch('read', { entity_id: 'O1' });
+  const approval = await controller.dispatch('approve', { version_id: version.id, reviewed: beforeState(fresh), options: { actor: 'manager', expires_at: '2030-01-08T10:15:00Z' } });
+  const frame = controller.snapshot(); await controller.close();
+  const store = await WorkspaceStore.open(folder); const saved = await store.load(); const envelope = JSON.parse(await store.raw());
+  const probe = await Pactspan.restore(saved.domain, { clock: () => frame.clock }); await probe.beginAttempt(approval.id, fresh);
+  saved.metadata.labels.capacity_fixture = [];
+  const size = metadata => Buffer.byteLength(JSON.stringify({ schema_version: 1, revision: envelope.revision + 2,
+    domain: probe.snapshot(), metadata, checksum: '0'.repeat(64) })) + 1;
+  const target = 1.5 * 1024 * 1024 - 10;
+  while (size(saved.metadata) < target) {
+    const remaining = target - size(saved.metadata);
+    if (remaining <= 3) break;
+    saved.metadata.labels.capacity_fixture.push('A'.repeat(Math.min(200_000, remaining - 3)));
+  }
+  await store.save(saved); await store.close();
+  controller = await WorkspaceController.open({ directory: folder }); assert.equal(controller.snapshot().capacity.frame.within_growth, true);
+  const result = await controller.dispatch('execute', { approval_id: approval.id });
+  assert.equal(result.attempt.outcome, 'acknowledged'); assert.equal(controller.snapshot().capacity.frame.within_growth, false);
+  assert.equal(Object.keys(controller.snapshot().domain.receipts).length, 0); assert.equal(controller.snapshot().crm.ledger.length, 1);
+  await assert.rejects(controller.dispatch('importSource', { document: { segments: [{ speaker: 'X', start_secs: 0, end_secs: 1, text: 'Refused growth' }] } }), /growth limit/);
+  assert.equal(controller.snapshot().storage_error, null);
+  assert.equal((await controller.dispatch('reconcile', { attempt_id: result.attempt.id })).resolved, true);
+  assert.equal((await controller.dispatch('verify', { version_id: version.id })).matched, true);
+  await controller.close(); controller = await WorkspaceController.open({ directory: folder });
+  assert.equal(Object.keys(controller.snapshot().domain.receipts).length, 1); assert.equal(controller.snapshot().crm.ledger.length, 1);
 });
 
 test('local HTTP authority is loopback/session/origin bound and clients cannot supply observations or raw write commands', async t => {

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Pactspan } from '../core/engine.mjs';
+import { Pactspan, workspaceUsage, workspaceSettlementEligible } from '../core/engine.mjs';
 import { beforeState, adapterTarget } from '../core/terms.mjs';
 import { canonical, fields, identifier, instant, requireValue, object, list } from '../core/data.mjs';
 import { extractCandidates, extractionConfig } from '../adapters/extract.mjs';
@@ -11,7 +11,7 @@ import { DiskDemoCRM } from './demo-crm.mjs';
 import { privateDirectory, privateRead, privateWrite } from './files.mjs';
 
 export class WorkspaceController {
-  #store; #app; #metadata; #crm; #target; #extraction; #root; #runs; #queue = Promise.resolve(); #clock; #storageFault = false;
+  #store; #app; #metadata; #crm; #target; #extraction; #root; #runs; #queue = Promise.resolve(); #clock; #storageFault = false; #revision = 0;
 
   static async open({ directory, crm = null, target = DEMO_TARGET, extraction = null, clock = null }) {
     const instance = new WorkspaceController();
@@ -21,6 +21,7 @@ export class WorkspaceController {
     instance.#store = await WorkspaceStore.open(instance.#root);
     try {
       const saved = await instance.#store.load();
+      if (saved) instance.#revision = JSON.parse(await instance.#store.raw()).revision;
       instance.#metadata = saved?.metadata ?? { schema_version: 1, target: instance.#target, labels: {}, runs: [], case_id: null, demo_clock: '2030-01-08T10:00:00.000Z' };
       fields(instance.#metadata, ['schema_version', 'target', 'labels', 'runs', 'case_id', 'demo_clock'], 'Local metadata');
       requireValue(instance.#metadata.schema_version === 1 && canonical(instance.#metadata.target) === canonical(instance.#target), 'Workspace CRM target differs from its saved configuration');
@@ -40,6 +41,7 @@ export class WorkspaceController {
     return { domain: this.#app.snapshot(), metadata: structuredClone(this.#metadata), clock: this.#clock(),
       target: structuredClone(this.#target), capabilities: { demo: this.#target.adapter === 'demo', extraction: Boolean(this.#extraction) },
       storage_error: this.#storageFault ? 'Local storage did not acknowledge the commit. Preserve the workspace and restart before editing' : null,
+      capacity: { domain: workspaceUsage(this.#app.snapshot()), frame: this.#frameUsage(this.#app.snapshot(), this.#metadata) },
       crm: this.#target.adapter === 'demo' ? this.#crm.snapshot() : null };
   }
   async close() { await this.#queue; await this.#store.close(); }
@@ -53,8 +55,17 @@ export class WorkspaceController {
     const result = this.#queue.then(callback); this.#queue = result.catch(() => {}); return result;
   }
   async #draft() { return Pactspan.restore(this.#app.snapshot(), { clock: this.#clock }); }
-  async #commit(app, metadata = this.#metadata) {
-    try { await this.#store.save({ domain: app.snapshot(), metadata }); }
+  #frameUsage(domain, metadata, revision = this.#revision) {
+    const bytes = Buffer.byteLength(JSON.stringify({ schema_version: 1, revision, domain, metadata, checksum: '0'.repeat(64) })) + 1;
+    return { bytes, growth_limit: 1.5 * 1024 * 1024, hard_limit: 2 * 1024 * 1024, within_growth: bytes <= 1.5 * 1024 * 1024 };
+  }
+  async #commit(app, metadata = this.#metadata, settlement = {}) {
+    const before = this.#app.snapshot(); const after = app.snapshot();
+    const frame = this.#frameUsage(after, metadata, this.#revision + 1);
+    requireValue(frame.within_growth || frame.bytes <= this.#frameUsage(before, this.#metadata).bytes
+      || workspaceSettlementEligible(before, settlement),
+    'Workspace storage growth limit reached. Settle the outstanding write, export history and open a fresh data directory');
+    try { this.#revision = await this.#store.save({ domain: after, metadata }); }
     catch (error) {
       if (['WORKSPACE_INPUT', 'WORKSPACE_TOO_LARGE'].includes(error.code)) throw error;
       // Rename may have succeeded before a later fsync failed. Never continue
@@ -62,7 +73,8 @@ export class WorkspaceController {
       this.#storageFault = true;
       try {
         const saved = await this.#store.load();
-        if (saved) { this.#app = await Pactspan.restore(saved.domain, { clock: this.#clock }); this.#metadata = saved.metadata; }
+        if (saved) { this.#app = await Pactspan.restore(saved.domain, { clock: this.#clock }); this.#metadata = saved.metadata;
+          this.#revision = JSON.parse(await this.#store.raw()).revision; }
       } catch { /* Preserve the file; startup will validate it before future edits. */ }
       throw error;
     }
@@ -87,7 +99,7 @@ export class WorkspaceController {
       requireValue(this.#target.adapter === 'demo', 'External edits are available only in the synthetic CRM');
       fields(args, ['entity_id', 'values'], 'operator change'); return this.#crm.operatorChange(args.entity_id, args.values);
     }
-    const draft = await this.#draft(); let result; let metadata = structuredClone(this.#metadata);
+    const draft = await this.#draft(); let result; let metadata = structuredClone(this.#metadata); let settlement = {};
     switch (action) {
       case 'importSource':
         fields(args, ['document'], action); result = await draft.importSource(args.document); break;
@@ -113,16 +125,19 @@ export class WorkspaceController {
       }
       case 'verify': {
         fields(args, ['version_id'], action); const version = this.#record(args.version_id);
+        settlement = { verifyVersion: version.id, verifyAttempt: null };
         result = await draft.verify(args.version_id, await this.#crm.readOpportunity(version.terms.entity_id)); break;
       }
       case 'reconcile': {
         fields(args, ['attempt_id'], action); const attempt = this.#app.snapshot().attempts[identifier(args.attempt_id, 'Attempt ID')];
         requireValue(attempt, 'Unknown attempt'); const version = this.#record(attempt.version_id);
+        settlement = { settleAttempt: attempt.id };
         result = await draft.reconcileAttempt(attempt.id, await this.#crm.readOpportunity(version.terms.entity_id)); break;
       }
       case 'closeAttempt': {
         fields(args, ['attempt_id', 'options'], action); const attempt = this.#app.snapshot().attempts[identifier(args.attempt_id, 'Attempt ID')];
         requireValue(attempt, 'Unknown attempt'); const version = this.#record(attempt.version_id);
+        settlement = { settleAttempt: attempt.id };
         result = await draft.closeUncertainAttempt(attempt.id, await this.#crm.readOpportunity(version.terms.entity_id), args.options); break;
       }
       case 'checkDeadlines': fields(args, [], action); result = await draft.checkDeadlines(); break;
@@ -135,7 +150,7 @@ export class WorkspaceController {
       }
       default: requireValue(false, 'Unsupported local action');
     }
-    await this.#commit(draft, metadata); return result;
+    await this.#commit(draft, metadata, settlement); return result;
   }
 
   async #execute(args) {
@@ -155,27 +170,36 @@ export class WorkspaceController {
       reason = outcome === 'rejected' ? 'CRM refused the guarded request before an acknowledged write' : 'The write outcome is uncertain; use a fresh read to reconcile';
     }
     const completed = await this.#draft(); const attempt = await completed.finishAttempt(started.attempt.id, { outcome, reason });
-    await this.#commit(completed);
+    await this.#commit(completed, this.#metadata, { settleAttempt: started.attempt.id });
     return { attempt, requires_verification: true, reconcile: outcome === 'uncertain' };
   }
 
   async #extract(args) {
     fields(args, ['source_id'], 'extract'); requireValue(this.#extraction, 'A local extraction model is not configured');
     requireValue(this.#metadata.runs.length < 200, 'Extraction history has reached 200 runs. Export it and use a new workspace before extracting again');
+    requireValue(workspaceUsage(this.#app.snapshot()).within_soft
+      && this.#frameUsage(this.#app.snapshot(), this.#metadata).bytes + 10_000 <= 1.5 * 1024 * 1024,
+    'Workspace growth limit reached. Export history and open a fresh data directory before another extraction');
     const source = this.#app.snapshot().sources[identifier(args.source_id, 'Source ID')]; requireValue(source, 'Unknown source');
     const id = 'run_' + randomUUID(); let result; let failure = null;
     try { result = await extractCandidates(source, this.#extraction); }
     catch (error) { failure = { code: error.code ?? 'extraction_failed', message: 'Local extraction failed; inspect the retained run evidence' }; result = error.evidence ?? null; }
     await privateWrite(this.#runs, id + '.json', { schema_version: 1, id, source_id: source.id, at: this.#clock(), failure, result }, { exclusive: true });
-    const metadata = structuredClone(this.#metadata); const draft = await this.#draft(); const candidateIds = [];
-    if (!failure) for (const predicted of result.candidates) {
+    let metadata = structuredClone(this.#metadata); let draft = await this.#draft(); let candidateIds = [];
+    if (!failure) try { for (const predicted of result.candidates) {
       if (!predicted.supported || !predicted.terms || !predicted.evidence) continue;
       const proposed = await draft.propose({ agreement: predicted.agreement, terms: predicted.terms, unknown_fields: predicted.unknown_fields,
         evidence: predicted.evidence.map(({ source, segment, quote, start, end }) => ({ source, segment, quote, start, end })) });
       metadata.labels[proposed.candidate.id] ??= { origin: 'Model candidate', run_id: id, raw_index: predicted.raw_index };
       candidateIds.push(proposed.candidate.id);
     }
-    metadata.runs.push({ id, source_id: source.id, status: failure?.code ?? result.status, raw_candidate_count: result?.raw_candidate_count ?? null, candidate_ids: candidateIds });
+      requireValue(this.#frameUsage(draft.snapshot(), metadata, this.#revision + 1).bytes + 5000 <= 1.5 * 1024 * 1024, 'Insufficient capacity for extracted candidates');
+    } catch {
+      draft = await this.#draft(); metadata = structuredClone(this.#metadata); candidateIds = [];
+      failure = { code: 'ingestion_refused', message: 'Model output was retained, but candidates could not fit this workspace. Export the run and use a fresh data directory' };
+    }
+    metadata.runs.push({ id, source_id: source.id, status: failure?.code ?? result.status, raw_candidate_count: result?.raw_candidate_count ?? null,
+      candidate_ids: candidateIds, ...(failure?.code === 'ingestion_refused' ? { ingestion_failure: failure } : {}) });
     await this.#commit(draft, metadata);
     return { run: metadata.runs.at(-1), failure };
   }

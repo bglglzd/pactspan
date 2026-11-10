@@ -20,6 +20,18 @@ const code = expected => error => { assert.equal(error.code, expected, error.mes
 const exists = async filename => { try { await fs.lstat(filename); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } };
 const hash = body => createHash('sha256').update(canonical(body), 'utf8').digest('hex');
 
+test('domain and metadata retain separate node budgets inside a checksum-bound disk frame', async () => {
+  const directory = await temp(); const store = await WorkspaceStore.open(directory, options);
+  try {
+    const domain = new Pactspan(undefined, options).snapshot();
+    domain.events = Array.from({ length: 1900 }, (_, index) => ({ sequence: index + 1, at: AT, action: 'historical_fixture', target: 'fixture', detail: null }));
+    const metadata = { rows: Array.from({ length: 3 }, () => Array.from({ length: 3300 }, () => 'metadata')) };
+    await store.save({ domain, metadata });
+    const loaded = await store.load(); assert.equal(loaded.domain.events.length, 1900); assert.equal(loaded.metadata.rows[2].length, 3300);
+    assert.equal(JSON.parse(await store.raw()).checksum.length, 64);
+  } finally { await store.close(); }
+});
+
 async function fixture() {
   const app = new Pactspan(undefined, options);
   const quote = 'Alex agrees to record USD 10800 on O1.';
