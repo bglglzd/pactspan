@@ -1,0 +1,17 @@
+name: Bug report
+description: Report a reproducible failure with synthetic data.
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include version, Node/OS, command and a minimal synthetic source/action. Remove keys, private transcripts and real customer data.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+      description: Include the affected version, approval, receipt or external field using synthetic identifiers.
+    validations:
+      required: true

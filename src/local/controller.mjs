@@ -155,7 +155,7 @@ export class WorkspaceController {
 
   async #extract(args) {
     fields(args, ['source_id'], 'extract'); requireValue(this.#extraction, 'A local extraction model is not configured');
-    requireValue(this.#metadata.runs.length < 200, 'Extraction history has reached200 runs. Export it and use a new workspace before extracting again');
+    requireValue(this.#metadata.runs.length < 200, 'Extraction history has reached 200 runs. Export it and use a new workspace before extracting again');
     const source = this.#app.snapshot().sources[identifier(args.source_id, 'Source ID')]; requireValue(source, 'Unknown source');
     const id = 'run_' + randomUUID(); let result; let failure = null;
     try { result = await extractCandidates(source, this.#extraction); }

@@ -7,7 +7,7 @@
   "engines": {"node": ">=22"},
   "license": "MIT",
   "bin": {"pactspan": "src/cli.mjs"},
-  "files": ["src/", "public/", "scripts/", "examples/", "docs/", "README.md", "LICENSE", "CHANGELOG.md", "CONTRIBUTING.md"],
+  "files": ["src/", "public/", "scripts/", "examples/", "docs/", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md", "CONTRIBUTING.md"],
   "scripts": {
     "start": "node src/cli.mjs serve",
     "demo": "node scripts/serve-demo.mjs",

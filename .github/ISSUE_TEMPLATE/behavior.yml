@@ -1,0 +1,10 @@
+name: Behavior proposal
+description: Describe a workflow or unsupported case.
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: User action and expected evidence
+      description: Explain the concrete workflow, its failure and how success could be checked. Use synthetic examples.
+    validations:
+      required: true
