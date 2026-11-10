@@ -1,3 +1,5 @@
 * text=auto eol=lf
 *.png -text
 *.tgz -text
+# Preserve the sealed evaluation inputs byte for byte, including line endings.
+examples/held-out/*.json -text
