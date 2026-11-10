@@ -7,6 +7,7 @@ export function emptyState() {
 }
 
 const RESTORED = Symbol('validated workspace');
+const MAX_UNKNOWNS = 32; // Includes locally derived null/deadline flags beyond the wire model's16 fields.
 
 function event(state, at, action, target, detail) {
   state.events.push({ sequence: state.events.length + 1, at, action, target, detail: structuredClone(detail) });
@@ -187,9 +188,10 @@ export class Pactspan {
       const proposedTerms = terms(raw.terms);
       const evidence = list(raw.evidence, 'candidate.evidence', 8).map(item =>
         citation(Object.hasOwn(state.sources, item?.source) ? state.sources[item.source] : undefined, item));
-      const unknownFields = [...new Set(list(raw.unknown_fields ?? [], 'candidate.unknown_fields', 16).map(item =>
+      const unknownFields = [...new Set(list(raw.unknown_fields ?? [], 'candidate.unknown_fields', MAX_UNKNOWNS).map(item =>
         text(item, 'candidate.unknown_fields item', 80)))];
       for (const key of ['owner', 'entity_id', 'amount', 'currency', 'due']) if (proposedTerms[key] === null && !unknownFields.includes(key)) unknownFields.push(key);
+      list(unknownFields, 'normalized candidate.unknown_fields', MAX_UNKNOWNS);
       unknownFields.sort();
       const id = 'can_' + await sha256({ agreement: raw.agreement, terms: proposedTerms, evidence, unknown_fields: unknownFields });
       if (state.candidates[id]) return { candidate: state.candidates[id], duplicate: true };
@@ -216,7 +218,7 @@ export class Pactspan {
       requireValue(candidate.terms.owner !== null, 'Owner requires clarification before confirmation');
       requireValue(['accepted', 'conditional'].includes(candidate.agreement) || reason.length >= 3, 'Ambiguous agreement requires an explicit manager reason');
       const target = adapterTarget(options.target);
-      const resolved = [...new Set(list(options.resolved_unknowns ?? [], 'resolved_unknowns', 16)
+      const resolved = [...new Set(list(options.resolved_unknowns ?? [], 'resolved_unknowns', MAX_UNKNOWNS)
         .map(item => text(item, 'resolved unknown field', 80)))];
       requireValue(resolved.every(item => candidate.unknown_fields.includes(item)), 'Only declared uncertainties can be clarified');
       requireValue(!resolved.length || reason.length >= 3, 'Clarifying uncertainty requires a manager reason');

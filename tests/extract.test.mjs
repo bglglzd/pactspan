@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { extractCandidates, extractionConfig, ExtractionError } from '../src/adapters/extract.mjs';
 import { EXTRACTION_PROMPT, EXTRACTION_SCHEMA } from '../src/adapters/extraction-prompt.mjs';
 import { makeSource } from '../src/core/source.mjs';
+import { Pactspan } from '../src/core/engine.mjs';
 
 const MODEL = 'synthetic-qwen';
 const text = '📎 Record USD 12000 on O1. Yes, agreed. Yes, agreed.';
@@ -148,6 +149,20 @@ test('valid citation shape does not claim semantic correctness of an invented am
   assert.equal(result.candidates[0].support_scope, 'exact-citations-and-terms-shape-only');
   assert.equal(result.candidates[0].requires_confirmation, true);
   assert.equal(result.semantic_correctness_verified, false);
+});
+
+test('sixteen model uncertainty flags plus derived null flags remain ingestible and explicit in the domain', async t => {
+  const raw = candidate(); raw.agreement = 'conditional';
+  raw.terms.conditions = Array.from({ length: 16 }, (_, index) => ({ literal: 'Condition ' + index, status: 'unknown', value: null }));
+  raw.unknown_fields = raw.terms.conditions.map((_, index) => `conditions.${index}.value`);
+  const { options } = await server(t, (_data, response) => respond(response, envelope([raw])));
+  const canonical = await source(); const extracted = await extractCandidates(canonical, options); const record = extracted.candidates[0];
+  assert.equal(record.supported, true); assert.equal(record.unknown_fields.length, 17); assert.equal(record.raw.unknown_fields.length, 16);
+  const app = new Pactspan(); await app.importSource(canonical);
+  const proposed = await app.propose({ agreement: record.agreement, terms: record.terms, unknown_fields: record.unknown_fields,
+    evidence: record.evidence.map(({ source, segment, quote, start, end }) => ({ source, segment, quote, start, end })) });
+  assert.equal(proposed.candidate.unknown_fields.length, 17);
+  const restored = await Pactspan.restore(app.snapshot()); assert.equal(Object.keys(restored.snapshot().candidates).length, 1);
 });
 
 test('transcript prompt injection remains data and cannot add trusted receipt or execution fields', async t => {
