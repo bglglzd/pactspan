@@ -99,6 +99,7 @@ test('all predictions retain raw indices, with local quote spans and terms norma
   assert.equal(result.candidates[0].schema_valid, false); assert.equal(result.candidates[0].raw, null);
   assert.equal(result.candidates[1].supported, true);
   assert.equal(result.candidates[1].evidence[0].start, 3);
+  assert.equal(result.candidates[1].raw.evidence[0].start, null);
   assert.equal(result.candidates[1].terms.amount, '12000');
   assert.deepEqual(result.candidates[1].terms.conditions, [{ literal: 'After the review' }]);
   assert.equal(result.candidates[1].raw.terms.conditions[0].value, true);
@@ -121,6 +122,7 @@ test('mismatched UTF16 offsets, invalid terms, unmapped owners and unsupported m
   const result = await extractCandidates(await source(), options);
   assert.equal(result.raw_candidate_count, 6); assert.equal(result.candidates.length, 6);
   assert.ok(result.candidates.every(row => row.supported === false && row.diagnostics.length));
+  assert.equal(result.candidates[0].schema_valid, false);
   assert.equal(result.candidates[1].schema_valid, false);
 });
 
