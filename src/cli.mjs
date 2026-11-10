@@ -35,7 +35,8 @@ export async function main(args = process.argv.slice(2)) {
     target = { adapter: 'espocrm', mode: 'single-writer-sandbox', origin: new URL(process.env.PACTSPAN_CRM_ORIGIN).origin };
   } else if (options['--keys']) throw new Error('Synthetic mode does not use keys');
   let extraction = null;
-  if (process.env.PACTSPAN_MODEL_ORIGIN || process.env.PACTSPAN_MODEL) extraction = { origin: process.env.PACTSPAN_MODEL_ORIGIN, model: process.env.PACTSPAN_MODEL, maxTokens: 2048 };
+  if (process.env.PACTSPAN_MODEL_ORIGIN || process.env.PACTSPAN_MODEL) extraction = { origin: process.env.PACTSPAN_MODEL_ORIGIN, model: process.env.PACTSPAN_MODEL,
+    maxTokens: Number(process.env.PACTSPAN_MODEL_MAX_TOKENS ?? 2048), timeoutMs: Number(process.env.PACTSPAN_MODEL_TIMEOUT_MS ?? 120000) };
   const controller = await WorkspaceController.open({ directory: path.resolve(options['--data'] ?? '.pactspan'), crm, ...(target ? { target } : {}), extraction });
   try {
     if (command === 'export') { console.log(await controller.export()); await controller.close(); return; }

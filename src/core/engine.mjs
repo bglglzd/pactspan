@@ -7,7 +7,7 @@ export function emptyState() {
 }
 
 const RESTORED = Symbol('validated workspace');
-const MAX_UNKNOWNS = 32; // Includes locally derived null/deadline flags beyond the wire model's16 fields.
+const MAX_UNKNOWNS = 32; // Includes locally derived flags beyond the wire model's16-field limit.
 
 function event(state, at, action, target, detail) {
   state.events.push({ sequence: state.events.length + 1, at, action, target, detail: structuredClone(detail) });

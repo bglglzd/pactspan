@@ -118,7 +118,7 @@ function render() {
   const openIds = [...document.querySelectorAll('details[open][id]')].map(node => node.id);
   const snapshot = app.snapshot();
   $('demo-clock').value = clock.slice(0, 19);
-  $('load-example').disabled = busy || Boolean(local?.workspace.storage_error); $('export-workspace').disabled = busy;
+  $('load-example').disabled = busy || Boolean(local?.workspace.storage_error); $('export-workspace').disabled = false;
   for (const id of ['advance-clock', 'add-manual', 'import-file']) $(id).disabled = busy || Boolean(broken || local?.workspace.storage_error);
   $('candidate-list').replaceChildren(...Object.values(snapshot.candidates).map(candidate => {
     const item = button('', () => { selected = candidate.id; persist(); render(); $(`candidate-${candidate.id}`)?.focus({ preventScroll: true }); }, { id: `candidate-${candidate.id}` });
@@ -132,6 +132,7 @@ function render() {
   if (local) {
     for (const source of Object.values(snapshot.sources)) sourceIndex.append(element('div', { class: 'source-entry' },
       details(source.title, source), local.workspace.capabilities.extraction ? button('Extract candidates', () => run(async () => {
+        message('Extracting candidates with the local model…');
         const result = await local.action('extract', { source_id: source.id });
         message(result.failure ? result.failure.message : `${result.run.raw_candidate_count} raw model predictions; ${result.run.candidate_ids.length} passed local source and shape validation. Review their meaning before confirmation.`, Boolean(result.failure));
       })) : null));
@@ -288,7 +289,11 @@ function download(value, filename) {
   const anchor = element('a', { href: url, download: filename }); anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 $('export-workspace').addEventListener('click', async () => {
-  if (local) { await run(async () => download(await local.export(), 'pactspan-history.json')); return; }
+  if (local) {
+    try { download(await local.export(), 'pactspan-history.json'); }
+    catch (error) { message(error.message || 'History could not be exported.', true); }
+    return;
+  }
   const value = broken ?? JSON.stringify({ schema_version: 1, domain: app.snapshot(), crm: crm.snapshot(), clock, selected, case_id: caseId, labels }, null, 2);
   download(value, 'pactspan-history.json');
 });

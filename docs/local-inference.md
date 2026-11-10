@@ -27,4 +27,6 @@ Set `PACTSPAN_MODEL_ORIGIN=http://127.0.0.1:40003` and `PACTSPAN_MODEL=pactspan-
 
 Deadline postprocessing handles exact full dates, explicit offset instants, and anchored today/tomorrow wording in English/Russian with optional stated London/Moscow/UTC zone. It requires literal source wording and explicit interpretation context. Unsupported expressions, missing years/zones and ambiguous/nonexistent local times stay unresolved. Date-only values never acquire an invented midnight cutoff. The parser uses the Node runtime's ICU/IANA data; evaluation records those versions.
 
+`PACTSPAN_MODEL_TIMEOUT_MS` can set a deadline from100 to300000ms; `PACTSPAN_MODEL_MAX_TOKENS` accepts16 to2048. Defaults are120000ms/2048 tokens. Larger CPU responses may need the longer deadline; recorded evaluation settings identify the exact bound. The UI reports extraction in progress and lets you export saved history while waiting.
+
 Stop only the model container you created, using its displayed name/ID. Model downloads, memory, host energy and operator time are separate from Pactspan's package and are not included in a paid API cost claim.
