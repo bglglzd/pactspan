@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tgz
+.pactspan/
+.env
+.env.*
+!.env.example
+reports/
+.DS_Store
+Thumbs.db

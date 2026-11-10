@@ -1,0 +1,13 @@
+{
+  "name": "pactspan",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Versioned meeting commitments with explicit confirmation and CRM verification receipts",
+  "engines": {"node": ">=22"},
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "build:demo": "node scripts/build-demo.mjs"
+  }
+}
