@@ -207,7 +207,13 @@ export class Pactspan {
 
   confirm(candidateId, options) {
     return this.#change(async (state, at) => {
-      fields(options, ['actor', 'reason', 'replaces', 'target', 'resolved_unknowns'], 'confirmation');
+      fields(options, ['actor', 'reason', 'replaces', 'related_to', 'target', 'resolved_unknowns'], 'confirmation');
+      requireValue(!(Object.hasOwn(options, 'replaces') && Object.hasOwn(options, 'related_to')),
+        'Choose either replaces or related_to, not both');
+      const replaces = options.replaces ?? null;
+      const related = options.related_to ?? null;
+      if (replaces !== null) identifier(replaces, 'confirmation.replaces');
+      if (related !== null) identifier(related, 'confirmation.related_to');
       const actor = identifier(options.actor, 'confirmation.actor');
       const reason = text(options.reason ?? '', 'confirmation.reason', 1000, { empty: true });
       identifier(candidateId, 'candidate ID');
@@ -222,12 +228,19 @@ export class Pactspan {
         .map(item => text(item, 'resolved unknown field', 80)))];
       requireValue(resolved.every(item => candidate.unknown_fields.includes(item)), 'Only declared uncertainties can be clarified');
       requireValue(!resolved.length || reason.length >= 3, 'Clarifying uncertainty requires a manager reason');
-      const groupId = 'cmt_' + await sha256(candidate.terms.entity_id === null
-        ? { candidate: candidate.id, target } : { kind: candidate.terms.kind, entity: candidate.terms.entity_id, target });
+      const linkedId = replaces ?? related;
+      let linked = null;
+      if (linkedId !== null) {
+        linked = version(state, linkedId);
+        requireValue(linked.terms.kind === candidate.terms.kind && linked.terms.entity_id === candidate.terms.entity_id
+          && canonical(linked.target) === canonical(target), 'Related version must have the same kind, entity and CRM target');
+        requireValue(state.commitments[linked.commitment_id]?.current === linked.id && linked.status !== 'superseded',
+          'Relationship must explicitly reference the current version of this commitment');
+      }
+      const groupId = linked?.commitment_id ?? 'cmt_' + await sha256(candidate.terms.kind === 'crm.amount' && candidate.terms.entity_id !== null
+        ? { kind: candidate.terms.kind, entity: candidate.terms.entity_id, target } : { candidate: candidate.id, target });
       let group = state.commitments[groupId];
       const previous = group ? state.versions[group.current] : null;
-      const replaces = options.replaces ?? null;
-      if (replaces !== null) requireValue(previous && replaces === previous.id, 'Replacement must explicitly reference the current version of this commitment');
       if (!group) group = state.commitments[groupId] = { id: groupId, current: null, versions: [] };
       const number = group.versions.length + 1;
       const id = `${groupId}.v${number}`;
@@ -250,7 +263,7 @@ export class Pactspan {
       }
       state.versions[id] = record; group.versions.push(id); group.current = id;
       candidate.state = 'confirmed'; candidate.version_id = id;
-      event(state, at, 'confirmed', id, { actor, reason, supersedes: replaces });
+      event(state, at, 'confirmed', id, { actor, reason, supersedes: replaces, ...(related !== null ? { related_to: related } : {}) });
       return { version: record, duplicate: false };
     });
   }
