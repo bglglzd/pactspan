@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EspoCRM } from './adapters/espo.mjs';
@@ -58,7 +58,8 @@ export async function main(args = process.argv.slice(2)) {
   } catch (error) { await controller.close(); throw error; }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(error => {
+const invokedPath = process.argv[1] ? await realpath(process.argv[1]).catch(() => null) : null;
+if (invokedPath && invokedPath === await realpath(fileURLToPath(import.meta.url))) main().catch(error => {
   const safe = ['InputError', 'EspoError', 'ExtractionError', 'WorkspaceStoreError'].includes(error.name);
   console.error(safe ? error.message : 'Pactspan could not start or complete the action. Check command options, data directory and private server configuration.'); process.exitCode = 1;
 });
