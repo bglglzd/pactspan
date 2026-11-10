@@ -31,6 +31,7 @@ export class LocalWorkspace {
   approve(version_id, reviewed, options) { return this.action('approve', { version_id, reviewed: beforeState(reviewed), options }); }
   verify(version_id) { return this.action('verify', { version_id }); }
   reconcileAttempt(attempt_id) { return this.action('reconcile', { attempt_id }); }
+  closeUncertainAttempt(attempt_id, options) { return this.action('closeAttempt', { attempt_id, options }); }
   checkDeadlines() { return this.action('checkDeadlines'); }
   executeApproval(approval_id) { return this.action('execute', { approval_id }); }
   readOpportunity(entity_id) { return this.action('read', { entity_id }); }

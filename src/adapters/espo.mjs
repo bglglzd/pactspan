@@ -9,6 +9,7 @@ export class EspoError extends Error {
     this.name = 'EspoError';
     this.code = code;
     this.status = status;
+    this.write_sent = false;
   }
 }
 
@@ -168,17 +169,24 @@ export class EspoCRM {
     // This instance rejects overlapping writes; cross-process exclusivity is the caller's responsibility.
     if (this.#updating) fail('busy', 'A CRM update is already in progress');
     this.#updating = true;
+    let writeSent = false;
     try {
       const before = await this.readOpportunity(entityId);
       if (before.revision !== expectedRevision) fail('conflict', 'CRM changed since the approved revision');
-      const acknowledged = await this.#request('PUT', entityId,
-        { amount: input(() => wireAmount(normalizedAmount)), amountCurrency: currency }, expectedRevision);
+      const payload = { amount: input(() => wireAmount(normalizedAmount)), amountCurrency: currency };
+      writeSent = true;
+      const acknowledged = await this.#request('PUT', entityId, payload, expectedRevision);
       if (acknowledged.amount !== normalizedAmount || acknowledged.amountCurrency !== currency) {
         fail('uncertain_outcome', 'CRM acknowledgement differs from the request; reconcile with a fresh read');
       }
       return { schema_version: 1, adapter: 'espocrm', mode: 'single-writer-sandbox', kind: 'write-acknowledgement',
         origin: this.#origin, entity_id: entityId, amount: normalizedAmount, currency,
         expected_revision: expectedRevision, acknowledged_at: new Date().toISOString(), requires_verification: true };
+    } catch (error) {
+      if (error instanceof EspoError) { error.write_sent = writeSent; throw error; }
+      const failure = new EspoError(writeSent ? 'uncertain_outcome' : 'preflight_failed',
+        writeSent ? 'CRM write outcome is uncertain; reconcile with a fresh read' : 'The CRM write was not sent because its read preflight failed');
+      failure.write_sent = writeSent; throw failure;
     } finally { this.#updating = false; }
   }
 }

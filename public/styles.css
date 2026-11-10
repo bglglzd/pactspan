@@ -683,6 +683,8 @@ dialog{max-height:calc(100dvh - 32px);overflow:auto}
 .source-entry{margin-top:16px;min-width:0;overflow-wrap:anywhere}
 .source-entry summary{font-size:12px}
 .source-entry button{margin-top:6px}
+.checkbox-row{display:flex;align-items:flex-start;gap:8px;margin:10px 0}
+.checkbox-row input{width:auto;min-height:0;margin-top:2px}
 @media(max-width:720px){
   .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;height:auto;min-height:70px;padding:14px 16px}
   .topbar .brand{grid-column:1;grid-row:1;min-width:0}

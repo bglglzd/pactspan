@@ -66,6 +66,13 @@ test('canonical source whitelist excludes title/original and rejects gold wrappe
   assert.equal(calls.length, 1);
 });
 
+test('a valid large source exceeding the full64KiB request limit is refused before any model request', async t => {
+  const { calls, options } = await server(t, (_data, response) => respond(response, envelope([])));
+  const large = await makeSource({ segments: Array.from({ length: 9 }, (_, index) => ({ speaker: 'Alex', start_secs: index, end_secs: index + 1, text: 'A'.repeat(7800) })) });
+  await assert.rejects(extractCandidates(large, options), errorCode('request_limit'));
+  assert.equal(calls.length, 0);
+});
+
 test('request profile and digest metadata are explicit, stable and closed to keys or remote origins', async t => {
   const { calls, options } = await server(t, (_data, response) => respond(response, envelope([])));
   const first = extractionConfig(options); const second = extractionConfig({ ...options });

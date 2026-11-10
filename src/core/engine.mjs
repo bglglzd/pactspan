@@ -440,6 +440,35 @@ export class Pactspan {
       return reconcile(state, attempt, observed, at);
     });
   }
+
+  closeUncertainAttempt(attemptId, rawObservation, options) {
+    return this.#change(async (state, at) => {
+      fields(options, ['actor', 'reason', 'writer_quiesced'], 'Operator recovery');
+      const actor = identifier(options.actor, 'Operator recovery actor');
+      const reason = text(options.reason, 'Operator recovery reason', 1000);
+      requireValue(options.writer_quiesced === true && reason.length >= 10,
+        'Explicitly attest that the original writer request cannot apply later, and record how this was checked');
+      const attempt = state.attempts[identifier(attemptId, 'Attempt ID')];
+      requireValue(attempt && !attempt.reconciliation && (attempt.state === 'pending' || attempt.outcome === 'uncertain'), 'Only an unresolved pending or uncertain attempt can be closed');
+      const record = version(state, attempt.version_id); const approval = state.approvals[attempt.approval_id];
+      const observed = observation(rawObservation); requireFresh(observed, at);
+      requireValue(canonical(targetOf(observed)) === canonical(record.target) && observed.entity_id === record.terms.entity_id,
+        'Operator recovery read names another CRM or entity');
+      requireValue(Date.parse(observed.observed_at) >= Date.parse(attempt.created_at)
+        && Number(observed.revision) >= Number(approval.before.revision), 'Operator recovery requires a new reader observation at or beyond the approved revision');
+      requireValue(observed.amount !== record.terms.amount || observed.currency !== record.terms.currency,
+        'A matching effect can be reconciled through ordinary independent verification');
+      await acceptObservation(state, observed);
+      const previousOutcome = attempt.outcome;
+      attempt.state = 'recorded'; attempt.outcome ??= 'uncertain';
+      attempt.reconciliation = { kind: 'operator_attestation', matched: false, at, actor, reason,
+        writer_quiesced: true, observation: structuredClone(observed), external_nonexecution_proven: false };
+      attempt.capacity_settled = true;
+      event(state, at, 'uncertain_attempt_closed_by_operator', attempt.id, { actor, reason, writer_quiesced: true,
+        previous_outcome: previousOutcome, observation: observed, external_nonexecution_proven: false });
+      return { resolved: true, attempt, fulfillment_proven: false, automatic_retry: false };
+    }, { settleAttempt: attemptId });
+  }
 }
 
 async function validateIntegrity(state) {

@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { WorkspaceController } from '../src/local/controller.mjs';
-import { WorkspaceStore } from '../src/local/store.mjs';
+import { WorkspaceStore, WorkspaceStoreError } from '../src/local/store.mjs';
 import { startServer } from '../src/local/server.mjs';
 import { EspoCRM } from '../src/adapters/espo.mjs';
 import { beforeState } from '../src/core/terms.mjs';
@@ -25,12 +25,14 @@ async function prepare(controller) {
   return { version, approval };
 }
 
-async function espoServer(t, directory, { uncertain = false } = {}) {
+async function espoServer(t, directory, { uncertain = false, failPreflightOnce = false } = {}) {
   const state = { amount: 12000, amountCurrency: 'USD', versionNumber: 1, puts: 0, reads: 0, keys: [], durable_before_put: [] };
   const server = http.createServer(async (request, response) => {
     state.keys.push({ method: request.method, key: request.headers['x-api-key'] });
     if (request.method === 'GET') {
-      state.reads++; response.writeHead(200, { 'Content-Type': 'application/json' });
+      state.reads++;
+      if (failPreflightOnce && state.reads === 4) { response.writeHead(503, { 'Content-Type': 'application/json' }); response.end('{}'); return; }
+      response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify({ id: 'O1', deleted: false, amount: state.amount, amountCurrency: state.amountCurrency, versionNumber: state.versionNumber })); return;
     }
     const saved = JSON.parse(await readFile(path.join(directory, 'state.json'), 'utf8'));
@@ -92,6 +94,18 @@ test('lost HTTP acknowledgement persists uncertainty, refuses another write, the
   assert.equal(controller.snapshot().domain.versions[version.id].status, 'fulfilled');
 });
 
+test('an unsent SDK preflight failure is rejected and does not strand the entity behind false write uncertainty', async t => {
+  const folder = await directory(); const { state, adapter, target } = await espoServer(t, folder, { failPreflightOnce: true });
+  const controller = await WorkspaceController.open({ directory: folder, crm: adapter(), target }); t.after(() => controller.close());
+  const { approval, version } = await prepare(controller);
+  const result = await controller.dispatch('execute', { approval_id: approval.id });
+  assert.equal(state.puts, 0); assert.equal(result.attempt.outcome, 'rejected');
+  const fresh = await controller.dispatch('read', { entity_id: 'O1' });
+  const another = await controller.dispatch('approve', { version_id: version.id, reviewed: beforeState(fresh),
+    options: { actor: 'manager', expires_at: new Date(Date.parse(controller.snapshot().clock) + 900_000).toISOString() } });
+  await controller.dispatch('execute', { approval_id: another.id }); assert.equal(state.puts, 1);
+});
+
 test('a failed durable attempt commit prevents the PUT and leaves the saved approval reusable', async t => {
   const folder = await directory(); const { state, adapter, target } = await espoServer(t, folder);
   let controller = await WorkspaceController.open({ directory: folder, crm: adapter(), target }); t.after(() => controller.close());
@@ -106,6 +120,18 @@ test('a failed durable attempt commit prevents the PUT and leaves the saved appr
   await assert.rejects(controller.dispatch('execute', { approval_id: approval.id }), /restart/);
   await controller.close(); controller = await WorkspaceController.open({ directory: folder, crm: adapter(), target });
   await controller.dispatch('execute', { approval_id: approval.id }); assert.equal(state.puts, 1);
+});
+
+test('a deterministic store-size refusal preserves state and permits another valid action without a false storage-fault restart', async t => {
+  const folder = await directory(); const controller = await WorkspaceController.open({ directory: folder }); t.after(() => controller.close());
+  const before = await readFile(path.join(folder, 'state.json'), 'utf8');
+  const original = WorkspaceStore.prototype.save;
+  const mocked = t.mock.method(WorkspaceStore.prototype, 'save', async function () { throw new WorkspaceStoreError('WORKSPACE_TOO_LARGE', 'Workspace exceeds2MiB'); });
+  await assert.rejects(controller.dispatch('importSource', { document: { segments: [{ speaker: 'Alex', start_secs: 0, end_secs: 1, text: 'A synthetic source' }] } }), /exceeds2MiB/);
+  assert.equal(controller.snapshot().storage_error, null); assert.equal(await readFile(path.join(folder, 'state.json'), 'utf8'), before);
+  mocked.mock.restore(); assert.equal(WorkspaceStore.prototype.save, original);
+  await controller.dispatch('importSource', { document: { segments: [{ speaker: 'Alex', start_secs: 0, end_secs: 1, text: 'A valid smaller source' }] } });
+  assert.equal(Object.keys(controller.snapshot().domain.sources).length, 1);
 });
 
 test('local HTTP authority is loopback/session/origin bound and clients cannot supply observations or raw write commands', async t => {
@@ -175,6 +201,19 @@ test('local extraction retains every raw prediction but unmapped model ownership
   const evidence = JSON.parse(await controller.runEvidence(extracted.run.id));
   assert.equal(evidence.result.candidates.length, 2); assert.equal(evidence.result.candidates[0].raw.terms.owner, 'invented');
   assert.equal(evidence.result.candidates[0].supported, false); assert.equal(evidence.result.candidates[1].supported, true);
+  const kept = Object.values(controller.snapshot().domain.candidates)[0];
+  const manual = { agreement: kept.agreement, terms: kept.terms, unknown_fields: kept.unknown_fields,
+    evidence: kept.evidence.map(({ source, segment, quote, start, end }) => ({ source, segment, quote, start, end })) };
+  const duplicate = await controller.dispatch('propose', { candidate: manual }); assert.equal(duplicate.duplicate, true);
+  assert.equal(controller.snapshot().metadata.labels[kept.id].origin, 'Model candidate');
+  const another = await WorkspaceController.open({ directory: await directory(), extraction });
+  try {
+    await another.dispatch('importSource', { document: source }); await another.dispatch('propose', { candidate: manual });
+    await another.dispatch('extract', { source_id: source.id });
+    assert.equal(another.snapshot().metadata.labels[kept.id].origin, 'Manual candidate');
+    assert.equal(another.snapshot().metadata.runs[0].candidate_ids[0], kept.id);
+  } finally { await another.close(); }
+  const beforeCapCalls = calls;
   await controller.close();
   const store = await WorkspaceStore.open(folder); const saved = await store.load();
   saved.metadata.runs = Array.from({ length: 200 }, (_, index) => ({ ...extracted.run, id: 'run_seed_' + index }));
@@ -182,7 +221,7 @@ test('local extraction retains every raw prediction but unmapped model ownership
   const before = await readFile(path.join(folder, 'state.json'), 'utf8');
   controller = await WorkspaceController.open({ directory: folder, extraction });
   await assert.rejects(controller.dispatch('extract', { source_id: source.id }), /200 runs/);
-  assert.equal(calls, 1); assert.equal(await readFile(path.join(folder, 'state.json'), 'utf8'), before);
+  assert.equal(calls, beforeCapCalls); assert.equal(await readFile(path.join(folder, 'state.json'), 'utf8'), before);
   await controller.close(); controller = await WorkspaceController.open({ directory: folder, extraction });
   assert.equal(controller.snapshot().metadata.runs.length, 200);
 });

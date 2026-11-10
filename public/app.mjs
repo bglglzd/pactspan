@@ -84,6 +84,11 @@ function money(value, currency) {
   if (value === null || value === undefined) return 'Amount unknown';
   return `${currency ?? 'Currency unknown'} ${new Intl.NumberFormat('en', { maximumFractionDigits: 2 }).format(Number(value))}`;
 }
+function promiseLabel(candidate) {
+  const value = candidate.terms;
+  return value.kind === 'crm.amount' ? money(value.amount, value.currency)
+    : value.statement || (value.kind === 'proposal.sent' ? 'Send proposal' : 'Other promise');
+}
 
 function status(candidate, snapshot) { return candidate.version_id ? snapshot.versions[candidate.version_id].status : candidate.supported ? candidate.state : 'unsupported'; }
 function stateLabel(value) { return value.replaceAll('_', ' ').replace(/^./, letter => letter.toUpperCase()); }
@@ -124,7 +129,7 @@ function render() {
     const item = button('', () => { selected = candidate.id; persist(); render(); $(`candidate-${candidate.id}`)?.focus({ preventScroll: true }); }, { id: `candidate-${candidate.id}` });
     item.className = 'candidate'; item.setAttribute('aria-current', String(candidate.id === selected));
     const current = candidate.version_id ? snapshot.versions[candidate.version_id] : null;
-    item.append(element('span', { class: 'name' }, `${candidate.terms.entity_id ?? 'Entity unknown'} · ${money(candidate.terms.amount, candidate.terms.currency)}`),
+    item.append(element('span', { class: 'name' }, `${candidate.terms.entity_id ?? 'Entity unknown'} · ${promiseLabel(candidate)}`),
       element('span', { class: 'subline' }, `${current ? `v${current.number} · ` : ''}${stateLabel(status(candidate, snapshot))} · ${labels[candidate.id]?.origin ?? 'Manual candidate'}`));
     return item;
   }));
@@ -146,10 +151,11 @@ function render() {
     return;
   }
   const current = candidate.version_id ? app.view(candidate.version_id) : null;
-  const heading = element('div', { class: 'detail-title' }, element('div', {}, element('h2', { tabIndex: -1 }, money(candidate.terms.amount, candidate.terms.currency)),
+  const heading = element('div', { class: 'detail-title' }, element('div', {}, element('h2', { tabIndex: -1 }, promiseLabel(candidate)),
     element('p', { class: 'muted' }, `${candidate.terms.entity_id ?? 'Entity unknown'} · ${candidate.terms.kind}${current ? ` · Version ${current.number}` : ''}`)),
   element('span', { class: `status ${status(candidate, snapshot)}` }, stateLabel(status(candidate, snapshot))));
-  $('detail').replaceChildren(heading, termsCard(candidate, current, snapshot), crmCard(candidate, current, snapshot), historyCard(candidate, current, snapshot));
+  $('detail').replaceChildren(heading, termsCard(candidate, current, snapshot),
+    ...(candidate.terms.kind === 'crm.amount' ? [crmCard(candidate, current, snapshot)] : []), historyCard(candidate, current, snapshot));
   for (const id of openIds) if ($(id)) $(id).open = true;
   if (local?.workspace.storage_error) {
     for (const control of document.querySelectorAll('button,input,select')) control.disabled = true;
@@ -160,7 +166,7 @@ function render() {
 function termsCard(candidate, current, snapshot) {
   const value = candidate.terms;
   const grid = element('dl', { class: 'term-grid' }, term('Opportunity', value.entity_id ?? 'Unknown'), term('Owner', value.owner ?? 'Unknown'),
-    term('Amount', money(value.amount, value.currency), true), term('Candidate classification', stateLabel(candidate.agreement)),
+    value.kind === 'crm.amount' ? term('Amount', money(value.amount, value.currency), true) : null, term('Candidate classification', stateLabel(candidate.agreement)),
     term('Deadline wording', value.due?.literal || 'Not stated'), term('Resolved deadline', value.due?.resolved ?? 'Unresolved'));
   const quotes = element('div', { class: 'source-list' }, candidate.evidence.map(span => {
     const source = snapshot.sources[span.source]; const segment = source?.segments[span.segment];
@@ -169,15 +175,21 @@ function termsCard(candidate, current, snapshot) {
   }));
   const body = element('div', {}, grid, quotes);
   if (!current) {
-    const replacing = Object.values(snapshot.commitments).map(group => snapshot.versions[group.current])
-      .find(record => record.terms.kind === value.kind && record.terms.entity_id === value.entity_id && record.target.adapter === (local?.workspace.target.adapter ?? 'demo'));
-    const replacement = element('select', { id: 'replace-version' }, element('option', { value: '' }, replacing ? 'Record conflicting terms' : 'New commitment'));
-    if (replacing) replacement.append(element('option', { value: replacing.id }, `Explicitly replace version ${replacing.number}`));
+    const compatible = Object.values(snapshot.commitments).map(group => snapshot.versions[group.current])
+      .filter(record => record.terms.kind === value.kind && record.terms.entity_id === value.entity_id && record.target.adapter === (local?.workspace.target.adapter ?? 'demo'));
+    const replacement = element('select', { id: 'replace-version' }, element('option', { value: '' },
+      value.kind === 'crm.amount' && compatible.length ? 'Record conflicting terms' : 'New independent commitment'));
+    for (const record of compatible) {
+      const label = value.kind === 'crm.amount' ? `version ${record.number}` : `${record.terms.statement || record.terms.kind} · v${record.number}`;
+      replacement.append(element('option', { value: 'replace:' + record.id }, 'Explicitly replace ' + label));
+      if (value.kind !== 'crm.amount') replacement.append(element('option', { value: 'relate:' + record.id }, 'Record conflict with ' + label));
+    }
     const reason = element('input', { id: 'confirm-reason', placeholder: 'Required for ambiguous agreement', maxLength: 1000 });
     body.append(element('div', { class: 'confirmation-fields' }, element('label', {}, 'Version relationship', replacement), element('label', {}, 'Manager clarification', reason)),
       element('div', { class: 'button-row' }, button('Confirm terms', () => run(async () => {
-        await app.confirm(candidate.id, { actor: 'manager', target: DEMO_TARGET, reason: reason.value,
-          ...(replacement.value ? { replaces: replacement.value } : {}) });
+        const relationship = replacement.value.startsWith('replace:') ? { replaces: replacement.value.slice(8) }
+          : replacement.value.startsWith('relate:') ? { related_to: replacement.value.slice(7) } : {};
+        await app.confirm(candidate.id, { actor: 'manager', target: DEMO_TARGET, reason: reason.value, ...relationship });
       }, 'Terms confirmed. A write or receipt still requires the separate checks below.'), { primary: true, disabled: !candidate.supported || value.owner === null || candidate.agreement === 'refused' })));
     if (value.owner === null) body.append(element('p', { class: 'hint' }, 'The owner is unknown. Add a manual clarification as a new sourced candidate before confirming.'));
     if (!candidate.supported) body.append(element('ul', { class: 'guard-list' }, candidate.support_errors.map(reason => element('li', {}, reason))));
@@ -249,6 +261,23 @@ function crmCard(candidate, current, snapshot) {
       const result = await app.reconcileAttempt(pending.id, fresh);
       message(result.resolved ? 'Prior outcome reconciled. Fulfillment still requires verification of the current version.' : 'Outcome remains uncertain. A nonmatching read does not authorize another write.');
     }))));
+    for (const pending of current.unresolved_attempts.filter(item => item.outcome === 'uncertain' || item.outcome === null)) {
+      const stopped = element('input', { type: 'checkbox' });
+      const reason = element('textarea', { rows: 2, maxLength: 1000 });
+      const close = button('Record operator closure', () => run(async () => {
+        const options = { actor: 'operator', reason: reason.value, writer_quiesced: stopped.checked };
+        if (local) await local.closeUncertainAttempt(pending.id, options);
+        else {
+          const previous = app.snapshot().versions[pending.version_id];
+          await app.closeUncertainAttempt(pending.id, await crm.readOpportunity(previous.terms.entity_id), options);
+        }
+      }, 'Operator closure recorded with a fresh read. This is an attestation, not proof of fulfillment.'), { disabled: true });
+      stopped.addEventListener('change', () => { close.disabled = busy || !stopped.checked; });
+      body.append(element('details', {}, element('summary', {}, 'Operator recovery for an uncertain request'),
+        element('p', { class: 'hint' }, 'First stop or drain the original writer request in the sandbox. A newer CRM revision alone does not prove it cannot apply later.'),
+        element('label', { class: 'checkbox-row' }, stopped, 'I verified that the original request can no longer apply.'),
+        element('label', {}, 'How was the request stopped or drained?', reason), close));
+    }
     if (current.fulfillment_receipt) body.append(details('Verification receipt', snapshot.receipts[current.fulfillment_receipt]));
   }
   const external = crm.snapshot().records.find(item => item.entity_id === wanted.entity_id);

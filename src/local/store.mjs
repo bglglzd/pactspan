@@ -6,6 +6,7 @@ import { Pactspan } from '../core/engine.mjs';
 import { canonical, fields, jsonData } from '../core/data.mjs';
 
 const LIMIT = 2 * 1024 * 1024;
+const FRAME_SHAPE = Object.freeze({ maxNodes: 40_016, maxDepth: 26 });
 const LOCK = '.pactspan-lock';
 const OWNER = 'owner.json';
 const NOFOLLOW = constants.O_NOFOLLOW ?? 0;
@@ -21,7 +22,7 @@ export class WorkspaceStoreError extends Error {
 function fail(code, message) { throw new WorkspaceStoreError(code, message); }
 function identity(stat) { return `${stat.dev}:${stat.ino}`; }
 function samePath(left, right) { return process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right; }
-function digest(value) { return createHash('sha256').update(canonical(value), 'utf8').digest('hex'); }
+function digest(value) { return createHash('sha256').update(canonical(value, FRAME_SHAPE), 'utf8').digest('hex'); }
 function wrapped(error, code, message) {
   return error instanceof WorkspaceStoreError ? error : new WorkspaceStoreError(code, message, { cause: error });
 }
@@ -171,7 +172,7 @@ function cloneInput(value) {
   try {
     fields(value, ['domain', 'metadata'], 'workspace save');
     if (!Object.hasOwn(value, 'domain') || !Object.hasOwn(value, 'metadata')) throw new Error('missing data');
-    jsonData(value);
+    jsonData(value.domain); jsonData(value.metadata);
     const pending = [value];
     let bytes = 0;
     while (pending.length) {
@@ -238,7 +239,8 @@ export class WorkspaceStore {
     if (raw === null) return null;
     try {
       const envelope = JSON.parse(raw);
-      jsonData(envelope); fields(envelope, ['schema_version', 'revision', 'domain', 'metadata', 'checksum'], 'saved workspace');
+      jsonData(envelope, FRAME_SHAPE); jsonData(envelope.metadata);
+      fields(envelope, ['schema_version', 'revision', 'domain', 'metadata', 'checksum'], 'saved workspace');
       if (envelope.schema_version !== 1 || !Number.isSafeInteger(envelope.revision) || envelope.revision < 1
         || typeof envelope.checksum !== 'string' || !/^[a-f0-9]{64}$/.test(envelope.checksum)) throw new Error('invalid envelope');
       const body = Object.fromEntries(['schema_version', 'revision', 'domain', 'metadata'].map(key => [key, envelope[key]]));
@@ -262,7 +264,7 @@ export class WorkspaceStore {
       const revision = (previous?.revision ?? 0) + 1;
       if (!Number.isSafeInteger(revision)) fail('WORKSPACE_CORRUPT', 'Workspace revision cannot be incremented safely');
       const body = { schema_version: 1, revision, ...input };
-      const encoded = canonical({ ...body, checksum: digest(body) }) + '\n';
+      const encoded = canonical({ ...body, checksum: digest(body) }, FRAME_SHAPE) + '\n';
       if (Buffer.byteLength(encoded, 'utf8') > LIMIT) fail('WORKSPACE_TOO_LARGE', 'Workspace exceeds 2 MiB');
       await this.#assertOwned();
       const temporary = path.join(this.#directory, `.state-${this.#owner.nonce}-${randomUUID()}.tmp`);
@@ -275,11 +277,11 @@ export class WorkspaceStore {
       try {
         await this.#assertOwned();
         const current = await this.#raw();
-        if (current !== (previous === null ? null : canonical(previous) + '\n')) {
+        if (current !== (previous === null ? null : canonical(previous, FRAME_SHAPE) + '\n')) {
           // Existing valid files need not use our whitespace, so compare the
           // validated content as well as absence before replacing anything.
           const latest = await this.#validated();
-          if (canonical(latest) !== canonical(previous)) fail('WORKSPACE_CORRUPT', 'Workspace changed before commit; original was retained');
+          if (canonical(latest, FRAME_SHAPE) !== canonical(previous, FRAME_SHAPE)) fail('WORKSPACE_CORRUPT', 'Workspace changed before commit; original was retained');
         }
         await fs.rename(temporary, path.join(this.#directory, 'state.json'));
         await syncDirectory(this.#directory);

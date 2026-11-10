@@ -48,12 +48,12 @@ export function list(value, path, maximum = 256) {
   return value;
 }
 
-export function jsonData(value) {
+export function jsonData(value, { maxNodes = 20_000, maxDepth = 24 } = {}) {
   const pending = [[value, '$', 0]];
   let nodes = 0;
   while (pending.length) {
     const [item, path, depth] = pending.pop();
-    requireValue(++nodes <= 20_000 && depth <= 24, 'Data exceeds the supported shape limits');
+    requireValue(++nodes <= maxNodes && depth <= maxDepth, 'Data exceeds the supported shape limits');
     if (item === null || typeof item === 'boolean') continue;
     if (typeof item === 'string') { text(item, path, 262_144, { empty: true }); continue; }
     if (typeof item === 'number') { requireValue(Number.isFinite(item), `${path} must be finite`); continue; }
@@ -74,8 +74,8 @@ export function jsonData(value) {
   return value;
 }
 
-export function canonical(value) {
-  jsonData(value);
+export function canonical(value, limits) {
+  jsonData(value, limits);
   function ordered(item) {
     if (Array.isArray(item)) return item.map(ordered);
     if (item !== null && typeof item === 'object') {

@@ -56,6 +56,7 @@ export class WorkspaceController {
   async #commit(app, metadata = this.#metadata) {
     try { await this.#store.save({ domain: app.snapshot(), metadata }); }
     catch (error) {
+      if (['WORKSPACE_INPUT', 'WORKSPACE_TOO_LARGE'].includes(error.code)) throw error;
       // Rename may have succeeded before a later fsync failed. Never continue
       // from the old in-memory state or retry an external action in this process.
       this.#storageFault = true;
@@ -92,10 +93,10 @@ export class WorkspaceController {
         fields(args, ['document'], action); result = await draft.importSource(args.document); break;
       case 'propose':
         fields(args, ['candidate'], action); result = await draft.propose(args.candidate);
-        metadata.labels[result.candidate.id] = { origin: 'Manual candidate' }; break;
+        metadata.labels[result.candidate.id] ??= { origin: 'Manual candidate' }; break;
       case 'confirm':
         fields(args, ['candidate_id', 'options'], action);
-        fields(args.options, ['actor', 'reason', 'replaces', 'resolved_unknowns'], 'Confirmation options');
+        fields(args.options, ['actor', 'reason', 'replaces', 'related_to', 'resolved_unknowns'], 'Confirmation options');
         result = await draft.confirm(args.candidate_id, { ...args.options, target: this.#target }); break;
       case 'decideCondition':
         fields(args, ['version_id', 'options'], action); this.#record(args.version_id);
@@ -118,6 +119,11 @@ export class WorkspaceController {
         fields(args, ['attempt_id'], action); const attempt = this.#app.snapshot().attempts[identifier(args.attempt_id, 'Attempt ID')];
         requireValue(attempt, 'Unknown attempt'); const version = this.#record(attempt.version_id);
         result = await draft.reconcileAttempt(attempt.id, await this.#crm.readOpportunity(version.terms.entity_id)); break;
+      }
+      case 'closeAttempt': {
+        fields(args, ['attempt_id', 'options'], action); const attempt = this.#app.snapshot().attempts[identifier(args.attempt_id, 'Attempt ID')];
+        requireValue(attempt, 'Unknown attempt'); const version = this.#record(attempt.version_id);
+        result = await draft.closeUncertainAttempt(attempt.id, await this.#crm.readOpportunity(version.terms.entity_id), args.options); break;
       }
       case 'checkDeadlines': fields(args, [], action); result = await draft.checkDeadlines(); break;
       case 'setClock': {
@@ -145,7 +151,7 @@ export class WorkspaceController {
     try { await this.#crm.updateAmount(started.command); }
     catch (error) {
       // A preflight refusal has no PUT; every ambiguous transport outcome stays uncertain.
-      outcome = ['conflict', 'denied', 'invalid_input', 'configuration', 'busy'].includes(error.code) ? 'rejected' : 'uncertain';
+      outcome = error.write_sent === false || ['conflict', 'denied', 'invalid_input', 'configuration', 'busy', 'single_writer_required'].includes(error.code) ? 'rejected' : 'uncertain';
       reason = outcome === 'rejected' ? 'CRM refused the guarded request before an acknowledged write' : 'The write outcome is uncertain; use a fresh read to reconcile';
     }
     const completed = await this.#draft(); const attempt = await completed.finishAttempt(started.attempt.id, { outcome, reason });
@@ -166,7 +172,7 @@ export class WorkspaceController {
       if (!predicted.supported || !predicted.terms || !predicted.evidence) continue;
       const proposed = await draft.propose({ agreement: predicted.agreement, terms: predicted.terms, unknown_fields: predicted.unknown_fields,
         evidence: predicted.evidence.map(({ source, segment, quote, start, end }) => ({ source, segment, quote, start, end })) });
-      metadata.labels[proposed.candidate.id] = { origin: 'Model candidate', run_id: id, raw_index: predicted.raw_index };
+      metadata.labels[proposed.candidate.id] ??= { origin: 'Model candidate', run_id: id, raw_index: predicted.raw_index };
       candidateIds.push(proposed.candidate.id);
     }
     metadata.runs.push({ id, source_id: source.id, status: failure?.code ?? result.status, raw_candidate_count: result?.raw_candidate_count ?? null, candidate_ids: candidateIds });
