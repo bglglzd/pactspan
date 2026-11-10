@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveDeadline, deadlineUnknowns } from '../src/adapters/deadline.mjs';
+import { resolveDeadline, deadlineUnknowns, DEADLINE_VERSION } from '../src/adapters/deadline.mjs';
 import { instant } from '../src/core/data.mjs';
+import { readFile, readdir } from 'node:fs/promises';
 
 function resolve(literal, changes = {}) {
   return resolveDeadline({ literal, resolved: null, precision: 'unknown', zone: null }, {
@@ -36,4 +37,46 @@ test('missing wording, invalid calendar, unstated years and ambiguous abbreviati
   assert.equal(resolve('by 17:00 on 8 January 2030', { time_zone: null }).due.resolved, null);
   assert.throws(() => instant('2020-01-01T00:00:00+14:00', 'boundary'), /supported calendar range/);
   assert.throws(() => instant('2100-12-31T23:59:59-12:00', 'boundary'), /supported calendar range/);
+});
+
+test('Russian absolute dates accept optional года/г. without inventing a date-only cutoff', () => {
+  assert.equal(DEADLINE_VERSION, 'pactspan-deadline-v2');
+  for (const suffix of ['', ' года', ' г.']) {
+    const timed = `до 18:00 по Москве 10 января 2030${suffix}`;
+    assert.deepEqual(resolve(timed).due, { literal: timed, resolved: '2030-01-10T15:00:00.000Z', precision: 'instant', zone: 'Europe/Moscow' });
+    const dated = `до 10 января 2030${suffix}`;
+    assert.deepEqual(resolve(dated).due, { literal: dated, resolved: '2030-01-10', precision: 'date', zone: 'Europe/Moscow' });
+  }
+  for (const literal of ['до 18:00 по Москве 10 января года', 'до 18:00 по Москве 30 февраля 2030 года',
+    'до 18:00 по Москве 10 января 2030 году', 'by 18:00 UTC on 10 January 2030 года', 'до 10 января 2030 года и позже']) {
+    assert.equal(resolve(literal).due.resolved, null, literal);
+  }
+});
+
+test('every prewritten development deadline matches independent gold from literal and source context only', async () => {
+  const directory = new URL('../examples/development/', import.meta.url);
+  for (const file of (await readdir(directory)).filter(name => /^D\d\d\.json$/.test(name)).sort()) {
+    const fixture = JSON.parse(await readFile(new URL(file, directory), 'utf8'));
+    for (const annotation of fixture.annotations) {
+      const source = fixture.sources.find(item => item.id === annotation.source);
+      // Missing wording is canonical absence; resolved/precision/zone gold is
+      // never passed into the resolver as model authority.
+      const input = annotation.due?.literal ? { literal: annotation.due.literal, resolved: null, precision: 'unknown', zone: null } : null;
+      const expected = input === null ? null : structuredClone(annotation.due);
+      if (expected?.precision === 'instant' && expected.resolved !== null) expected.resolved = new Date(expected.resolved).toISOString();
+      const actual = resolveDeadline(input, source);
+      assert.deepEqual(actual.due, expected, `${fixture.id}/${annotation.id}: ${actual.reason ?? actual.status}`);
+      assert.deepEqual([...deadlineUnknowns(annotation.unknown_fields, actual)].sort(), [...annotation.unknown_fields].sort(), `${annotation.id}: retained unknowns`);
+    }
+  }
+});
+
+test('D07 ambiguity and D14 missing interpretation context stay unresolved', () => {
+  const fold = resolve('at 01:30 London time on 27 October 2030');
+  assert.equal(fold.due.resolved, null); assert.equal(fold.due.precision, 'instant'); assert.equal(fold.due.zone, 'Europe/London');
+  const literal = 'сегодня к 18:00 по Москве';
+  for (const missing of [{ meeting_at: null }, { time_zone: null }]) {
+    const result = resolve(literal, missing);
+    assert.equal(result.due.resolved, null); assert.match(result.reason, /explicit meeting instant and IANA zone/);
+  }
 });

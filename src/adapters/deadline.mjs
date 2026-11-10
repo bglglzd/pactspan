@@ -1,6 +1,6 @@
 import { instant, requireValue, zone } from '../core/data.mjs';
 
-export const DEADLINE_VERSION = 'pactspan-deadline-v1';
+export const DEADLINE_VERSION = 'pactspan-deadline-v2';
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 const RU_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const formatters = new Map();
@@ -61,9 +61,12 @@ export function resolveDeadline(due, source) {
       date = [day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate()];
       if (relative[2] !== undefined) time = [Number(relative[2]), Number(relative[3]), 0];
     } else {
-      const datePattern = '(\\d{1,2}) ([a-zа-яё]+) (\\d{4})';
+      const datePattern = '(\\d{1,2}) ([a-zа-яё]+) (\\d{4})(?: (?:года|г\\.))?';
       const timed = value.match(new RegExp('^(?:by|at|к|до) (\\d{1,2}):(\\d{2})(?: (?:london time|moscow time|utc|по москве|по лондону))? (?:on |на |до )?' + datePattern + '$', 'u'));
       const dated = value.match(new RegExp('^(?:on |by |до |на )?' + datePattern + '$', 'u'));
+      if ((timed || dated) && / (?:года|г\.)$/u.test(value) && !RU_MONTHS.includes(timed ? timed[4] : dated[2])) {
+        return unresolved('Russian year suffix requires a Russian month name');
+      }
       if (timed) { time = [Number(timed[1]), Number(timed[2]), 0]; const month = Math.max(MONTHS.indexOf(timed[4]), RU_MONTHS.indexOf(timed[4])) + 1; date = [Number(timed[5]), month, Number(timed[3])]; }
       else if (dated) { const month = Math.max(MONTHS.indexOf(dated[2]), RU_MONTHS.indexOf(dated[2])) + 1; date = [Number(dated[3]), month, Number(dated[1])]; }
       else {
