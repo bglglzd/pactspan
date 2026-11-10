@@ -12,6 +12,8 @@ Each local workspace retains up to200 extraction runs. The limit refuses a new r
 
 Confirm sourced terms explicitly. Replacement references the current confirmed version; otherwise conflicting confirmed terms remain disputed. Unmapped ownership, unsupported quotes, uncertain required fields and missing condition decisions block execution. A prerequisite decision is a manager attestation, not third-party proof.
 
+Use **Create corrected candidate** to clarify a wrong owner, deadline or other extracted term. It creates an unconfirmed candidate, retains every original citation and records the correction reason. It leaves the original candidate, raw model run and confirmed version unchanged. Review unresolved field paths explicitly; filling a value does not clear them. Confirm the corrected candidate separately and choose an explicit replacement when amending a confirmed version.
+
 `crm.amount` is one current value predicate per configured CRM/entity. Other promise types start as independent commitments; the manager can explicitly choose a compatible existing version to replace or conflict with. They remain tracked without a fulfillment adapter. Sending a proposal is not verified by an amount read.
 
 Read the CRM comparison, approve one exact change, then execute that approval. Approval lasts at most one hour (UI: fifteen minutes). The server refuses a changed before-state rather than approving new values silently. A write ACK remains unverified. **Verify CRM state** uses a new reader request and records a receipt for the exact current version only. A later rollback leaves the previous receipt in history and disputes the current state.

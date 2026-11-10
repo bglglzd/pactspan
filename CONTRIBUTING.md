@@ -1,6 +1,6 @@
 # Contributing
 
-Use Node22+ and a separate branch. No runtime dependencies or package installation are required.
+From a repository checkout, use Node22+ and a separate branch. No runtime dependencies or package installation are required. Tests are included in the repository, not the release package.
 
 ```sh
 node --test
