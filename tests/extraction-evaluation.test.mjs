@@ -173,4 +173,12 @@ test('all choices in a nonconforming response remain failed predictions, never a
   const report = await scoreExtractions([f], [captured]);
   assert.deepEqual([report.strict.tp, report.strict.fp, report.strict.fn], [0, 2, 1]);
   assert.equal(report.counts.failures, 1); assert.equal(report.runs[0].predictions.length, 2);
+  const partial = await run(f, [prediction(f)]);
+  partial.result.response.choices.unshift({ message: { content: 'incomplete' } });
+  const incomplete = await scoreExtractions([f], [partial]);
+  assert.equal(incomplete.strict.tp, 0); assert.equal(incomplete.strict.precision, null);
+  assert.equal(incomplete.strict.fp_known_lower_bound, 1); assert.equal(incomplete.strict.fn, 1);
+  const wrongRoot = await run(f, [prediction(f)]); wrongRoot.result.response.choices[0].message.content = 'null';
+  const invalid = await scoreExtractions([f], [wrongRoot]);
+  assert.equal(invalid.strict.tp, 0); assert.equal(invalid.counts.failures, 1);
 });

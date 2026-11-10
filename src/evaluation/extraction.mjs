@@ -82,6 +82,7 @@ function inventory(payload) {
   if (typeof content === 'string') {
     try { parsed = JSON.parse(content); } catch { errors.push('candidate content is not complete JSON'); }
     if (object(parsed) && Array.isArray(parsed.candidates)) authoritative = parsed.candidates;
+    else if (parsed !== undefined) errors.push('candidate content root is not an object with a candidates array');
   }
   if (Array.isArray(envelope?.choices) && envelope.choices.length !== 1) {
     errors.push('exactly one model choice is required; no best-of-N choice is selected');
@@ -101,7 +102,7 @@ function inventory(payload) {
   requireValue(count === null || count <= 65_536, 'Captured raw prediction count exceeds the adapter response bound; evaluation is not scored');
   if (count !== null) requireValue([...indexed.keys()].every(index => index < count), 'Raw index lies outside the captured raw prediction count');
   if (authoritative && declared !== null && declared !== authoritative.length) errors.push('raw_candidate_count differs from raw response array');
-  if (authoritative && (Object.keys(parsed).length !== 1 || authoritative.length > 32)) errors.push('raw response root violates the extraction schema');
+  if (authoritative && (!object(parsed) || Object.keys(parsed).length !== 1 || authoritative.length > 32)) errors.push('raw response root violates the extraction schema');
   const knownFloor = Math.max(authoritative?.length ?? 0, ...[...indexed.keys()].map(index => index + 1), 0);
   requireValue(knownFloor <= 65_536, 'Raw index exceeds the captured adapter output bound; evaluation is not scored');
   const indices = Array.from({ length: count ?? knownFloor }, (_, i) => i);
