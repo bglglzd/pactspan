@@ -50,11 +50,11 @@ function stateOf(ctx, annotationId) {
   const state = ctx.app.snapshot(), candidate = state.candidates[candidateId];
   if (!candidate) return { state: 'absent', version_id: null, number: null, next_version_preview: null };
   const record = state.versions[candidate.version_id];
-  const group = Object.values(state.commitments).find(item => {
+  const group = candidate.terms.kind === 'crm.amount' ? Object.values(state.commitments).find(item => {
     const current = state.versions[item.current];
     return current?.terms.kind === candidate.terms.kind && current?.terms.entity_id === candidate.terms.entity_id
       && equal(current.target, DEMO_TARGET);
-  });
+  }) : null;
   return { candidate_id: candidate.id, state: record?.status ?? (candidate.supported ? candidate.state : 'unsupported'),
     version_id: record?.id ?? null, number: record?.number ?? null,
     next_version_preview: record ? null : (group?.versions.length ?? 0) + 1 };

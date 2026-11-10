@@ -1,4 +1,4 @@
-import { Pactspan } from './core/engine.mjs';
+import { Pactspan, workspaceUsage } from './core/engine.mjs';
 import { importedDocument } from './core/source.mjs';
 import { beforeState } from './core/terms.mjs';
 import { canonical, fields, identifier, instant, jsonData, object } from './core/data.mjs';
@@ -13,7 +13,7 @@ let local = null;
 
 function syncLocal() {
   if (!local) return;
-  const value = local.workspace; clock = value.clock; labels = value.metadata.labels; caseId = value.metadata.case_id;
+  const value = local.workspace; clock = value.clock; labels = structuredClone(value.metadata.labels); caseId = value.metadata.case_id;
   if (!app.snapshot().candidates[selected]) selected = Object.keys(app.snapshot().candidates)[0] ?? null;
 }
 
@@ -33,8 +33,8 @@ function element(tag, attributes = {}, ...children) {
   return node;
 }
 
-function button(label, action, { primary = false, disabled = false, id = null } = {}) {
-  return element('button', { type: 'button', id, 'data-focus-key': label.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+function button(label, action, { primary = false, disabled = false, id = null, title = null } = {}) {
+  return element('button', { type: 'button', id, title, 'data-focus-key': label.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     class: primary ? 'primary' : '', disabled: busy || disabled || Boolean(local?.workspace.storage_error), onclick: action }, label);
 }
 
@@ -122,6 +122,10 @@ function render() {
   if (!app) return;
   const openIds = [...document.querySelectorAll('details[open][id]')].map(node => node.id);
   const snapshot = app.snapshot();
+  const capacity = local?.workspace.capacity ?? { domain: workspaceUsage(snapshot) };
+  const full = !capacity.domain.within_soft || capacity.frame?.within_growth === false;
+  $('capacity-state').hidden = !full;
+  $('capacity-state').textContent = full ? 'Workspace growth limit reached. Finish or reconcile the outstanding write, export history and use a fresh workspace.' : '';
   $('demo-clock').value = clock.slice(0, 19);
   $('load-example').disabled = busy || Boolean(local?.workspace.storage_error); $('export-workspace').disabled = false;
   for (const id of ['advance-clock', 'add-manual', 'import-file']) $(id).disabled = busy || Boolean(broken || local?.workspace.storage_error);
@@ -140,7 +144,7 @@ function render() {
         message('Extracting candidates with the local model…');
         const result = await local.action('extract', { source_id: source.id });
         message(result.failure ? result.failure.message : `${result.run.raw_candidate_count} raw model predictions; ${result.run.candidate_ids.length} passed local source and shape validation. Review their meaning before confirmation.`, Boolean(result.failure));
-      })) : null));
+      }), { title: 'The full extraction request is limited to64KiB. The model context can impose a smaller limit.' }) : null));
     for (const entry of local.workspace.metadata.runs.slice().reverse()) sourceIndex.append(element('div', { class: 'source-entry' },
       element('p', { class: 'hint' }, `Extraction: ${entry.status} · ${entry.raw_candidate_count ?? 'Unknown'} raw predictions · ${entry.candidate_ids.length} locally supported`),
       button('Export extraction run', () => run(async () => download(await local.runEvidence(entry.id), entry.id + '.json')))));

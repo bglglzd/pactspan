@@ -1,18 +1,25 @@
 import { Pactspan } from './core/engine.mjs';
 import { beforeState } from './core/terms.mjs';
 
+function immutable(value) {
+  if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.values(value).forEach(immutable); Object.freeze(value);
+  }
+  return value;
+}
+
 // Browser commands contain decisions and identifiers, never a trusted receipt or raw CRM PUT.
 export class LocalWorkspace {
   #token; #workspace; #engine;
   constructor(token) { this.#token = token; }
   static async connect(token) { const local = new LocalWorkspace(token); await local.refresh(); return local; }
-  get workspace() { return structuredClone(this.#workspace); }
+  get workspace() { return this.#workspace; }
   async #request(route, options = {}) {
     const response = await fetch(route, { ...options, headers: { 'X-Pactspan-Token': this.#token, ...(options.headers ?? {}) }, cache: 'no-store', redirect: 'error' });
     const value = await response.json(); if (!response.ok) throw new Error(value.error ?? 'Local request failed'); return value;
   }
   async #replace(workspace) {
-    this.#engine = await Pactspan.restore(workspace.domain, { clock: () => workspace.clock }); this.#workspace = workspace;
+    this.#engine = await Pactspan.restore(workspace.domain, { clock: () => workspace.clock }); this.#workspace = immutable(workspace);
   }
   async refresh() { await this.#replace(await this.#request('/api/workspace')); }
   snapshot() { return this.#engine.snapshot(); }

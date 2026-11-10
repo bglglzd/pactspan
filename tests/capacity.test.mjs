@@ -86,7 +86,9 @@ test('near-node capacity refuses growth but retains finish, separate reconcile a
   assert.equal(Object.keys(restored.snapshot().receipts).length, 1);
   assert.equal(workspaceUsage(restored.snapshot()).within_hard, true);
   const saved = restored.snapshot();
-  assert.equal((await restored.reconcileAttempt(started.attempt.id, await observed('O1', '12000', '3'))).duplicate, true);
+  assert.equal((await restored.reconcileAttempt(started.attempt.id, after)).duplicate, true);
+  assert.deepEqual(restored.snapshot(), saved);
+  await assert.rejects(restored.reconcileAttempt(started.attempt.id, await observed('O1', '12000', '3')), /growth capacity/);
   assert.deepEqual(restored.snapshot(), saved);
   await refusesGrowth(restored);
 });

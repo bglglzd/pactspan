@@ -97,7 +97,7 @@ export function workspaceSettlementEligible(state, options = {}) {
   return Boolean(settlementAttempt(state, options));
 }
 
-async function acceptObservation(state, observed, { record = true } = {}) {
+async function acceptObservation(state, observed, at) {
   const key = 'obs_' + await sha256({ target: targetOf(observed), entity_id: observed.entity_id });
   const previous = state.observations[key];
   if (previous) {
@@ -106,7 +106,17 @@ async function acceptObservation(state, observed, { record = true } = {}) {
     requireValue(observed.revision !== previous.revision || (observed.amount === previous.amount && observed.currency === previous.currency),
       'CRM observations disagree on business fields for the same revision');
   }
-  if (record) state.observations[key] = structuredClone(observed);
+  state.observations[key] = structuredClone(observed);
+  for (const group of Object.values(state.commitments)) {
+    const current = state.versions[group.current];
+    if (current?.status === 'fulfilled' && current.terms.entity_id === observed.entity_id
+      && canonical(current.target) === canonical(targetOf(observed))
+      && (current.terms.amount !== observed.amount || current.terms.currency !== observed.currency)) {
+      current.status = 'disputed'; current.dispute_kind = 'external_mismatch';
+      invalidateApprovals(state, current.id, 'External state no longer matches');
+      event(state, at, 'external_state_disputed', current.id, { reasons: ['Observed CRM fields differ from confirmed terms'], observation: observed });
+    }
+  }
 }
 
 function reconcile(state, attempt, observed, at) {
@@ -114,8 +124,8 @@ function reconcile(state, attempt, observed, at) {
   requireValue(canonical(targetOf(observed)) === canonical(record.target) && observed.entity_id === record.terms.entity_id,
     'Reconciliation observation names another CRM or entity');
   requireValue(Date.parse(observed.observed_at) >= Date.parse(attempt.created_at), 'Reconciliation requires an observation after the attempt began');
-  if (attempt.reconciliation) return { matched: attempt.reconciliation.matched, resolved: true, attempt, duplicate: true };
   const matched = observed.amount === record.terms.amount && observed.currency === record.terms.currency;
+  if (attempt.reconciliation) return { matched, resolved: true, attempt, duplicate: true };
   const first = !attempt.first_reconciliation;
   attempt.last_reconciliation = { matched, observation: structuredClone(observed), at };
   attempt.first_reconciliation ??= structuredClone(attempt.last_reconciliation);
@@ -365,7 +375,7 @@ export class Pactspan {
       const observed = observation(rawObservation);
       requireValue(canonical(targetOf(observed)) === canonical(record.target), 'Approval observation names a different CRM');
       requireFresh(observed, at);
-      await acceptObservation(state, observed);
+      await acceptObservation(state, observed, at);
       requireValue(observed.entity_id === record.terms.entity_id, 'Approval observation names a different entity');
       requireValue(observed.amount !== record.terms.amount || observed.currency !== record.terms.currency, 'CRM already matches; verify instead of writing');
       const expires = instant(options.expires_at, 'approval.expires_at');
@@ -394,7 +404,7 @@ export class Pactspan {
       requireValue(!unresolvedAttempts(state).length, 'A prior workspace write outcome requires reconciliation before another command');
       const observed = observation(rawFreshObservation);
       requireFresh(observed, at);
-      await acceptObservation(state, observed);
+      await acceptObservation(state, observed, at);
       requireValue(await sha256(beforeState(observed)) === approval.before_hash, 'Fresh CRM state differs from the approved before state');
       requireValue(canonical(approval.payload) === canonical({ amount: record.terms.amount, currency: record.terms.currency }), 'Approval payload differs from confirmed terms');
       const id = 'att_' + await sha256({ approval: approval.id });
@@ -435,7 +445,7 @@ export class Pactspan {
       if (observed.entity_id !== record.terms.entity_id) reasons.push('Receipt entity differs from the confirmed entity');
       if (observed.amount !== record.terms.amount || observed.currency !== record.terms.currency) reasons.push('Observed CRM fields differ from confirmed terms');
       const sameIdentity = sameTarget && observed.entity_id === record.terms.entity_id;
-      if (sameIdentity) await acceptObservation(state, observed);
+      if (sameIdentity) await acceptObservation(state, observed, at);
       let attempt = null;
       if (attemptId !== null) {
         attempt = state.attempts[identifier(attemptId, 'attempt ID')];
@@ -492,7 +502,7 @@ export class Pactspan {
       requireValue(attempt, 'Unknown attempt');
       const observed = observation(rawObservation);
       requireFresh(observed, at);
-      await acceptObservation(state, observed, { record: !attempt.reconciliation });
+      await acceptObservation(state, observed, at);
       return reconcile(state, attempt, observed, at);
     }, { settleAttempt: attemptId });
   }
@@ -514,7 +524,7 @@ export class Pactspan {
         && Number(observed.revision) >= Number(approval.before.revision), 'Operator recovery requires a new reader observation at or beyond the approved revision');
       requireValue(observed.amount !== record.terms.amount || observed.currency !== record.terms.currency,
         'A matching effect can be reconciled through ordinary independent verification');
-      await acceptObservation(state, observed);
+      await acceptObservation(state, observed, at);
       const previousOutcome = attempt.outcome;
       attempt.state = 'recorded'; attempt.outcome ??= 'uncertain';
       attempt.reconciliation = { kind: 'operator_attestation', matched: false, at, actor, reason,

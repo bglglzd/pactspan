@@ -46,6 +46,8 @@ A strict edge requires valid schema/support and at least one positive intersecti
 
 Statement wording is ignored. Absent deadline/null/empty literal representations share an explicit unknown deadline representation; offsets for equal instants normalize to UTC, date-only precision remains a date, and IANA zone text is otherwise exact. Prerequisite literal order is irrelevant but multiplicity is retained. Unknown fields are compared as a set. Raw condition known/value claims are scored separately as `conditions.claims`; they grant no manager attestation and are not part of the primary strict semantic criterion.
 
+This strict record score is format-sensitive: a different exact deadline substring or a different free-form unknown-field label can fail it even when typed business values agree. Legacy development gold includes a business-specific `conditions.budget_approval` label. Such mismatches remain counted and visible; no alias is chosen after seeing predictions. Read the individual field errors, conditional alignment coverage and all unmatched outputs alongside strict precision/recall. Do not interpret this exact record score as independently judged general semantic accuracy.
+
 Strict TP is a maximum one-to-one bipartite matching. All other known raw predictions are FP and unmatched gold is FN. The report gives TP/FP/FN and precision/recall, with explicit matched/unmatched indices, gold IDs and errors. Exact citation validity alone is not semantic accuracy, and source overlap does not prove complete evidence coverage or agreement authority.
 
 ## Detection and diagnostic fields

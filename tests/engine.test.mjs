@@ -138,6 +138,17 @@ test('an older matching observation cannot erase newer rollback evidence, includ
   assert.equal(restored.snapshot().events.filter(row => row.action === 'verification_restored').length, 0);
 });
 
+test('a fresh counter-observation on an already reconciled attempt cannot be discarded or overwritten by its older receipt', async () => {
+  const app = engine(); const proposed = await candidate(app); const current = await confirm(app, proposed);
+  const before = await observed('15000'); const approval = await app.approve(current.id, before, { actor: 'manager', expires_at: LATER });
+  const started = await app.beginAttempt(approval.id, before); await app.finishAttempt(started.attempt.id, { outcome: 'acknowledged' });
+  const matched = await observed('12000', '2'); await app.verify(current.id, matched);
+  await app.reconcileAttempt(started.attempt.id, await observed('13000', '3'));
+  assert.equal(app.view(current.id).status, 'disputed');
+  await assert.rejects(app.verify(current.id, matched), /Stale observation/);
+  assert.equal(Object.keys(app.snapshot().receipts).length, 1);
+});
+
 test('uncertain attempt blocks a new approval across versions until a matching fresh read reconciles it', async () => {
   let now = AT;
   const app = engine(() => now); const first = await confirm(app, await candidate(app));

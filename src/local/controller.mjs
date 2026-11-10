@@ -167,7 +167,8 @@ export class WorkspaceController {
     catch (error) {
       // A preflight refusal has no PUT; every ambiguous transport outcome stays uncertain.
       outcome = error.write_sent === false || ['conflict', 'denied', 'invalid_input', 'configuration', 'busy', 'single_writer_required'].includes(error.code) ? 'rejected' : 'uncertain';
-      reason = outcome === 'rejected' ? 'CRM refused the guarded request before an acknowledged write' : 'The write outcome is uncertain; use a fresh read to reconcile';
+      reason = error.write_sent === false ? 'No writer request was sent because input or reader preflight failed'
+        : outcome === 'rejected' ? 'CRM explicitly refused the guarded write' : 'The write outcome is uncertain; use a fresh read to reconcile';
     }
     const completed = await this.#draft(); const attempt = await completed.finishAttempt(started.attempt.id, { outcome, reason });
     await this.#commit(completed, this.#metadata, { settleAttempt: started.attempt.id });

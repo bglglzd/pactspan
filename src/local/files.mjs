@@ -1,7 +1,7 @@
 import { lstat, mkdir, open, readFile, realpath, rename, unlink } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import path from 'node:path';
-import { requireValue, sha256 } from '../core/data.mjs';
+import { requireValue } from '../core/data.mjs';
 
 export async function privateDirectory(directory) {
   await mkdir(directory, { recursive: true, mode: 0o700 });
@@ -42,5 +42,5 @@ export async function privateWrite(root, name, value, { exclusive = false } = {}
     // Directory fsync is supported on Unix; Windows does not expose it here.
     if (process.platform !== 'win32') { const directory = await open(root, 'r'); try { await directory.sync(); } finally { await directory.close(); } }
   } catch (error) { await unlink(temporary).catch(() => {}); throw error; }
-  return sha256(bytes.toString('utf8'));
+  return createHash('sha256').update(bytes).digest('hex');
 }
