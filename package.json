@@ -6,7 +6,10 @@
   "description": "Versioned meeting commitments with explicit confirmation and CRM verification receipts",
   "engines": {"node": ">=22"},
   "license": "MIT",
+  "bin": {"pactspan": "src/cli.mjs"},
+  "files": ["src/", "public/", "scripts/", "examples/", "docs/", "README.md", "LICENSE", "CHANGELOG.md", "CONTRIBUTING.md"],
   "scripts": {
+    "start": "node src/cli.mjs serve",
     "demo": "node scripts/serve-demo.mjs",
     "test": "node --test",
     "build:demo": "node scripts/build-demo.mjs"

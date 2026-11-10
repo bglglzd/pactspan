@@ -679,6 +679,10 @@ label>input, label>select, label>textarea{width:100%}
 .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));min-width:0}
 .form-grid>label, dialog form{min-width:0}
 dialog{max-height:calc(100dvh - 32px);overflow:auto}
+[hidden]{display:none!important}
+.source-entry{margin-top:16px;min-width:0;overflow-wrap:anywhere}
+.source-entry summary{font-size:12px}
+.source-entry button{margin-top:6px}
 @media(max-width:720px){
   .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;height:auto;min-height:70px;padding:14px 16px}
   .topbar .brand{grid-column:1;grid-row:1;min-width:0}
