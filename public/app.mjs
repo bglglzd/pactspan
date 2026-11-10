@@ -145,10 +145,10 @@ function render() {
       details(source.title, source), local.workspace.capabilities.extraction ? button('Extract candidates', () => run(async () => {
         message('Extracting candidates with the local model…');
         const result = await local.action('extract', { source_id: source.id });
-        message(result.failure ? result.failure.message : `${result.run.raw_candidate_count} raw model predictions; ${result.run.candidate_ids.length} passed local source and shape validation. Review their meaning before confirmation.`, Boolean(result.failure));
+        message(result.failure ? result.failure.message : `${result.run.raw_candidate_count} raw model prediction${result.run.raw_candidate_count === 1 ? '' : 's'}; ${result.run.candidate_ids.length} passed local source and shape validation. Review their meaning before confirmation.`, Boolean(result.failure));
       }), { title: 'The full extraction request is limited to64KiB. The model context can impose a smaller limit.' }) : null));
     for (const entry of local.workspace.metadata.runs.slice().reverse()) sourceIndex.append(element('div', { class: 'source-entry' },
-      element('p', { class: 'hint' }, `Extraction: ${entry.status} · ${entry.raw_candidate_count ?? 'Unknown'} raw predictions · ${entry.candidate_ids.length} locally supported`),
+      element('p', { class: 'hint' }, `Extraction: ${entry.status} · ${entry.raw_candidate_count ?? 'Unknown'} raw prediction${entry.raw_candidate_count === 1 ? '' : 's'} · ${entry.candidate_ids.length} locally supported`),
       button('Export extraction run', () => run(async () => download(await local.runEvidence(entry.id), entry.id + '.json')))));
   }
   const candidate = snapshot.candidates[selected];
@@ -228,6 +228,8 @@ function termsCard(candidate, current, snapshot) {
 function crmCard(candidate, current, snapshot) {
   const wanted = candidate.terms;
   const read = reads[wanted.entity_id] ?? current?.verification?.observed;
+  const readMatches = Boolean(current && read && ['adapter', 'mode', 'origin'].every(key => read[key] === current.target[key])
+    && read.entity_id === current.terms.entity_id && read.amount === current.terms.amount && read.currency === current.terms.currency);
   const compare = element('div', { class: 'comparison' },
     element('div', {}, element('span', { class: 'label' }, current ? 'Confirmed expectation' : 'Proposed terms'), element('div', { class: 'value' }, money(wanted.amount, wanted.currency)), element('p', { class: 'meta' }, `${wanted.entity_id ?? 'Unknown entity'}${current ? ` · v${current.number}` : ' · Confirmation required'}`)),
     element('div', {}, element('span', { class: 'label' }, local?.workspace.capabilities.demo === false ? 'Last independent CRM read' : 'Last independent demo read'), element('div', { class: 'value' }, read ? money(read.amount, read.currency) : 'Not checked'), element('p', { class: 'meta' }, read ? `CRM revision ${read.revision} · ${read.observed_at}` : 'Read the current CRM state before approving a change')));
@@ -251,7 +253,7 @@ function crmCard(candidate, current, snapshot) {
         reads[wanted.entity_id] = fresh; throw new Error('CRM changed. Review the new comparison before approving.');
       }
       await app.approve(current.id, fresh, { actor: 'manager', expires_at: new Date(Date.parse(clock) + 15 * 60_000).toISOString() });
-    }, local?.workspace.capabilities.demo === false ? 'Approved one exact change for fifteen minutes. No write has run yet.' : 'Approved one exact change for fifteen demo minutes. No write has run yet.'), { disabled: current.execution_reasons.length > 0 || !read || Boolean(approval) }),
+    }, local?.workspace.capabilities.demo === false ? 'Approved one exact change for fifteen minutes. No write has run yet.' : 'Approved one exact change for fifteen demo minutes. No write has run yet.'), { disabled: current.execution_reasons.length > 0 || !read || readMatches || Boolean(approval) }),
     button('Execute approved change', () => run(async () => {
       if (!approval) throw new Error('An exact unexpired approval is required.');
       if (local) {
@@ -266,6 +268,7 @@ function crmCard(candidate, current, snapshot) {
       try { await crm.updateAmount(started.command); await app.finishAttempt(started.attempt.id, { outcome: 'acknowledged' }); }
       catch (error) { await app.finishAttempt(started.attempt.id, { outcome: 'uncertain', reason: error.message }); throw error; }
     }, local ? '' : 'Demo CRM acknowledged the write. Use Verify CRM state to obtain a separate receipt.'), { primary: true, disabled: !approval, id: 'execute-approved' })));
+    if (readMatches) body.append(element('p', { class: 'hint' }, 'Last read matches these terms. Verify CRM state to refresh.'));
     if (approval) body.append(element('p', { class: 'hint' }, `Approval expires ${approval.expires_at}; ${money(approval.before.amount, approval.before.currency)} → ${money(approval.payload.amount, approval.payload.currency)} on ${approval.before.entity_id}.`));
     if (attempt) body.append(element('p', { class: 'hint' }, `Write outcome: ${attempt.outcome ?? (attempt.reconciliation ? 'ACK not recorded' : 'pending')}${attempt.reconciliation ? ' · Independently reconciled' : ' · Separate read required'}.`));
     for (const pending of current.unresolved_attempts) body.append(element('div', { class: 'button-row' }, button('Reconcile prior attempt', () => run(async () => {

@@ -699,3 +699,7 @@ dialog{max-height:calc(100dvh - 32px);overflow:auto}
   .topbar nav{grid-column:2;grid-row:1;justify-self:end;margin-left:0}
   .topbar .mode{grid-column:1/-1;grid-row:2;justify-self:start}
 }
+@media(max-width:359px){
+  .clock-control{flex:0 0 100%;width:100%}
+  #advance-clock{flex:0 0 100%;width:100%}
+}
