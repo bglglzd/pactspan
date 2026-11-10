@@ -7,6 +7,7 @@
   "engines": {"node": ">=22"},
   "license": "MIT",
   "scripts": {
+    "demo": "node scripts/serve-demo.mjs",
     "test": "node --test",
     "build:demo": "node scripts/build-demo.mjs"
   }

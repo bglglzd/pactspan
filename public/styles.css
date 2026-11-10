@@ -1,0 +1,539 @@
+:root{
+  color-scheme:light;
+  --ink:#17283b;
+  --muted:#5a697c;
+  --line:#dce3eb;
+  --accent:#304f79;
+  --canvas:#f4f6f9;
+  --paper:#fff;
+  --danger:#8f3041;
+  --ok:#265e4b;
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px}
+  *{
+    box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--canvas);
+      color:var(--ink);
+      line-height:1.5}
+      button,input,select,textarea{
+        font:inherit;
+        color:inherit}
+        button,.file-button{
+          min-height:40px;
+          border:1px solid #cbd5e1;
+          border-radius:10px;
+          padding:8px 13px;
+          background:#fff;
+          cursor:pointer;
+          font-weight:550;
+          white-space:nowrap;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center}
+          button:hover,.file-button:hover{
+            background:#eef3f8;
+            border-color:#a9bacf}
+            button:disabled{
+              opacity:.48;
+              cursor:default}
+              .primary{
+                background:var(--accent);
+                color:white;
+                border-color:var(--accent)}
+                .primary:hover{
+                  background:#244166;
+                  color:white}
+                  .secondary{
+                    background:transparent}
+                    input,select,textarea{
+                      border:1px solid #cbd5e1;
+                      border-radius:9px;
+                      min-height:40px;
+                      padding:8px 10px;
+                      background:#fff;
+                      min-width:0;
+                      max-width:100%}
+                      textarea{
+                        resize:vertical}
+                        a{
+                          color:var(--accent);
+                          text-underline-offset:3px}
+                          h1,h2,h3,p{
+                            margin:0}
+                            h1{
+                              font-size:26px;
+                              letter-spacing:-.035em;
+                              font-weight:650}
+                              h2{
+                                font-size:16px;
+                                letter-spacing:-.02em;
+                                font-weight:650}
+                                h3{
+                                  font-size:13px;
+                                  font-weight:650}
+                                  label{
+                                    display:flex;
+                                    flex-direction:column;
+                                    gap:5px;
+                                    color:var(--muted);
+                                    font-size:12px;
+                                    font-weight:550}
+                                    label input,label select,label textarea{
+                                      font-size:14px;
+                                      color:var(--ink);
+                                      font-weight:400}
+                                      :focus-visible{
+                                        outline:3px solid #89aad7;
+                                        outline-offset:3px}
+                                        .topbar{
+                                          height:80px;
+                                          display:flex;
+                                          align-items:center;
+                                          gap:16px;
+                                          max-width:1344px;
+                                          padding:0 32px;
+                                          margin:auto;
+                                          border-bottom:1px solid var(--line)}
+                                          .brand{
+                                            display:inline-flex;
+                                            align-items:center;
+                                            gap:9px;
+                                            text-decoration:none;
+                                            color:var(--ink);
+                                            font-weight:650;
+                                            font-size:19px;
+                                            letter-spacing:-.03em}
+                                            .brand img{
+                                              display:block}
+                                              .topbar nav{
+                                                margin-left:auto;
+                                                display:flex;
+                                                gap:20px;
+                                                font-size:13px}
+                                                .mode{
+                                                  border:1px solid #cbd6e5;
+                                                  background:#edf2f8;
+                                                  border-radius:6px;
+                                                  padding:3px 7px;
+                                                  font-size:11px;
+                                                  white-space:nowrap}
+                                                  .page-title{
+                                                    display:flex;
+                                                    justify-content:space-between;
+                                                    align-items:center;
+                                                    gap:16px;
+                                                    margin:30px 0 20px}
+                                                    .page-title p,.muted{
+                                                      color:var(--muted);
+                                                      font-size:12px}
+                                                      main{
+                                                        max-width:1344px;
+                                                        padding:0 32px 56px;
+                                                        margin:auto}
+                                                        .toolbar{
+                                                          display:flex;
+                                                          gap:9px;
+                                                          align-items:end;
+                                                          flex-wrap:wrap;
+                                                          border:1px solid #d5dfe9;
+                                                          background:linear-gradient(135deg,#ffffffde,#edf2f8c9);
+                                                          box-shadow:inset 0 1px #ffffffd9,0 2px 4px #17283b04;
+                                                          backdrop-filter:blur(18px);
+                                                          border-radius:16px;
+                                                          padding:14px}
+                                                          .example-control{
+                                                            flex:1 1 220px;
+                                                            max-width:340px}
+                                                            .clock-control{
+                                                              margin-left:auto;
+                                                              flex:0 1 190px}
+                                                              .file-button{
+                                                                position:relative;
+                                                                font-size:14px;
+                                                                color:var(--ink);
+                                                                flex-direction:row}
+                                                                .file-button input{
+                                                                  position:absolute;
+                                                                  width:1px;
+                                                                  height:1px;
+                                                                  opacity:0;
+                                                                  pointer-events:none}
+                                                                  .file-button:focus-within{
+                                                                    outline:3px solid #89aad7;
+                                                                    outline-offset:3px}
+                                                                    .data-note{
+                                                                      font-size:12px;
+                                                                      color:var(--muted);
+                                                                      margin:12px 2px 22px;
+                                                                      max-width:860px}
+                                                                      .workspace{
+                                                                        display:grid;
+                                                                        grid-template-columns:260px minmax(0,1fr);
+                                                                        gap:24px;
+                                                                        align-items:start}
+                                                                        .sidebar{
+                                                                          min-width:0}
+                                                                          .sidebar>h2{
+                                                                            margin:2px 0 13px}
+                                                                            .candidate{
+                                                                              width:100%;
+                                                                              display:block;
+                                                                              text-align:left;
+                                                                              white-space:normal;
+                                                                              background:transparent;
+                                                                              border-color:transparent;
+                                                                              border-radius:12px;
+                                                                              padding:11px 12px;
+                                                                              margin-bottom:5px}
+                                                                              .candidate[aria-current=true]{
+                                                                                background:#e5edf7;
+                                                                                border-color:#cbd8e9}
+                                                                                .candidate .name{
+                                                                                  display:block;
+                                                                                  font-size:13px}
+                                                                                  .candidate .subline{
+                                                                                    display:block;
+                                                                                    font-size:11px;
+                                                                                    color:var(--muted);
+                                                                                    margin-top:5px}
+                                                                                    .full-width{
+                                                                                      width:100%;
+                                                                                      margin-top:12px}
+                                                                                      .detail{
+                                                                                        min-width:0}
+                                                                                        .detail-title{
+                                                                                          display:flex;
+                                                                                          justify-content:space-between;
+                                                                                          align-items:start;
+                                                                                          gap:12px;
+                                                                                          margin-bottom:16px}
+                                                                                          .detail-title h2{
+                                                                                            font-size:22px;
+                                                                                            letter-spacing:-.03em}
+                                                                                            .detail-title .muted{
+                                                                                              margin-top:3px}
+                                                                                              .status{
+                                                                                                display:inline-flex;
+                                                                                                align-items:center;
+                                                                                                border:1px solid #cfd9e5;
+                                                                                                background:#edf2f8;
+                                                                                                border-radius:7px;
+                                                                                                padding:4px 8px;
+                                                                                                font-size:12px;
+                                                                                                white-space:nowrap}
+                                                                                                .status.fulfilled{
+                                                                                                  color:var(--ok);
+                                                                                                  background:#edf5ef;
+                                                                                                  border-color:#cbded0}
+                                                                                                  .status.disputed,.status.overdue{
+                                                                                                    color:var(--danger);
+                                                                                                    background:#fff1f1;
+                                                                                                    border-color:#ecd5d9}
+                                                                                                    .card{
+                                                                                                      background:var(--paper);
+                                                                                                      border:1px solid var(--line);
+                                                                                                      border-radius:16px;
+                                                                                                      padding:20px;
+                                                                                                      margin-bottom:16px;
+                                                                                                      min-width:0}
+                                                                                                      .card-head{
+                                                                                                        display:flex;
+                                                                                                        justify-content:space-between;
+                                                                                                        gap:12px;
+                                                                                                        align-items:center;
+                                                                                                        margin-bottom:14px}
+                                                                                                        .card-head small{
+                                                                                                          color:var(--muted)}
+                                                                                                          .term-grid{
+                                                                                                            display:grid;
+                                                                                                            grid-template-columns:repeat(2,minmax(0,1fr));
+                                                                                                            gap:14px 24px;
+                                                                                                            margin:0}
+                                                                                                            .term-grid>div{
+                                                                                                              min-width:0}
+                                                                                                              .term-grid dt{
+                                                                                                                font-size:11px;
+                                                                                                                color:var(--muted);
+                                                                                                                margin-bottom:3px}
+                                                                                                                .term-grid dd{
+                                                                                                                  margin:0;
+                                                                                                                  overflow-wrap:anywhere}
+                                                                                                                  .strong{
+                                                                                                                    font-weight:650;
+                                                                                                                    font-variant-numeric:tabular-nums}
+                                                                                                                    .source-list{
+                                                                                                                      display:grid;
+                                                                                                                      gap:12px;
+                                                                                                                      margin-top:18px}
+                                                                                                                      blockquote{
+                                                                                                                        margin:0;
+                                                                                                                        padding:12px 14px;
+                                                                                                                        border-left:3px solid #a9bfd9;
+                                                                                                                        background:#f5f8fc;
+                                                                                                                        border-radius:0 8px 8px 0;
+                                                                                                                        overflow-wrap:anywhere}
+                                                                                                                        blockquote p{
+                                                                                                                          font-size:13px}
+                                                                                                                          blockquote footer{
+                                                                                                                            font-size:11px;
+                                                                                                                            color:var(--muted);
+                                                                                                                            margin-top:7px}
+                                                                                                                            .button-row{
+                                                                                                                              display:flex;
+                                                                                                                              gap:8px;
+                                                                                                                              flex-wrap:wrap;
+                                                                                                                              margin-top:16px;
+                                                                                                                              align-items:center}
+                                                                                                                              .confirmation-fields{
+                                                                                                                                display:grid;
+                                                                                                                                grid-template-columns:minmax(140px,1fr) minmax(180px,2fr);
+                                                                                                                                gap:10px;
+                                                                                                                                margin-top:16px}
+                                                                                                                                .guard-list{
+                                                                                                                                  margin:12px 0 0;
+                                                                                                                                  padding-left:18px;
+                                                                                                                                  font-size:12px;
+                                                                                                                                  color:#785261}
+                                                                                                                                  .comparison{
+                                                                                                                                    display:grid;
+                                                                                                                                    grid-template-columns:1fr 1fr;
+                                                                                                                                    gap:12px}
+                                                                                                                                    .comparison>div{
+                                                                                                                                      border:1px solid var(--line);
+                                                                                                                                      border-radius:10px;
+                                                                                                                                      padding:12px;
+                                                                                                                                      min-width:0}
+                                                                                                                                      .comparison .label{
+                                                                                                                                        display:block;
+                                                                                                                                        font-size:11px;
+                                                                                                                                        color:var(--muted);
+                                                                                                                                        margin-bottom:4px}
+                                                                                                                                        .comparison .value{
+                                                                                                                                          font-size:19px;
+                                                                                                                                          letter-spacing:-.02em;
+                                                                                                                                          font-variant-numeric:tabular-nums}
+                                                                                                                                          .comparison .meta{
+                                                                                                                                            font-size:11px;
+                                                                                                                                            color:var(--muted);
+                                                                                                                                            margin-top:6px;
+                                                                                                                                            overflow-wrap:anywhere}
+                                                                                                                                            .message{
+                                                                                                                                              border:1px solid #cbd8e9;
+                                                                                                                                              background:#edf3fb;
+                                                                                                                                              border-radius:10px;
+                                                                                                                                              padding:11px 14px;
+                                                                                                                                              margin-bottom:18px;
+                                                                                                                                              font-size:13px;
+                                                                                                                                              overflow-wrap:anywhere}
+                                                                                                                                              .message.error{
+                                                                                                                                                border-color:#e8c7ce;
+                                                                                                                                                background:#fff2f4;
+                                                                                                                                                color:#792b3a}
+                                                                                                                                                .message[hidden]{
+                                                                                                                                                  display:none}
+                                                                                                                                                  .hint{
+                                                                                                                                                    color:var(--muted);
+                                                                                                                                                    font-size:12px;
+                                                                                                                                                    margin-top:10px}
+                                                                                                                                                    .condition{
+                                                                                                                                                      border-top:1px solid var(--line);
+                                                                                                                                                      padding-top:12px;
+                                                                                                                                                      margin-top:14px}
+                                                                                                                                                      .condition p{
+                                                                                                                                                        font-size:13px}
+                                                                                                                                                        .condition .button-row{
+                                                                                                                                                          margin-top:8px}
+                                                                                                                                                          .condition input{
+                                                                                                                                                            flex:1;
+                                                                                                                                                            min-width:140px}
+                                                                                                                                                            details{
+                                                                                                                                                              margin-top:14px;
+                                                                                                                                                              border-top:1px solid var(--line);
+                                                                                                                                                              padding-top:12px}
+                                                                                                                                                              summary{
+                                                                                                                                                                cursor:pointer;
+                                                                                                                                                                color:var(--accent);
+                                                                                                                                                                font-size:12px;
+                                                                                                                                                                min-height:28px}
+                                                                                                                                                                pre{
+                                                                                                                                                                  background:#f5f7fa;
+                                                                                                                                                                  border-radius:9px;
+                                                                                                                                                                  padding:12px;
+                                                                                                                                                                  font-size:11px;
+                                                                                                                                                                  overflow:auto;
+                                                                                                                                                                  max-height:320px;
+                                                                                                                                                                  line-height:1.55;
+                                                                                                                                                                  margin:10px 0 0;
+                                                                                                                                                                  tab-size:2}
+                                                                                                                                                                  .history{
+                                                                                                                                                                    list-style:none;
+                                                                                                                                                                    padding:0;
+                                                                                                                                                                    margin:0;
+                                                                                                                                                                    display:grid;
+                                                                                                                                                                    gap:12px}
+                                                                                                                                                                    .history li{
+                                                                                                                                                                      border-left:2px solid #d7e1ee;
+                                                                                                                                                                      padding-left:12px}
+                                                                                                                                                                      .history p{
+                                                                                                                                                                        font-size:12px}
+                                                                                                                                                                        .history time{
+                                                                                                                                                                          font-size:10px;
+                                                                                                                                                                          color:var(--muted);
+                                                                                                                                                                          font-variant-numeric:tabular-nums}
+                                                                                                                                                                          .operator-form{
+                                                                                                                                                                            display:flex;
+                                                                                                                                                                            gap:8px;
+                                                                                                                                                                            align-items:end;
+                                                                                                                                                                            flex-wrap:wrap}
+                                                                                                                                                                            .operator-form label{
+                                                                                                                                                                              flex:1;
+                                                                                                                                                                              min-width:100px}
+                                                                                                                                                                              .operator-form input{
+                                                                                                                                                                                width:100%}
+                                                                                                                                                                                .operator-form button{
+                                                                                                                                                                                  flex:0 0 auto}
+                                                                                                                                                                                  .blank{
+                                                                                                                                                                                    padding:36px;
+                                                                                                                                                                                    text-align:center;
+                                                                                                                                                                                    color:var(--muted);
+                                                                                                                                                                                    border:1px dashed #cbd5e1;
+                                                                                                                                                                                    border-radius:16px}
+                                                                                                                                                                                    .form-grid{
+                                                                                                                                                                                      display:grid;
+                                                                                                                                                                                      grid-template-columns:1fr 1fr;
+                                                                                                                                                                                      gap:12px}
+                                                                                                                                                                                      dialog{
+                                                                                                                                                                                        border:1px solid #cad6e4;
+                                                                                                                                                                                        border-radius:18px;
+                                                                                                                                                                                        padding:24px;
+                                                                                                                                                                                        max-width:min(560px,calc(100vw - 32px));
+                                                                                                                                                                                        width:100%;
+                                                                                                                                                                                        color:var(--ink);
+                                                                                                                                                                                        box-shadow:0 24px 100px #1c314838}
+                                                                                                                                                                                        dialog::backdrop{
+                                                                                                                                                                                          background:#24395142;
+                                                                                                                                                                                          backdrop-filter:blur(5px)}
+                                                                                                                                                                                          dialog form{
+                                                                                                                                                                                            display:grid;
+                                                                                                                                                                                            gap:14px}
+                                                                                                                                                                                            dialog .button-row{
+                                                                                                                                                                                              justify-content:end;
+                                                                                                                                                                                              margin-top:6px}
+                                                                                                                                                                                              @media(max-width:1000px){
+                                                                                                                                                                                                .topbar{
+                                                                                                                                                                                                  padding:0 24px}
+                                                                                                                                                                                                  main{
+                                                                                                                                                                                                    padding:0 24px 40px}
+                                                                                                                                                                                                    .workspace{
+                                                                                                                                                                                                      grid-template-columns:220px minmax(0,1fr);
+                                                                                                                                                                                                      gap:18px}
+                                                                                                                                                                                                      .clock-control{
+                                                                                                                                                                                                        margin-left:0}
+                                                                                                                                                                                                        .toolbar{
+                                                                                                                                                                                                          gap:8px}
+                                                                                                                                                                                                          .card{
+                                                                                                                                                                                                            padding:17px}
+                                                                                                                                                                                                          }
+                                                                                                                                                                                                          @media(max-width:720px){
+                                                                                                                                                                                                            .topbar{
+                                                                                                                                                                                                              height:70px;
+                                                                                                                                                                                                              padding:0 16px;
+                                                                                                                                                                                                              gap:10px}
+                                                                                                                                                                                                              .topbar nav{
+                                                                                                                                                                                                                gap:12px;
+                                                                                                                                                                                                                font-size:11px}
+                                                                                                                                                                                                                .brand{
+                                                                                                                                                                                                                  font-size:18px}
+                                                                                                                                                                                                                  .brand img{
+                                                                                                                                                                                                                    width:28px;
+                                                                                                                                                                                                                    height:28px}
+                                                                                                                                                                                                                    .mode{
+                                                                                                                                                                                                                      font-size:10px;
+                                                                                                                                                                                                                      padding:2px 5px}
+                                                                                                                                                                                                                      .page-title{
+                                                                                                                                                                                                                        margin:24px 0 16px;
+                                                                                                                                                                                                                        align-items:start}
+                                                                                                                                                                                                                        .page-title p{
+                                                                                                                                                                                                                          font-size:10px;
+                                                                                                                                                                                                                          max-width:110px;
+                                                                                                                                                                                                                          text-align:right}
+                                                                                                                                                                                                                          main{
+                                                                                                                                                                                                                            padding:0 16px 32px}
+                                                                                                                                                                                                                            .toolbar{
+                                                                                                                                                                                                                              padding:12px;
+                                                                                                                                                                                                                              gap:8px}
+                                                                                                                                                                                                                              .example-control{
+                                                                                                                                                                                                                                max-width:none;
+                                                                                                                                                                                                                                flex-basis:calc(100% - 118px)}
+                                                                                                                                                                                                                                .toolbar>button,.file-button{
+                                                                                                                                                                                                                                  font-size:12px;
+                                                                                                                                                                                                                                  min-height:39px;
+                                                                                                                                                                                                                                  padding:8px 10px}
+                                                                                                                                                                                                                                  .clock-control{
+                                                                                                                                                                                                                                    flex:1 1 170px}
+                                                                                                                                                                                                                                    .workspace{
+                                                                                                                                                                                                                                      display:block}
+                                                                                                                                                                                                                                      .sidebar{
+                                                                                                                                                                                                                                        margin-bottom:22px}
+                                                                                                                                                                                                                                        .sidebar>h2{
+                                                                                                                                                                                                                                          font-size:14px}
+                                                                                                                                                                                                                                          .sidebar #candidate-list{
+                                                                                                                                                                                                                                            display:flex;
+                                                                                                                                                                                                                                            gap:6px;
+                                                                                                                                                                                                                                            overflow:auto;
+                                                                                                                                                                                                                                            padding:2px 2px 8px}
+                                                                                                                                                                                                                                            .candidate{
+                                                                                                                                                                                                                                              width:220px;
+                                                                                                                                                                                                                                              min-width:220px;
+                                                                                                                                                                                                                                              margin:0;
+                                                                                                                                                                                                                                              border-color:var(--line);
+                                                                                                                                                                                                                                              background:#ffffff70}
+                                                                                                                                                                                                                                              .full-width{
+                                                                                                                                                                                                                                                width:auto;
+                                                                                                                                                                                                                                                margin-top:6px;
+                                                                                                                                                                                                                                                font-size:12px}
+                                                                                                                                                                                                                                                .detail-title h2{
+                                                                                                                                                                                                                                                  font-size:21px}
+                                                                                                                                                                                                                                                  .card{
+                                                                                                                                                                                                                                                    padding:16px;
+                                                                                                                                                                                                                                                    border-radius:14px}
+                                                                                                                                                                                                                                                    .term-grid{
+                                                                                                                                                                                                                                                      gap:12px 16px}
+                                                                                                                                                                                                                                                      .confirmation-fields{
+                                                                                                                                                                                                                                                        grid-template-columns:1fr}
+                                                                                                                                                                                                                                                        .comparison .value{
+                                                                                                                                                                                                                                                          font-size:17px}
+                                                                                                                                                                                                                                                          .comparison{
+                                                                                                                                                                                                                                                            gap:8px}
+                                                                                                                                                                                                                                                            .data-note{
+                                                                                                                                                                                                                                                              font-size:11px}
+                                                                                                                                                                                                                                                              .status{
+                                                                                                                                                                                                                                                                font-size:11px}
+                                                                                                                                                                                                                                                                .button-row>button{
+                                                                                                                                                                                                                                                                  font-size:12px}
+                                                                                                                                                                                                                                                                  .operator-form button{
+                                                                                                                                                                                                                                                                    flex-basis:100%}
+                                                                                                                                                                                                                                                                    .card-head{
+                                                                                                                                                                                                                                                                      align-items:start}
+                                                                                                                                                                                                                                                                      .card-head small{
+                                                                                                                                                                                                                                                                        font-size:10px;
+                                                                                                                                                                                                                                                                        text-align:right}
+                                                                                                                                                                                                                                                                        .card-head h2{
+                                                                                                                                                                                                                                                                          font-size:15px}
+                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                        @media(prefers-reduced-motion:no-preference){
+                                                                                                                                                                                                                                                                          button,.file-button{
+                                                                                                                                                                                                                                                                            transition:background .12s,border-color .12s}
+                                                                                                                                                                                                                                                                            dialog[open]{
+                                                                                                                                                                                                                                                                              animation:appear .14s ease-out}
+                                                                                                                                                                                                                                                                              @keyframes appear{
+                                                                                                                                                                                                                                                                                from{
+                                                                                                                                                                                                                                                                                  opacity:0;
+                                                                                                                                                                                                                                                                                  transform:translateY(5px)}
+                                                                                                                                                                                                                                                                                  to{
+                                                                                                                                                                                                                                                                                    opacity:1;
+                                                                                                                                                                                                                                                                                    transform:translateY(0)}
+                                                                                                                                                                                                                                                                                  }
+                                                                                                                                                                                                                                                                                }

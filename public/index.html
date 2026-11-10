@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self';style-src 'self';img-src 'self' data:;connect-src 'none';object-src 'none';base-uri 'none';form-action 'none'">
+  <meta name="description" content="Review versioned meeting commitments, approved CRM changes and verification receipts.">
+  <title>Pactspan</title>
+  <link rel="icon" href="mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><img src="mark.svg" width="32" height="32" alt=""><span>Pactspan</span></a>
+    <span class="mode">Synthetic demo</span>
+    <nav aria-label="Project"><a href="https://github.com/bglglzd/pactspan#readme">Documentation</a><a href="https://github.com/bglglzd/pactspan">Source</a></nav>
+  </header>
+  <main>
+    <div class="page-title"><h1>Commitments</h1><p id="storage-state">Stored in this browser</p></div>
+    <section class="toolbar" aria-label="Workspace">
+      <label class="example-control">Example<select id="case-select"></select></label>
+      <button id="load-example">Load example</button>
+      <label class="file-button" tabindex="0">Import transcript<input id="import-file" type="file" accept=".json,.txt,application/json,text/plain"></label>
+      <button id="export-workspace">Export history</button>
+      <label class="clock-control">Demo time · UTC<input id="demo-clock" type="datetime-local" step="1"></label>
+      <button id="advance-clock">Set time</button>
+    </section>
+    <p class="data-note">Examples contain authored candidates. Local transcript imports remain in this browser; this demo does not call an extraction model or a real CRM.</p>
+    <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+    <div class="workspace">
+      <aside class="sidebar" aria-label="Candidates and versions"><h2>Sources and candidates</h2><div id="candidate-list"></div><button id="add-manual" class="secondary full-width">Add sourced candidate</button></aside>
+      <section id="detail" class="detail" aria-label="Selected commitment"></section>
+    </div>
+  </main>
+  <dialog id="manual-dialog" aria-labelledby="manual-title"><form id="manual-form" method="dialog">
+    <h2 id="manual-title">Sourced candidate</h2>
+    <p class="muted">A manual proposal. Confirmation is a separate decision.</p>
+    <label>Source<select id="manual-source" required></select></label>
+    <label>Segment<select id="manual-segment" required></select></label>
+    <label>Exact quote<textarea id="manual-quote" rows="3" required maxlength="2000"></textarea></label>
+    <div class="form-grid"><label>Opportunity ID<input id="manual-entity" value="O1" required maxlength="128"></label><label>Owner ID<input id="manual-owner" placeholder="Mapped person ID" maxlength="128"></label><label>Amount<input id="manual-amount" inputmode="decimal" required></label><label>Currency<input id="manual-currency" value="USD" maxlength="3" required></label></div>
+    <label>Agreement<select id="manual-agreement"><option value="proposed">Proposed</option><option value="accepted">Accepted in source</option><option value="unknown">Unclear</option></select></label>
+    <div class="button-row"><button type="button" id="manual-cancel">Cancel</button><button type="submit" class="primary">Add candidate</button></div>
+  </form></dialog>
+</body>
+</html>
