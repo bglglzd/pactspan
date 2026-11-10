@@ -1,53 +1,52 @@
 # Pactspan
 
-Review meeting commitments as immutable confirmed term versions. Link accepted amendments, inspect CRM differences, approve an exact change and verify it with a version-bound receipt. A CRM amount or internal draft does not prove a proposal was sent.
+Track meeting commitments as confirmed versions with source quotes, explicit amendments and CRM verification receipts. A write acknowledgment leaves a commitment unverified; a fresh matching reader observation can fulfill its current version.
+
+![Synthetic workspace showing sourced commitments and CRM comparison](docs/screenshots/workspace.png)
 
 ## Try the synthetic demo
 
-Node22 or newer; npm is used for convenience commands. From this checkout:
+Requires Node 22 or newer. No dependency installation, model or CRM account is needed.
 
 ```sh
-npm run demo
+node scripts/serve-demo.mjs
 ```
 
-Open the printed loopback URL. No dependency installation, paid model or CRM account is needed for this demo.
+Open the printed loopback URL. With **D01** selected:
 
-With a Node-only installation, use `node scripts/serve-demo.mjs` for the same static demo.
+1. Review the quotes and confirm the terms.
+2. Read the Demo CRM, approve the exact amount change and execute that approval.
+3. Verify CRM state with a separate read. The acknowledgment alone creates no receipt.
+4. Expand the Demo CRM editor, change its amount, then verify again. The commitment becomes disputed and keeps its earlier receipt.
 
-With D01 selected, confirm its sourced terms, read the Demo CRM, approve the exact amount change, execute that approval, then verify the state independently. The write acknowledgment leaves the commitment unverified. Expand the separate Demo CRM editor, change its amount and verify again to inspect the contradiction and retained receipt.
+This browser demo uses authored candidates and a separate mutable synthetic CRM. It calls no extraction model or real CRM. Imports stay in the browser; export history before replacing a workspace.
 
-The browser demo uses authored candidates and a separate mutable synthetic CRM. It does not call an extraction model or a real CRM. Local transcript imports stay in the browser; export history before replacing a workspace. The same domain code handles quotes, versions, guards and receipts in browser and Node paths.
-
-## Run a local workspace
+## Run a persistent local workspace
 
 ```sh
-npm start -- --example D01
+node src/cli.mjs serve --example D01
 ```
 
-Open the printed numeric loopback URL. Commitments and the separate synthetic CRM survive server/browser restarts in `.pactspan/`. Omit `--example` when restarting: that option explicitly replaces the synthetic workspace. Export history before replacing an example. Only one process can open the same data directory.
+Open the printed numeric loopback URL. Data survives restarts in `.pactspan/`. Omit `--example` when restarting: that option explicitly replaces the synthetic workspace. Only one process can open a data directory.
 
-The equivalent Node-only command is `node src/cli.mjs serve --example D01`.
+For a [release package](https://github.com/bglglzd/pactspan/releases), extract `pactspan-0.1.0.tgz` into an empty directory, enter `package/` and run the same command. No npm install is required. The release manifest records source, toolchain and SHA256 digests. `node src/cli.mjs help` lists server, action-file and export commands.
 
-For a downloaded release package, extract `pactspan-0.1.0.tgz` into an empty directory, enter its `package/` folder and run that Node command. No npm install step is required. Keep the release manifest with its SHA256 digests when verifying downloaded bytes.
-
-For an externally installed EspoCRM single-writer sandbox, set `PACTSPAN_CRM_ORIGIN`, `PACTSPAN_SINGLE_WRITER=1` and provide separate reader/writer API keys through `--keys /private/api-identities.json` (`reader.apiKey` and `writer.apiKey`) or `PACTSPAN_READ_KEY`/`PACTSPAN_WRITE_KEY`. Keys stay server-side. Then run:
+For an EspoCRM sandbox, set `PACTSPAN_CRM_ORIGIN` and `PACTSPAN_SINGLE_WRITER=1`, then provide separate reader/writer keys in a private file with `reader.apiKey` and `writer.apiKey`:
 
 ```sh
-npm start -- --crm espocrm --data .pactspan/espo --keys /private/api-identities.json
+node src/cli.mjs serve --crm espocrm --data .pactspan/espo --keys /private/api-identities.json
 ```
 
-Optional extraction uses a local OpenAI-compatible `/v1/chat/completions` server. Set `PACTSPAN_MODEL_ORIGIN` to its numeric loopback origin and `PACTSPAN_MODEL` to its served model ID before starting. Import a source and choose **Extract candidates**. Each run retains all raw predictions and diagnostics; only candidates passing local shape/source checks enter the review list. Exact quotes do not establish semantic correctness or confirmation. There is no paid fallback or automatic write.
+Keys stay server-side. The exercised adapter is **EspoCRM 10.0.12 Opportunity amount/currency**, in a dedicated single-writer sandbox. Native `X-Version-Number` is a pre-save check rather than atomic database compare-and-swap. See [configuration, recovery and limits](docs/local-operation.md).
 
-`node src/cli.mjs help` lists server, JSON action-file and export commands. [Local operation](docs/local-operation.md) explains decisions, file recovery and limits.
+## Review imported terms
 
-## Domain and adapters
+Import timestamped JSON/TXT, inspect its source and add a sourced candidate. Confirm it separately. Corrections create a new unconfirmed candidate and retain the original quotes, candidate and model run. Replacing confirmed terms requires an explicit version link; unresolved conflicts block action.
 
-- Exact JSON/TXT transcript sources, UTF-16 quote spans and explicit unknown fields.
-- Human confirmation, explicit supersession/conflict resolution, prerequisite decisions and deadline precision.
-- One-use, expiring approvals bound to exact version, target, before revision and payload; uncertain writes require read reconciliation.
-- Fresh matching receipts for current versions. Older observations cannot erase newer contrary evidence; restart validates stored content bindings.
-- EspoCRM Opportunity amount/currency client with separate reader/writer keys, typed refusals and no implicit write retries. It requires a dedicated single-writer sandbox: native `X-Version-Number` is not atomic database CAS.
+Optional local extraction uses an OpenAI-compatible server configured through `PACTSPAN_MODEL_ORIGIN` and `PACTSPAN_MODEL`. It is **experimental and unreliable**: the first held-out run had **0/11 exact commitment matches**, with 18 predictions and 11 rejected as unsupported. Every term needs human review; enter missing candidates manually. Raw predictions and failures remain exportable. There is no automatic confirmation, write, retry or paid fallback. [Measured results](docs/evaluation-results.md) · [Pinned inference setup](docs/local-inference.md).
 
-This private development checkout still needs full genuine-server UI exercise, extraction evaluation, release packaging and independent acceptance. Library SDK and synthetic HTTP tests are not final artifact acceptance. The twenty [authored development cases](docs/dataset.md) are not a blind evaluation; the required held-out extraction evaluation remains pending.
+Approvals are one-use, expiring and bound to the exact version, target, prior revision and payload. Uncertain writes block further writes until reconciliation or explicit operator recovery. A fresh receipt must match the current version and predicate. Proposal dispatch and other generic promises remain tracked without a fulfillment adapter; a matching CRM amount does not prove they happened.
 
-[Specification](docs/spec.md) · [Architecture](docs/architecture.md) · [Data contract](docs/dataset-contract.md) · [MIT license](LICENSE)
+The [thirty synthetic manual journeys](docs/dataset.md) cover amendments, refusal, missing ownership, prerequisites, conflicting currencies, replay and rollback. Their passing domain results are separate from automatic extraction quality.
+
+[Specification](docs/spec.md) · [Architecture](docs/architecture.md) · [Data contract](docs/dataset-contract.md) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)

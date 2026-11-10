@@ -24,6 +24,9 @@ jobs:
       - run: node --test
       - run: node --check public/app.mjs
       - run: node scripts/build-demo.mjs
+      - name: Accepted demo deployment checks
+        if: runner.os == 'Linux' && matrix.node == '22'
+        run: python3 -m unittest discover -s tests -p 'test_prepare_pages.py'
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: synthetic-demo-${{ matrix.os }}-${{ matrix.node }}

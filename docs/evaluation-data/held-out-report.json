@@ -1,0 +1,5332 @@
+{
+  "schema_version": 1,
+  "protocol": "pactspan-extraction-score-v1",
+  "extraction_schema_version": "pactspan-extraction-v5",
+  "deadline_version": "pactspan-deadline-v2",
+  "matcher": {
+    "strict": "maximum one-to-one exact-field and exact-source-overlap matching",
+    "detection": "maximum source-overlap cardinality",
+    "alignment_ties": "maximize strict-compatible pairs without reducing detection cardinality, then stable raw-index/gold-order traversal"
+  },
+  "candidate_schema_sha256": "2cd1aedc0c914ea0b3d1b5ec24c38ec0badb8b3cdb37827271ff18d19fc9c341",
+  "scope": "Supplied complete raw artifacts and normalized pipeline records; no model invocation or human study",
+  "strict": {
+    "tp": 0,
+    "fp": 18,
+    "fp_known_lower_bound": 18,
+    "fn": 11,
+    "gold": 11,
+    "predictions": 18,
+    "known_predictions": 18,
+    "denominator_complete": true,
+    "precision": 0,
+    "recall": 0,
+    "precision_upper_bound_from_known_rows": null
+  },
+  "detection": {
+    "tp": 11,
+    "fp": 7,
+    "fp_known_lower_bound": 7,
+    "fn": 0,
+    "gold": 11,
+    "predictions": 18,
+    "known_predictions": 18,
+    "denominator_complete": true,
+    "precision": 0.6111111111111112,
+    "recall": 1,
+    "precision_upper_bound_from_known_rows": null
+  },
+  "fields": {
+    "agreement": {
+      "correct": 8,
+      "total": 11,
+      "accuracy": 0.7272727272727273
+    },
+    "kind": {
+      "correct": 11,
+      "total": 11,
+      "accuracy": 1
+    },
+    "entity_id": {
+      "correct": 11,
+      "total": 11,
+      "accuracy": 1
+    },
+    "amount": {
+      "correct": 10,
+      "total": 11,
+      "accuracy": 0.9090909090909091
+    },
+    "currency": {
+      "correct": 10,
+      "total": 11,
+      "accuracy": 0.9090909090909091
+    },
+    "owner": {
+      "correct": 9,
+      "total": 11,
+      "accuracy": 0.8181818181818182
+    },
+    "due.literal": {
+      "correct": 3,
+      "total": 11,
+      "accuracy": 0.2727272727272727
+    },
+    "due.resolved": {
+      "correct": 9,
+      "total": 11,
+      "accuracy": 0.8181818181818182
+    },
+    "due.precision": {
+      "correct": 8,
+      "total": 11,
+      "accuracy": 0.7272727272727273
+    },
+    "due.zone": {
+      "correct": 7,
+      "total": 11,
+      "accuracy": 0.6363636363636364
+    },
+    "conditions.literals": {
+      "correct": 6,
+      "total": 11,
+      "accuracy": 0.5454545454545454
+    },
+    "unknown_fields": {
+      "correct": 0,
+      "total": 11,
+      "accuracy": 0
+    },
+    "conditions.claims": {
+      "correct": 6,
+      "total": 11,
+      "accuracy": 0.5454545454545454
+    }
+  },
+  "validity": {
+    "schema": {
+      "valid": 18,
+      "invalid_known": 0,
+      "known_total": 18,
+      "denominator_complete": true,
+      "rate": 1
+    },
+    "source": {
+      "valid": 18,
+      "invalid_known": 0,
+      "known_total": 18,
+      "denominator_complete": true,
+      "rate": 1
+    },
+    "quotes": {
+      "valid": 18,
+      "invalid_known": 0,
+      "known_total": 18,
+      "denominator_complete": true,
+      "rate": 1
+    },
+    "support": {
+      "valid": 7,
+      "invalid_known": 11,
+      "known_total": 18,
+      "denominator_complete": true,
+      "rate": 0.3888888888888889
+    }
+  },
+  "alignment": {
+    "records": 11,
+    "gold": 11,
+    "coverage": 1,
+    "source_ambiguous_pairs": 0
+  },
+  "counts": {
+    "runs": 12,
+    "successful": 12,
+    "failures": 0,
+    "successful_empty": 0,
+    "abstentions": 0,
+    "raw_count_unknown_runs": 0,
+    "placeholders": 0,
+    "schema_error_predictions": 0,
+    "unsupported_predictions": 11
+  },
+  "latency": {
+    "unit": "ms",
+    "measured": 12,
+    "missing": 0,
+    "median": 53501.978352000006,
+    "p90": 85418.79626900004,
+    "p90_method": "nearest rank",
+    "sum_observed_ms": 792327.7595060002
+  },
+  "by_language": {
+    "en": {
+      "strict": {
+        "tp": 0,
+        "fp": 9,
+        "fp_known_lower_bound": 9,
+        "fn": 6,
+        "gold": 6,
+        "predictions": 9,
+        "known_predictions": 9,
+        "denominator_complete": true,
+        "precision": 0,
+        "recall": 0,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "detection": {
+        "tp": 6,
+        "fp": 3,
+        "fp_known_lower_bound": 3,
+        "fn": 0,
+        "gold": 6,
+        "predictions": 9,
+        "known_predictions": 9,
+        "denominator_complete": true,
+        "precision": 0.6666666666666666,
+        "recall": 1,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "fields": {
+        "agreement": {
+          "correct": 5,
+          "total": 6,
+          "accuracy": 0.8333333333333334
+        },
+        "kind": {
+          "correct": 6,
+          "total": 6,
+          "accuracy": 1
+        },
+        "entity_id": {
+          "correct": 6,
+          "total": 6,
+          "accuracy": 1
+        },
+        "amount": {
+          "correct": 5,
+          "total": 6,
+          "accuracy": 0.8333333333333334
+        },
+        "currency": {
+          "correct": 5,
+          "total": 6,
+          "accuracy": 0.8333333333333334
+        },
+        "owner": {
+          "correct": 4,
+          "total": 6,
+          "accuracy": 0.6666666666666666
+        },
+        "due.literal": {
+          "correct": 2,
+          "total": 6,
+          "accuracy": 0.3333333333333333
+        },
+        "due.resolved": {
+          "correct": 5,
+          "total": 6,
+          "accuracy": 0.8333333333333334
+        },
+        "due.precision": {
+          "correct": 5,
+          "total": 6,
+          "accuracy": 0.8333333333333334
+        },
+        "due.zone": {
+          "correct": 4,
+          "total": 6,
+          "accuracy": 0.6666666666666666
+        },
+        "conditions.literals": {
+          "correct": 4,
+          "total": 6,
+          "accuracy": 0.6666666666666666
+        },
+        "unknown_fields": {
+          "correct": 0,
+          "total": 6,
+          "accuracy": 0
+        },
+        "conditions.claims": {
+          "correct": 4,
+          "total": 6,
+          "accuracy": 0.6666666666666666
+        }
+      },
+      "validity": {
+        "schema": {
+          "valid": 9,
+          "invalid_known": 0,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 1
+        },
+        "source": {
+          "valid": 9,
+          "invalid_known": 0,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 1
+        },
+        "quotes": {
+          "valid": 9,
+          "invalid_known": 0,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 1
+        },
+        "support": {
+          "valid": 4,
+          "invalid_known": 5,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 0.4444444444444444
+        }
+      },
+      "alignment": {
+        "records": 6,
+        "gold": 6,
+        "coverage": 1,
+        "source_ambiguous_pairs": 0
+      },
+      "counts": {
+        "runs": 6,
+        "successful": 6,
+        "failures": 0,
+        "successful_empty": 0,
+        "abstentions": 0,
+        "raw_count_unknown_runs": 0,
+        "placeholders": 0,
+        "schema_error_predictions": 0,
+        "unsupported_predictions": 5
+      },
+      "latency": {
+        "unit": "ms",
+        "measured": 6,
+        "missing": 0,
+        "median": 60949.909035000004,
+        "p90": 85418.79626900004,
+        "p90_method": "nearest rank",
+        "sum_observed_ms": 357898.6775580001
+      }
+    },
+    "ru": {
+      "strict": {
+        "tp": 0,
+        "fp": 9,
+        "fp_known_lower_bound": 9,
+        "fn": 5,
+        "gold": 5,
+        "predictions": 9,
+        "known_predictions": 9,
+        "denominator_complete": true,
+        "precision": 0,
+        "recall": 0,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "detection": {
+        "tp": 5,
+        "fp": 4,
+        "fp_known_lower_bound": 4,
+        "fn": 0,
+        "gold": 5,
+        "predictions": 9,
+        "known_predictions": 9,
+        "denominator_complete": true,
+        "precision": 0.5555555555555556,
+        "recall": 1,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "fields": {
+        "agreement": {
+          "correct": 3,
+          "total": 5,
+          "accuracy": 0.6
+        },
+        "kind": {
+          "correct": 5,
+          "total": 5,
+          "accuracy": 1
+        },
+        "entity_id": {
+          "correct": 5,
+          "total": 5,
+          "accuracy": 1
+        },
+        "amount": {
+          "correct": 5,
+          "total": 5,
+          "accuracy": 1
+        },
+        "currency": {
+          "correct": 5,
+          "total": 5,
+          "accuracy": 1
+        },
+        "owner": {
+          "correct": 5,
+          "total": 5,
+          "accuracy": 1
+        },
+        "due.literal": {
+          "correct": 1,
+          "total": 5,
+          "accuracy": 0.2
+        },
+        "due.resolved": {
+          "correct": 4,
+          "total": 5,
+          "accuracy": 0.8
+        },
+        "due.precision": {
+          "correct": 3,
+          "total": 5,
+          "accuracy": 0.6
+        },
+        "due.zone": {
+          "correct": 3,
+          "total": 5,
+          "accuracy": 0.6
+        },
+        "conditions.literals": {
+          "correct": 2,
+          "total": 5,
+          "accuracy": 0.4
+        },
+        "unknown_fields": {
+          "correct": 0,
+          "total": 5,
+          "accuracy": 0
+        },
+        "conditions.claims": {
+          "correct": 2,
+          "total": 5,
+          "accuracy": 0.4
+        }
+      },
+      "validity": {
+        "schema": {
+          "valid": 9,
+          "invalid_known": 0,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 1
+        },
+        "source": {
+          "valid": 9,
+          "invalid_known": 0,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 1
+        },
+        "quotes": {
+          "valid": 9,
+          "invalid_known": 0,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 1
+        },
+        "support": {
+          "valid": 3,
+          "invalid_known": 6,
+          "known_total": 9,
+          "denominator_complete": true,
+          "rate": 0.3333333333333333
+        }
+      },
+      "alignment": {
+        "records": 5,
+        "gold": 5,
+        "coverage": 1,
+        "source_ambiguous_pairs": 0
+      },
+      "counts": {
+        "runs": 6,
+        "successful": 6,
+        "failures": 0,
+        "successful_empty": 0,
+        "abstentions": 0,
+        "raw_count_unknown_runs": 0,
+        "placeholders": 0,
+        "schema_error_predictions": 0,
+        "unsupported_predictions": 6
+      },
+      "latency": {
+        "unit": "ms",
+        "measured": 6,
+        "missing": 0,
+        "median": 45901.239252499974,
+        "p90": 194650.937292,
+        "p90_method": "nearest rank",
+        "sum_observed_ms": 434429.081948
+      }
+    }
+  },
+  "workload": {
+    "cases": 10,
+    "sources": 12,
+    "segments": 33,
+    "utf16_units": 2174,
+    "utf8_bytes": 2843
+  },
+  "usage": {
+    "prompt_tokens": {
+      "sum_reported": 12860,
+      "runs_reported": 12,
+      "runs_missing": 0,
+      "complete": true
+    },
+    "completion_tokens": {
+      "sum_reported": 4976,
+      "runs_reported": 12,
+      "runs_missing": 0,
+      "complete": true
+    },
+    "total_tokens": {
+      "sum_reported": 17836,
+      "runs_reported": 12,
+      "runs_missing": 0,
+      "complete": true
+    }
+  },
+  "cost": {
+    "amount": null,
+    "currency": null,
+    "scope": "No pricing, electricity, hardware amortization or zero-cost claim; usage is model-reported only"
+  },
+  "runs": [
+    {
+      "run_index": 0,
+      "case_id": "H01",
+      "language": "en",
+      "source_alias": "meeting-a",
+      "source_id": "src_ce1430226d21661d5dbd909a9227468e24a09d5fb5252d9b9f3ed3dbfcccd7fe",
+      "elapsed_ms": 48617.315032,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "Agreed. You, Nera, will save EUR 4725.65 on O1.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "4725.65",
+              "currency": "EUR",
+              "owner": "nera",
+              "statement": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+              "due": {
+                "literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_ce1430226d21661d5dbd909a9227468e24a09d5fb5252d9b9f3ed3dbfcccd7fe",
+              "segment": 0,
+              "start": 0,
+              "end": 102,
+              "quote": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time."
+            },
+            {
+              "source": "src_ce1430226d21661d5dbd909a9227468e24a09d5fb5252d9b9f3ed3dbfcccd7fe",
+              "segment": 1,
+              "start": 0,
+              "end": 47,
+              "quote": "Agreed. You, Nera, will save EUR 4725.65 on O1."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "4725.65",
+            "currency": "EUR",
+            "owner": "nera",
+            "due.literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "4725.65",
+            "currency": "EUR",
+            "owner": "nera",
+            "statement": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+            "due": {
+              "literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "4725.65",
+            "currency": "EUR",
+            "owner": "nera",
+            "statement": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+            "due": {
+              "literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H01-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "4725.65",
+            "currency": "EUR",
+            "owner": "nera",
+            "due.literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+            "due.resolved": "2030-03-12T15:30:00.000Z",
+            "due.precision": "instant",
+            "due.zone": "Europe/Berlin",
+            "conditions.literals": [],
+            "unknown_fields": [],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_ce1430226d21661d5dbd909a9227468e24a09d5fb5252d9b9f3ed3dbfcccd7fe",
+              "segment": 0,
+              "quote": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+              "start": 0,
+              "end": 102,
+              "speaker": "Nera",
+              "person_id": "nera",
+              "supported": true
+            },
+            {
+              "source": "src_ce1430226d21661d5dbd909a9227468e24a09d5fb5252d9b9f3ed3dbfcccd7fe",
+              "segment": 1,
+              "quote": "Agreed. You, Nera, will save EUR 4725.65 on O1.",
+              "start": 0,
+              "end": 47,
+              "speaker": "Tovan",
+              "person_id": "tovan",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H01-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+                "start": 0,
+                "end": 102
+              },
+              {
+                "segment": 1,
+                "quote": "Agreed. You, Nera, will save EUR 4725.65 on O1.",
+                "start": 0,
+                "end": 47
+              }
+            ],
+            "owner": "nera",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "4725.65",
+            "currency": "EUR",
+            "due": {
+              "literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+              "resolved": "2030-03-12T15:30:00Z",
+              "precision": "instant",
+              "zone": "Europe/Berlin"
+            },
+            "conditions": [],
+            "unknown_fields": []
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 0,
+          "raw_index": 0,
+          "gold_id": "H01-A1",
+          "source_alignment_choices": [
+            "H01-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O1",
+              "actual": "O1",
+              "correct": true
+            },
+            "amount": {
+              "expected": "4725.65",
+              "actual": "4725.65",
+              "correct": true
+            },
+            "currency": {
+              "expected": "EUR",
+              "actual": "EUR",
+              "correct": true
+            },
+            "owner": {
+              "expected": "nera",
+              "actual": "nera",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": "by 16:30 on 12 March 2030, Europe/Berlin time",
+              "actual": "by 16:30 on 12 March 2030, Europe/Berlin time",
+              "correct": true
+            },
+            "due.resolved": {
+              "expected": "2030-03-12T15:30:00.000Z",
+              "actual": null,
+              "correct": false
+            },
+            "due.precision": {
+              "expected": "instant",
+              "actual": "unknown",
+              "correct": false
+            },
+            "due.zone": {
+              "expected": "Europe/Berlin",
+              "actual": null,
+              "correct": false
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            },
+            "unknown_fields": {
+              "expected": [],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H01-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H01-A1",
+              "differences": [
+                "due.resolved",
+                "due.precision",
+                "due.zone",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 318,
+        "prompt_tokens": 1085,
+        "total_tokens": 1403,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 1,
+      "case_id": "H02",
+      "language": "ru",
+      "source_alias": "meeting-a",
+      "source_id": "src_681900ad2977f0f31b5621e0ab0b34a2ca4f3144010119aae49b4ca15fe56e67",
+      "elapsed_ms": 194650.937292,
+      "raw_candidate_count": 3,
+      "known_predictions": 3,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "refused",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Сейчас ничего менять не обещаю",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "0",
+              "currency": "RUB",
+              "owner": "mira",
+              "statement": "Сейчас ничего менять не обещаю",
+              "due": {
+                "literal": "2030-04-03T08:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": [
+              "agreement",
+              "entity_id",
+              "amount",
+              "currency",
+              "owner",
+              "due",
+              "due.resolved",
+              "due.cutoff",
+              "conditions"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_681900ad2977f0f31b5621e0ab0b34a2ca4f3144010119aae49b4ca15fe56e67",
+              "segment": 0,
+              "start": 46,
+              "end": 76,
+              "quote": "Сейчас ничего менять не обещаю"
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "refused",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "0",
+            "currency": "RUB",
+            "owner": "mira",
+            "due.literal": "2030-04-03T08:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю."
+            ],
+            "unknown_fields": [
+              "agreement",
+              "amount",
+              "conditions",
+              "currency",
+              "due",
+              "due.cutoff",
+              "due.resolved",
+              "entity_id",
+              "owner"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "0",
+            "currency": "RUB",
+            "owner": "mira",
+            "statement": "Сейчас ничего менять не обещаю",
+            "due": {
+              "literal": "2030-04-03T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "0",
+            "currency": "RUB",
+            "owner": "mira",
+            "statement": "Сейчас ничего менять не обещаю",
+            "due": {
+              "literal": "2030-04-03T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ]
+        },
+        {
+          "raw_index": 1,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 1,
+                "quote": "Тогда поставить 8000 RUB?",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "8000",
+              "currency": "RUB",
+              "owner": "taren",
+              "statement": "Тогда поставить 8000 RUB?",
+              "due": {
+                "literal": "2030-04-03T08:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Тогда поставить 8000 RUB?",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": [
+              "agreement",
+              "entity_id",
+              "amount",
+              "currency",
+              "owner",
+              "due",
+              "due.resolved",
+              "due.cutoff",
+              "conditions"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_681900ad2977f0f31b5621e0ab0b34a2ca4f3144010119aae49b4ca15fe56e67",
+              "segment": 1,
+              "start": 0,
+              "end": 25,
+              "quote": "Тогда поставить 8000 RUB?"
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "8000",
+            "currency": "RUB",
+            "owner": "taren",
+            "due.literal": "2030-04-03T08:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Тогда поставить 8000 RUB?"
+            ],
+            "unknown_fields": [
+              "agreement",
+              "amount",
+              "conditions",
+              "currency",
+              "due",
+              "due.cutoff",
+              "due.resolved",
+              "entity_id",
+              "owner"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Тогда поставить 8000 RUB?",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "8000",
+            "currency": "RUB",
+            "owner": "taren",
+            "statement": "Тогда поставить 8000 RUB?",
+            "due": {
+              "literal": "2030-04-03T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Тогда поставить 8000 RUB?"
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "8000",
+            "currency": "RUB",
+            "owner": "taren",
+            "statement": "Тогда поставить 8000 RUB?",
+            "due": {
+              "literal": "2030-04-03T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Тогда поставить 8000 RUB?"
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ]
+        },
+        {
+          "raw_index": 2,
+          "raw": {
+            "agreement": "refused",
+            "evidence": [
+              {
+                "segment": 2,
+                "quote": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "8000",
+              "currency": "RUB",
+              "owner": "mira",
+              "statement": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+              "due": {
+                "literal": "2030-04-03T08:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": [
+              "agreement",
+              "entity_id",
+              "amount",
+              "currency",
+              "owner",
+              "due",
+              "due.resolved",
+              "due.cutoff",
+              "conditions"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_681900ad2977f0f31b5621e0ab0b34a2ca4f3144010119aae49b4ca15fe56e67",
+              "segment": 2,
+              "start": 0,
+              "end": 53,
+              "quote": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "refused",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "8000",
+            "currency": "RUB",
+            "owner": "mira",
+            "due.literal": "2030-04-03T08:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым."
+            ],
+            "unknown_fields": [
+              "agreement",
+              "amount",
+              "conditions",
+              "currency",
+              "due",
+              "due.cutoff",
+              "due.resolved",
+              "entity_id",
+              "owner"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "8000",
+            "currency": "RUB",
+            "owner": "mira",
+            "statement": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+            "due": {
+              "literal": "2030-04-03T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "8000",
+            "currency": "RUB",
+            "owner": "mira",
+            "statement": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+            "due": {
+              "literal": "2030-04-03T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ]
+        }
+      ],
+      "gold": [],
+      "strict_matches": [],
+      "aligned": [],
+      "unmatched_gold": [],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        },
+        {
+          "raw_index": 1,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        },
+        {
+          "raw_index": 2,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        }
+      ],
+      "usage": {
+        "completion_tokens": 876,
+        "prompt_tokens": 1071,
+        "total_tokens": 1947,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 2,
+      "case_id": "H03",
+      "language": "en",
+      "source_alias": "meeting-a",
+      "source_id": "src_3d756036c94ac5d521a5ae721b5f178c54157fa8b7b3c5750d04d9c52734b0e5",
+      "elapsed_ms": 63556.758546999976,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "The agreed amount on O2 is GBP 6400.25, to be saved by 7 June 2030.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "I accept GBP 6400.25 on O2 and that date.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O2",
+              "amount": "6400.25",
+              "currency": "GBP",
+              "owner": "solva",
+              "statement": "I accept GBP 6400.25 on O2 and that date.",
+              "due": {
+                "literal": "7 June 2030",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "I cannot name the person yet.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": [
+              "owner",
+              "entity_id",
+              "amount",
+              "currency",
+              "agreement",
+              "due",
+              "due.resolved",
+              "due.cutoff",
+              "conditions"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_3d756036c94ac5d521a5ae721b5f178c54157fa8b7b3c5750d04d9c52734b0e5",
+              "segment": 0,
+              "start": 0,
+              "end": 67,
+              "quote": "The agreed amount on O2 is GBP 6400.25, to be saved by 7 June 2030."
+            },
+            {
+              "source": "src_3d756036c94ac5d521a5ae721b5f178c54157fa8b7b3c5750d04d9c52734b0e5",
+              "segment": 1,
+              "start": 0,
+              "end": 41,
+              "quote": "I accept GBP 6400.25 on O2 and that date."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "6400.25",
+            "currency": "GBP",
+            "owner": "solva",
+            "due.literal": "7 June 2030",
+            "due.resolved": "2030-06-07",
+            "due.precision": "date",
+            "due.zone": "Europe/London",
+            "conditions.literals": [
+              "I cannot name the person yet."
+            ],
+            "unknown_fields": [
+              "agreement",
+              "amount",
+              "conditions",
+              "currency",
+              "due.cutoff",
+              "entity_id",
+              "owner"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "I cannot name the person yet.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "6400.25",
+            "currency": "GBP",
+            "owner": "solva",
+            "statement": "I accept GBP 6400.25 on O2 and that date.",
+            "due": {
+              "literal": "7 June 2030",
+              "resolved": "2030-06-07",
+              "precision": "date",
+              "zone": "Europe/London"
+            },
+            "conditions": [
+              {
+                "literal": "I cannot name the person yet."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due.cutoff",
+            "entity_id",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "6400.25",
+            "currency": "GBP",
+            "owner": "solva",
+            "statement": "I accept GBP 6400.25 on O2 and that date.",
+            "due": {
+              "literal": "7 June 2030",
+              "resolved": "2030-06-07",
+              "precision": "date",
+              "zone": "Europe/London"
+            },
+            "conditions": [
+              {
+                "literal": "I cannot name the person yet."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due.cutoff",
+            "entity_id",
+            "owner"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H03-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "6400.25",
+            "currency": "GBP",
+            "owner": null,
+            "due.literal": "by 7 June 2030",
+            "due.resolved": "2030-06-07",
+            "due.precision": "date",
+            "due.zone": "Europe/London",
+            "conditions.literals": [],
+            "unknown_fields": [
+              "owner"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_3d756036c94ac5d521a5ae721b5f178c54157fa8b7b3c5750d04d9c52734b0e5",
+              "segment": 0,
+              "quote": "The agreed amount on O2 is GBP 6400.25, to be saved by 7 June 2030. Someone on our team will do it; no person is assigned.",
+              "start": 0,
+              "end": 122,
+              "speaker": "Meren",
+              "person_id": "meren",
+              "supported": true
+            },
+            {
+              "source": "src_3d756036c94ac5d521a5ae721b5f178c54157fa8b7b3c5750d04d9c52734b0e5",
+              "segment": 1,
+              "quote": "I accept GBP 6400.25 on O2 and that date. I cannot name the person yet.",
+              "start": 0,
+              "end": 71,
+              "speaker": "Solva",
+              "person_id": "solva",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H03-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "The agreed amount on O2 is GBP 6400.25, to be saved by 7 June 2030. Someone on our team will do it; no person is assigned.",
+                "start": 0,
+                "end": 122
+              },
+              {
+                "segment": 1,
+                "quote": "I accept GBP 6400.25 on O2 and that date. I cannot name the person yet.",
+                "start": 0,
+                "end": 71
+              }
+            ],
+            "owner": null,
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "6400.25",
+            "currency": "GBP",
+            "due": {
+              "literal": "by 7 June 2030",
+              "resolved": "2030-06-07",
+              "precision": "date",
+              "zone": "Europe/London"
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "owner"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 2,
+          "raw_index": 0,
+          "gold_id": "H03-A1",
+          "source_alignment_choices": [
+            "H03-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O2",
+              "actual": "O2",
+              "correct": true
+            },
+            "amount": {
+              "expected": "6400.25",
+              "actual": "6400.25",
+              "correct": true
+            },
+            "currency": {
+              "expected": "GBP",
+              "actual": "GBP",
+              "correct": true
+            },
+            "owner": {
+              "expected": null,
+              "actual": "solva",
+              "correct": false
+            },
+            "due.literal": {
+              "expected": "by 7 June 2030",
+              "actual": "7 June 2030",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": "2030-06-07",
+              "actual": "2030-06-07",
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "date",
+              "actual": "date",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": "Europe/London",
+              "actual": "Europe/London",
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [
+                "I cannot name the person yet."
+              ],
+              "correct": false
+            },
+            "unknown_fields": {
+              "expected": [
+                "owner"
+              ],
+              "actual": [
+                "agreement",
+                "amount",
+                "conditions",
+                "currency",
+                "due.cutoff",
+                "entity_id",
+                "owner"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [
+                {
+                  "literal": "I cannot name the person yet.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ],
+              "correct": false
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H03-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H03-A1",
+              "differences": [
+                "owner",
+                "due.literal",
+                "conditions.literals",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 334,
+        "prompt_tokens": 1093,
+        "total_tokens": 1427,
+        "prompt_tokens_details": {
+          "cached_tokens": 806
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 3,
+      "case_id": "H04",
+      "language": "ru",
+      "source_alias": "meeting-a",
+      "source_id": "src_5e6e98c14ec7aa3ca27e0d53810c0509bea142b0b140f5f6ce7c0a1dc09afb57",
+      "elapsed_ms": 48660.89718099998,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "При этом условии согласен: Фера записывает 5600.45 EUR в O1.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "5600.45",
+              "currency": "EUR",
+              "owner": "fera",
+              "statement": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+              "due": {
+                "literal": "2030-05-21T09:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Если письменное разрешение на экспорт получено",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": [
+              "agreement",
+              "entity_id",
+              "amount",
+              "currency",
+              "owner",
+              "due",
+              "due.resolved",
+              "due.cutoff",
+              "conditions"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_5e6e98c14ec7aa3ca27e0d53810c0509bea142b0b140f5f6ce7c0a1dc09afb57",
+              "segment": 0,
+              "start": 48,
+              "end": 94,
+              "quote": "я, Фера, запишу 5600.45 EUR в сумму сделки O1."
+            },
+            {
+              "source": "src_5e6e98c14ec7aa3ca27e0d53810c0509bea142b0b140f5f6ce7c0a1dc09afb57",
+              "segment": 1,
+              "start": 0,
+              "end": 60,
+              "quote": "При этом условии согласен: Фера записывает 5600.45 EUR в O1."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "5600.45",
+            "currency": "EUR",
+            "owner": "fera",
+            "due.literal": "2030-05-21T09:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Если письменное разрешение на экспорт получено"
+            ],
+            "unknown_fields": [
+              "agreement",
+              "amount",
+              "conditions",
+              "currency",
+              "due",
+              "due.cutoff",
+              "due.resolved",
+              "entity_id",
+              "owner"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Если письменное разрешение на экспорт получено",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "5600.45",
+            "currency": "EUR",
+            "owner": "fera",
+            "statement": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+            "due": {
+              "literal": "2030-05-21T09:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Если письменное разрешение на экспорт получено"
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "5600.45",
+            "currency": "EUR",
+            "owner": "fera",
+            "statement": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+            "due": {
+              "literal": "2030-05-21T09:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Если письменное разрешение на экспорт получено"
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "agreement",
+            "amount",
+            "conditions",
+            "currency",
+            "due",
+            "due.cutoff",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H04-A1",
+          "semantic": {
+            "agreement": "conditional",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "5600.45",
+            "currency": "EUR",
+            "owner": "fera",
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "письменное разрешение на экспорт получено"
+            ],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "письменное разрешение на экспорт получено",
+                "status": "known",
+                "value": false
+              }
+            ]
+          },
+          "spans": [
+            {
+              "source": "src_5e6e98c14ec7aa3ca27e0d53810c0509bea142b0b140f5f6ce7c0a1dc09afb57",
+              "segment": 0,
+              "quote": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+              "start": 0,
+              "end": 94,
+              "speaker": "Фера",
+              "person_id": "fera",
+              "supported": true
+            },
+            {
+              "source": "src_5e6e98c14ec7aa3ca27e0d53810c0509bea142b0b140f5f6ce7c0a1dc09afb57",
+              "segment": 1,
+              "quote": "При этом условии согласен: Фера записывает 5600.45 EUR в O1.",
+              "start": 0,
+              "end": 60,
+              "speaker": "Ковен",
+              "person_id": "koven",
+              "supported": true
+            },
+            {
+              "source": "src_5e6e98c14ec7aa3ca27e0d53810c0509bea142b0b140f5f6ce7c0a1dc09afb57",
+              "segment": 2,
+              "quote": "Разрешение пока не получено. Записку в черновике не считайте разрешением.",
+              "start": 0,
+              "end": 73,
+              "speaker": "Фера",
+              "person_id": "fera",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H04-A1",
+            "source": "meeting-a",
+            "agreement": "conditional",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+                "start": 0,
+                "end": 94
+              },
+              {
+                "segment": 1,
+                "quote": "При этом условии согласен: Фера записывает 5600.45 EUR в O1.",
+                "start": 0,
+                "end": 60
+              },
+              {
+                "segment": 2,
+                "quote": "Разрешение пока не получено. Записку в черновике не считайте разрешением.",
+                "start": 0,
+                "end": 73
+              }
+            ],
+            "owner": "fera",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "5600.45",
+            "currency": "EUR",
+            "due": {
+              "literal": null,
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "письменное разрешение на экспорт получено",
+                "status": "known",
+                "value": false
+              }
+            ],
+            "unknown_fields": [
+              "due"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 3,
+          "raw_index": 0,
+          "gold_id": "H04-A1",
+          "source_alignment_choices": [
+            "H04-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "conditional",
+              "actual": "proposed",
+              "correct": false
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O1",
+              "actual": "O1",
+              "correct": true
+            },
+            "amount": {
+              "expected": "5600.45",
+              "actual": "5600.45",
+              "correct": true
+            },
+            "currency": {
+              "expected": "EUR",
+              "actual": "EUR",
+              "correct": true
+            },
+            "owner": {
+              "expected": "fera",
+              "actual": "fera",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": null,
+              "actual": "2030-05-21T09:00:00.000Z",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [
+                "письменное разрешение на экспорт получено"
+              ],
+              "actual": [
+                "Если письменное разрешение на экспорт получено"
+              ],
+              "correct": false
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "agreement",
+                "amount",
+                "conditions",
+                "currency",
+                "due",
+                "due.cutoff",
+                "due.resolved",
+                "entity_id",
+                "owner"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [
+                {
+                  "literal": "письменное разрешение на экспорт получено",
+                  "status": "known",
+                  "value": false
+                }
+              ],
+              "actual": [
+                {
+                  "literal": "Если письменное разрешение на экспорт получено",
+                  "status": "unknown",
+                  "value": null
+                }
+              ],
+              "correct": false
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H04-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H04-A1",
+              "differences": [
+                "agreement",
+                "due.literal",
+                "conditions.literals",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 384,
+        "prompt_tokens": 1099,
+        "total_tokens": 1483,
+        "prompt_tokens_details": {
+          "cached_tokens": 806
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 4,
+      "case_id": "H05",
+      "language": "en",
+      "source_alias": "meeting-a",
+      "source_id": "src_c173c634bf1115eeea30c14b5031628313ff7a5d0e73483c2351fbbbbb0cf120",
+      "elapsed_ms": 65836.114566,
+      "raw_candidate_count": 2,
+      "known_predictions": 2,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I will set the O1 amount to CAD 2300.75.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "Agreed, Pella will save CAD 2300.75 on O1.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "2300.75",
+              "currency": "CAD",
+              "owner": "pella",
+              "statement": "I will set the O1 amount to CAD 2300.75. Agreed, Pella will save CAD 2300.75 on O1.",
+              "due": {
+                "literal": "2030-07-15T08:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_c173c634bf1115eeea30c14b5031628313ff7a5d0e73483c2351fbbbbb0cf120",
+              "segment": 0,
+              "start": 0,
+              "end": 40,
+              "quote": "I will set the O1 amount to CAD 2300.75."
+            },
+            {
+              "source": "src_c173c634bf1115eeea30c14b5031628313ff7a5d0e73483c2351fbbbbb0cf120",
+              "segment": 1,
+              "start": 0,
+              "end": 42,
+              "quote": "Agreed, Pella will save CAD 2300.75 on O1."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2300.75",
+            "currency": "CAD",
+            "owner": "pella",
+            "due.literal": "2030-07-15T08:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2300.75",
+            "currency": "CAD",
+            "owner": "pella",
+            "statement": "I will set the O1 amount to CAD 2300.75. Agreed, Pella will save CAD 2300.75 on O1.",
+            "due": {
+              "literal": "2030-07-15T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2300.75",
+            "currency": "CAD",
+            "owner": "pella",
+            "statement": "I will set the O1 amount to CAD 2300.75. Agreed, Pella will save CAD 2300.75 on O1.",
+            "due": {
+              "literal": "2030-07-15T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        },
+        {
+          "raw_index": 1,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 2,
+                "quote": "A new draft alone will not replace this agreement.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "proposal.sent",
+              "entity_id": null,
+              "amount": null,
+              "currency": null,
+              "owner": null,
+              "statement": "A new draft alone will not replace this agreement.",
+              "due": {
+                "literal": "2030-07-15T08:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_c173c634bf1115eeea30c14b5031628313ff7a5d0e73483c2351fbbbbb0cf120",
+              "segment": 2,
+              "start": 0,
+              "end": 50,
+              "quote": "A new draft alone will not replace this agreement."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "proposal.sent",
+            "entity_id": null,
+            "amount": null,
+            "currency": null,
+            "owner": null,
+            "due.literal": "2030-07-15T08:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "amount",
+              "currency",
+              "due.resolved",
+              "entity_id",
+              "owner"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "proposal.sent",
+            "entity_id": null,
+            "amount": null,
+            "currency": null,
+            "owner": null,
+            "statement": "A new draft alone will not replace this agreement.",
+            "due": {
+              "literal": "2030-07-15T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "amount",
+            "currency",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "proposal.sent",
+            "entity_id": null,
+            "amount": null,
+            "currency": null,
+            "owner": null,
+            "statement": "A new draft alone will not replace this agreement.",
+            "due": {
+              "literal": "2030-07-15T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "amount",
+            "currency",
+            "due.resolved",
+            "entity_id",
+            "owner"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H05-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2300.75",
+            "currency": "CAD",
+            "owner": "pella",
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_c173c634bf1115eeea30c14b5031628313ff7a5d0e73483c2351fbbbbb0cf120",
+              "segment": 0,
+              "quote": "I will set the O1 amount to CAD 2300.75.",
+              "start": 0,
+              "end": 40,
+              "speaker": "Pella",
+              "person_id": "pella",
+              "supported": true
+            },
+            {
+              "source": "src_c173c634bf1115eeea30c14b5031628313ff7a5d0e73483c2351fbbbbb0cf120",
+              "segment": 1,
+              "quote": "Agreed, Pella will save CAD 2300.75 on O1.",
+              "start": 0,
+              "end": 42,
+              "speaker": "Loden",
+              "person_id": "loden",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H05-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I will set the O1 amount to CAD 2300.75.",
+                "start": 0,
+                "end": 40
+              },
+              {
+                "segment": 1,
+                "quote": "Agreed, Pella will save CAD 2300.75 on O1.",
+                "start": 0,
+                "end": 42
+              }
+            ],
+            "owner": "pella",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2300.75",
+            "currency": "CAD",
+            "due": {
+              "literal": null,
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 4,
+          "raw_index": 0,
+          "gold_id": "H05-A1",
+          "source_alignment_choices": [
+            "H05-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O1",
+              "actual": "O1",
+              "correct": true
+            },
+            "amount": {
+              "expected": "2300.75",
+              "actual": "2300.75",
+              "correct": true
+            },
+            "currency": {
+              "expected": "CAD",
+              "actual": "CAD",
+              "correct": true
+            },
+            "owner": {
+              "expected": "pella",
+              "actual": "pella",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": null,
+              "actual": "2030-07-15T08:00:00.000Z",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H05-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H05-A1",
+              "differences": [
+                "due.literal",
+                "unknown_fields"
+              ]
+            }
+          ]
+        },
+        {
+          "raw_index": 1,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        }
+      ],
+      "usage": {
+        "completion_tokens": 467,
+        "prompt_tokens": 1054,
+        "total_tokens": 1521,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 5,
+      "case_id": "H05",
+      "language": "en",
+      "source_alias": "meeting-b",
+      "source_id": "src_5b9f07855a3c0164330fa3f2a13a6d7117710e1e7de8d85fabe0eb30a5fb6f85",
+      "elapsed_ms": 36126.633620999986,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 1,
+                "quote": "I accept that replacement: Pella saves CAD 2190.25 on O1.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "2190.25",
+              "currency": "CAD",
+              "owner": "loden",
+              "statement": "I accept that replacement: Pella saves CAD 2190.25 on O1.",
+              "due": {
+                "literal": "2030-07-15T09:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_5b9f07855a3c0164330fa3f2a13a6d7117710e1e7de8d85fabe0eb30a5fb6f85",
+              "segment": 1,
+              "start": 0,
+              "end": 57,
+              "quote": "I accept that replacement: Pella saves CAD 2190.25 on O1."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2190.25",
+            "currency": "CAD",
+            "owner": "loden",
+            "due.literal": "2030-07-15T09:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2190.25",
+            "currency": "CAD",
+            "owner": "loden",
+            "statement": "I accept that replacement: Pella saves CAD 2190.25 on O1.",
+            "due": {
+              "literal": "2030-07-15T09:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2190.25",
+            "currency": "CAD",
+            "owner": "loden",
+            "statement": "I accept that replacement: Pella saves CAD 2190.25 on O1.",
+            "due": {
+              "literal": "2030-07-15T09:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H05-A2",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2190.25",
+            "currency": "CAD",
+            "owner": "pella",
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_5b9f07855a3c0164330fa3f2a13a6d7117710e1e7de8d85fabe0eb30a5fb6f85",
+              "segment": 0,
+              "quote": "Replace our earlier CAD 2300.75 agreement for O1. I will save CAD 2190.25 instead.",
+              "start": 0,
+              "end": 82,
+              "speaker": "Pella",
+              "person_id": "pella",
+              "supported": true
+            },
+            {
+              "source": "src_5b9f07855a3c0164330fa3f2a13a6d7117710e1e7de8d85fabe0eb30a5fb6f85",
+              "segment": 1,
+              "quote": "I accept that replacement: Pella saves CAD 2190.25 on O1.",
+              "start": 0,
+              "end": 57,
+              "speaker": "Loden",
+              "person_id": "loden",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H05-A2",
+            "source": "meeting-b",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Replace our earlier CAD 2300.75 agreement for O1. I will save CAD 2190.25 instead.",
+                "start": 0,
+                "end": 82
+              },
+              {
+                "segment": 1,
+                "quote": "I accept that replacement: Pella saves CAD 2190.25 on O1.",
+                "start": 0,
+                "end": 57
+              }
+            ],
+            "owner": "pella",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "2190.25",
+            "currency": "CAD",
+            "due": {
+              "literal": null,
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "supersedes": "H05-A1"
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 5,
+          "raw_index": 0,
+          "gold_id": "H05-A2",
+          "source_alignment_choices": [
+            "H05-A2"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O1",
+              "actual": "O1",
+              "correct": true
+            },
+            "amount": {
+              "expected": "2190.25",
+              "actual": "2190.25",
+              "correct": true
+            },
+            "currency": {
+              "expected": "CAD",
+              "actual": "CAD",
+              "correct": true
+            },
+            "owner": {
+              "expected": "pella",
+              "actual": "loden",
+              "correct": false
+            },
+            "due.literal": {
+              "expected": null,
+              "actual": "2030-07-15T09:00:00.000Z",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H05-A2"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H05-A2",
+              "differences": [
+                "owner",
+                "due.literal",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 224,
+        "prompt_tokens": 1037,
+        "total_tokens": 1261,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 6,
+      "case_id": "H06",
+      "language": "ru",
+      "source_alias": "meeting-a",
+      "source_id": "src_8531496eeac1fb07dd04da45f7ffdf2c2ae3d6d75bd30d8d58ff75103a24d0e5",
+      "elapsed_ms": 35962.356876999955,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Яра, внесу USD 7800 в O2.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "Согласен на USD 7800 в O2; исполнитель Яра.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O2",
+              "amount": "7800",
+              "currency": "USD",
+              "owner": "yara",
+              "statement": "Я, Яра, внесу USD 7800 в O2.",
+              "due": {
+                "literal": "2030-02-14T08:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_8531496eeac1fb07dd04da45f7ffdf2c2ae3d6d75bd30d8d58ff75103a24d0e5",
+              "segment": 0,
+              "start": 0,
+              "end": 28,
+              "quote": "Я, Яра, внесу USD 7800 в O2."
+            },
+            {
+              "source": "src_8531496eeac1fb07dd04da45f7ffdf2c2ae3d6d75bd30d8d58ff75103a24d0e5",
+              "segment": 1,
+              "start": 0,
+              "end": 43,
+              "quote": "Согласен на USD 7800 в O2; исполнитель Яра."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "USD",
+            "owner": "yara",
+            "due.literal": "2030-02-14T08:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "USD",
+            "owner": "yara",
+            "statement": "Я, Яра, внесу USD 7800 в O2.",
+            "due": {
+              "literal": "2030-02-14T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "USD",
+            "owner": "yara",
+            "statement": "Я, Яра, внесу USD 7800 в O2.",
+            "due": {
+              "literal": "2030-02-14T08:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H06-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "USD",
+            "owner": "yara",
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_8531496eeac1fb07dd04da45f7ffdf2c2ae3d6d75bd30d8d58ff75103a24d0e5",
+              "segment": 0,
+              "quote": "Я, Яра, внесу USD 7800 в O2.",
+              "start": 0,
+              "end": 28,
+              "speaker": "Яра",
+              "person_id": "yara",
+              "supported": true
+            },
+            {
+              "source": "src_8531496eeac1fb07dd04da45f7ffdf2c2ae3d6d75bd30d8d58ff75103a24d0e5",
+              "segment": 1,
+              "quote": "Согласен на USD 7800 в O2; исполнитель Яра.",
+              "start": 0,
+              "end": 43,
+              "speaker": "Велан",
+              "person_id": "velan",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H06-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Яра, внесу USD 7800 в O2.",
+                "start": 0,
+                "end": 28
+              },
+              {
+                "segment": 1,
+                "quote": "Согласен на USD 7800 в O2; исполнитель Яра.",
+                "start": 0,
+                "end": 43
+              }
+            ],
+            "owner": "yara",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "USD",
+            "due": {
+              "literal": null,
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 6,
+          "raw_index": 0,
+          "gold_id": "H06-A1",
+          "source_alignment_choices": [
+            "H06-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O2",
+              "actual": "O2",
+              "correct": true
+            },
+            "amount": {
+              "expected": "7800",
+              "actual": "7800",
+              "correct": true
+            },
+            "currency": {
+              "expected": "USD",
+              "actual": "USD",
+              "correct": true
+            },
+            "owner": {
+              "expected": "yara",
+              "actual": "yara",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": null,
+              "actual": "2030-02-14T08:00:00.000Z",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H06-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H06-A1",
+              "differences": [
+                "due.literal",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 264,
+        "prompt_tokens": 1022,
+        "total_tokens": 1286,
+        "prompt_tokens_details": {
+          "cached_tokens": 806
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 7,
+      "case_id": "H06",
+      "language": "ru",
+      "source_alias": "meeting-b",
+      "source_id": "src_d31acdb77e6c6da655155261461beb98a2985c5b90a281acdb8bdb7582d70cb9",
+      "elapsed_ms": 43141.58132399997,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "Согласен на EUR 7800 в O2. Какую запись считать действующей, пока не решили.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O2",
+              "amount": "7800",
+              "currency": "EUR",
+              "owner": "yara",
+              "statement": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+              "due": {
+                "literal": "2030-02-14T09:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Это отдельное согласование, прежнее мы ещё не отменяли.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_d31acdb77e6c6da655155261461beb98a2985c5b90a281acdb8bdb7582d70cb9",
+              "segment": 0,
+              "start": 0,
+              "end": 84,
+              "quote": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли."
+            },
+            {
+              "source": "src_d31acdb77e6c6da655155261461beb98a2985c5b90a281acdb8bdb7582d70cb9",
+              "segment": 1,
+              "start": 0,
+              "end": 76,
+              "quote": "Согласен на EUR 7800 в O2. Какую запись считать действующей, пока не решили."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "EUR",
+            "owner": "yara",
+            "due.literal": "2030-02-14T09:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Это отдельное согласование, прежнее мы ещё не отменяли."
+            ],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Это отдельное согласование, прежнее мы ещё не отменяли.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "EUR",
+            "owner": "yara",
+            "statement": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+            "due": {
+              "literal": "2030-02-14T09:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Это отдельное согласование, прежнее мы ещё не отменяли."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "EUR",
+            "owner": "yara",
+            "statement": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+            "due": {
+              "literal": "2030-02-14T09:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Это отдельное согласование, прежнее мы ещё не отменяли."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H06-A2",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "EUR",
+            "owner": "yara",
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_d31acdb77e6c6da655155261461beb98a2985c5b90a281acdb8bdb7582d70cb9",
+              "segment": 0,
+              "quote": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+              "start": 0,
+              "end": 84,
+              "speaker": "Яра",
+              "person_id": "yara",
+              "supported": true
+            },
+            {
+              "source": "src_d31acdb77e6c6da655155261461beb98a2985c5b90a281acdb8bdb7582d70cb9",
+              "segment": 1,
+              "quote": "Согласен на EUR 7800 в O2. Какую запись считать действующей, пока не решили.",
+              "start": 0,
+              "end": 76,
+              "speaker": "Велан",
+              "person_id": "velan",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H06-A2",
+            "source": "meeting-b",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+                "start": 0,
+                "end": 84
+              },
+              {
+                "segment": 1,
+                "quote": "Согласен на EUR 7800 в O2. Какую запись считать действующей, пока не решили.",
+                "start": 0,
+                "end": 76
+              }
+            ],
+            "owner": "yara",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "7800",
+            "currency": "EUR",
+            "due": {
+              "literal": null,
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conflicts_with": [
+              "H06-A1"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 7,
+          "raw_index": 0,
+          "gold_id": "H06-A2",
+          "source_alignment_choices": [
+            "H06-A2"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O2",
+              "actual": "O2",
+              "correct": true
+            },
+            "amount": {
+              "expected": "7800",
+              "actual": "7800",
+              "correct": true
+            },
+            "currency": {
+              "expected": "EUR",
+              "actual": "EUR",
+              "correct": true
+            },
+            "owner": {
+              "expected": "yara",
+              "actual": "yara",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": null,
+              "actual": "2030-02-14T09:00:00.000Z",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [
+                "Это отдельное согласование, прежнее мы ещё не отменяли."
+              ],
+              "correct": false
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [
+                {
+                  "literal": "Это отдельное согласование, прежнее мы ещё не отменяли.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ],
+              "correct": false
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H06-A2"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H06-A2",
+              "differences": [
+                "due.literal",
+                "conditions.literals",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 349,
+        "prompt_tokens": 1047,
+        "total_tokens": 1396,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 8,
+      "case_id": "H07",
+      "language": "en",
+      "source_alias": "meeting-a",
+      "source_id": "src_4de144072871779b54717d4ed60bc0e6235acfd478500aaedf42f280f64f9404",
+      "elapsed_ms": 58343.05952300003,
+      "raw_candidate_count": 2,
+      "known_predictions": 2,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I will email the final proposal for opportunity O2 to the test review team.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "Accepted. Vessa will send that final proposal.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "proposal.sent",
+              "entity_id": "O2",
+              "amount": "3250.55",
+              "currency": "GBP",
+              "owner": "vessa",
+              "statement": "I will email the final proposal for opportunity O2 to the test review team.",
+              "due": {
+                "literal": "2030-09-02T10:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_4de144072871779b54717d4ed60bc0e6235acfd478500aaedf42f280f64f9404",
+              "segment": 0,
+              "start": 0,
+              "end": 75,
+              "quote": "I will email the final proposal for opportunity O2 to the test review team."
+            },
+            {
+              "source": "src_4de144072871779b54717d4ed60bc0e6235acfd478500aaedf42f280f64f9404",
+              "segment": 1,
+              "start": 0,
+              "end": 46,
+              "quote": "Accepted. Vessa will send that final proposal."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": "3250.55",
+            "currency": "GBP",
+            "owner": "vessa",
+            "due.literal": "2030-09-02T10:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": "3250.55",
+            "currency": "GBP",
+            "owner": "vessa",
+            "statement": "I will email the final proposal for opportunity O2 to the test review team.",
+            "due": {
+              "literal": "2030-09-02T10:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": "3250.55",
+            "currency": "GBP",
+            "owner": "vessa",
+            "statement": "I will email the final proposal for opportunity O2 to the test review team.",
+            "due": {
+              "literal": "2030-09-02T10:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        },
+        {
+          "raw_index": 1,
+          "raw": {
+            "agreement": "unknown",
+            "evidence": [
+              {
+                "segment": 2,
+                "quote": "The PDF in drafts is unfinished; saving GBP 3250.55 on O2 does not mean the proposal was sent.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O2",
+              "amount": "3250.55",
+              "currency": "GBP",
+              "owner": null,
+              "statement": "saving GBP 3250.55 on O2 does not mean the proposal was sent.",
+              "due": {
+                "literal": "2030-09-02T10:00:00.000Z",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": [
+              "owner",
+              "agreement"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_4de144072871779b54717d4ed60bc0e6235acfd478500aaedf42f280f64f9404",
+              "segment": 2,
+              "start": 0,
+              "end": 94,
+              "quote": "The PDF in drafts is unfinished; saving GBP 3250.55 on O2 does not mean the proposal was sent."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "supported": false,
+          "semantic": {
+            "agreement": "unknown",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "3250.55",
+            "currency": "GBP",
+            "owner": null,
+            "due.literal": "2030-09-02T10:00:00.000Z",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "agreement",
+              "due.resolved",
+              "owner"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "3250.55",
+            "currency": "GBP",
+            "owner": null,
+            "statement": "saving GBP 3250.55 on O2 does not mean the proposal was sent.",
+            "due": {
+              "literal": "2030-09-02T10:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "agreement",
+            "due.resolved",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "3250.55",
+            "currency": "GBP",
+            "owner": null,
+            "statement": "saving GBP 3250.55 on O2 does not mean the proposal was sent.",
+            "due": {
+              "literal": "2030-09-02T10:00:00.000Z",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "agreement",
+            "due.resolved",
+            "owner"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H07-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": null,
+            "currency": null,
+            "owner": "vessa",
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_4de144072871779b54717d4ed60bc0e6235acfd478500aaedf42f280f64f9404",
+              "segment": 0,
+              "quote": "I will email the final proposal for opportunity O2 to the test review team.",
+              "start": 0,
+              "end": 75,
+              "speaker": "Vessa",
+              "person_id": "vessa",
+              "supported": true
+            },
+            {
+              "source": "src_4de144072871779b54717d4ed60bc0e6235acfd478500aaedf42f280f64f9404",
+              "segment": 1,
+              "quote": "Accepted. Vessa will send that final proposal.",
+              "start": 0,
+              "end": 46,
+              "speaker": "Onar",
+              "person_id": "onar",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H07-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I will email the final proposal for opportunity O2 to the test review team.",
+                "start": 0,
+                "end": 75
+              },
+              {
+                "segment": 1,
+                "quote": "Accepted. Vessa will send that final proposal.",
+                "start": 0,
+                "end": 46
+              }
+            ],
+            "owner": "vessa",
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": null,
+            "currency": null,
+            "due": {
+              "literal": null,
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 8,
+          "raw_index": 0,
+          "gold_id": "H07-A1",
+          "source_alignment_choices": [
+            "H07-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "proposed",
+              "correct": false
+            },
+            "kind": {
+              "expected": "proposal.sent",
+              "actual": "proposal.sent",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O2",
+              "actual": "O2",
+              "correct": true
+            },
+            "amount": {
+              "expected": null,
+              "actual": "3250.55",
+              "correct": false
+            },
+            "currency": {
+              "expected": null,
+              "actual": "GBP",
+              "correct": false
+            },
+            "owner": {
+              "expected": "vessa",
+              "actual": "vessa",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": null,
+              "actual": "2030-09-02T10:00:00.000Z",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H07-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H07-A1",
+              "differences": [
+                "agreement",
+                "amount",
+                "currency",
+                "due.literal",
+                "unknown_fields"
+              ]
+            }
+          ]
+        },
+        {
+          "raw_index": 1,
+          "placeholder": false,
+          "reason": "unsupported",
+          "schema_errors": [],
+          "support_errors": [
+            "Deadline wording is not an exact source substring"
+          ],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        }
+      ],
+      "usage": {
+        "completion_tokens": 483,
+        "prompt_tokens": 1061,
+        "total_tokens": 1544,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 9,
+      "case_id": "H08",
+      "language": "ru",
+      "source_alias": "meeting-a",
+      "source_id": "src_3770583e9a73e727182b0781f52367a41a30eff0fe6fd15c997b4c7b9431fb57",
+      "elapsed_ms": 42055.65898200008,
+      "raw_candidate_count": 1,
+      "known_predictions": 1,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "1199.95",
+              "currency": "EUR",
+              "owner": "sera",
+              "statement": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+              "due": {
+                "literal": "02:30 27 октября 2030 года по берлинскому времени",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Возможно, позже перенесём срок; это пока не решение.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": [
+              "due.resolved",
+              "due.cutoff"
+            ]
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_3770583e9a73e727182b0781f52367a41a30eff0fe6fd15c997b4c7b9431fb57",
+              "segment": 0,
+              "start": 0,
+              "end": 101,
+              "quote": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "1199.95",
+            "currency": "EUR",
+            "owner": "sera",
+            "due.literal": "02:30 27 октября 2030 года по берлинскому времени",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Возможно, позже перенесём срок; это пока не решение."
+            ],
+            "unknown_fields": [
+              "due.cutoff",
+              "due.resolved"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Возможно, позже перенесём срок; это пока не решение.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "1199.95",
+            "currency": "EUR",
+            "owner": "sera",
+            "statement": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+            "due": {
+              "literal": "02:30 27 октября 2030 года по берлинскому времени",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Возможно, позже перенесём срок; это пока не решение."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "due.cutoff",
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "1199.95",
+            "currency": "EUR",
+            "owner": "sera",
+            "statement": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+            "due": {
+              "literal": "02:30 27 октября 2030 года по берлинскому времени",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Возможно, позже перенесём срок; это пока не решение."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.cutoff",
+            "due.resolved"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H08-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "1199.95",
+            "currency": "EUR",
+            "owner": "sera",
+            "due.literal": "к 02:30 27 октября 2030 года по берлинскому времени",
+            "due.resolved": null,
+            "due.precision": "instant",
+            "due.zone": "Europe/Berlin",
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_3770583e9a73e727182b0781f52367a41a30eff0fe6fd15c997b4c7b9431fb57",
+              "segment": 0,
+              "quote": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+              "start": 0,
+              "end": 101,
+              "speaker": "Сера",
+              "person_id": "sera",
+              "supported": true
+            },
+            {
+              "source": "src_3770583e9a73e727182b0781f52367a41a30eff0fe6fd15c997b4c7b9431fb57",
+              "segment": 1,
+              "quote": "Согласен: Сера сохранит 1199.95 EUR в O1. Какой из двух разов 02:30 имеется в виду, мы не выбрали.",
+              "start": 0,
+              "end": 98,
+              "speaker": "Лувен",
+              "person_id": "luven",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H08-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+                "start": 0,
+                "end": 101
+              },
+              {
+                "segment": 1,
+                "quote": "Согласен: Сера сохранит 1199.95 EUR в O1. Какой из двух разов 02:30 имеется в виду, мы не выбрали.",
+                "start": 0,
+                "end": 98
+              }
+            ],
+            "owner": "sera",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "1199.95",
+            "currency": "EUR",
+            "due": {
+              "literal": "к 02:30 27 октября 2030 года по берлинскому времени",
+              "resolved": null,
+              "precision": "instant",
+              "zone": "Europe/Berlin"
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 9,
+          "raw_index": 0,
+          "gold_id": "H08-A1",
+          "source_alignment_choices": [
+            "H08-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "proposed",
+              "correct": false
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O1",
+              "actual": "O1",
+              "correct": true
+            },
+            "amount": {
+              "expected": "1199.95",
+              "actual": "1199.95",
+              "correct": true
+            },
+            "currency": {
+              "expected": "EUR",
+              "actual": "EUR",
+              "correct": true
+            },
+            "owner": {
+              "expected": "sera",
+              "actual": "sera",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": "к 02:30 27 октября 2030 года по берлинскому времени",
+              "actual": "02:30 27 октября 2030 года по берлинскому времени",
+              "correct": false
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "instant",
+              "actual": "unknown",
+              "correct": false
+            },
+            "due.zone": {
+              "expected": "Europe/Berlin",
+              "actual": null,
+              "correct": false
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [
+                "Возможно, позже перенесём срок; это пока не решение."
+              ],
+              "correct": false
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.cutoff",
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [
+                {
+                  "literal": "Возможно, позже перенесём срок; это пока не решение.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ],
+              "correct": false
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H08-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H08-A1",
+              "differences": [
+                "agreement",
+                "due.literal",
+                "due.precision",
+                "due.zone",
+                "conditions.literals",
+                "unknown_fields"
+              ]
+            }
+          ]
+        }
+      ],
+      "usage": {
+        "completion_tokens": 328,
+        "prompt_tokens": 1122,
+        "total_tokens": 1450,
+        "prompt_tokens_details": {
+          "cached_tokens": 806
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 10,
+      "case_id": "H09",
+      "language": "en",
+      "source_alias": "meeting-a",
+      "source_id": "src_c707bccd9ceca3aa0b42bd2078679f9f7dd9091849baa4924277c9e5c66c749f",
+      "elapsed_ms": 85418.79626900004,
+      "raw_candidate_count": 2,
+      "known_predictions": 2,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O2",
+              "amount": "1840.35",
+              "currency": "AUD",
+              "owner": "emra",
+              "statement": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+              "due": {
+                "literal": "next week",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_c707bccd9ceca3aa0b42bd2078679f9f7dd9091849baa4924277c9e5c66c749f",
+              "segment": 0,
+              "start": 0,
+              "end": 69,
+              "quote": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1840.35",
+            "currency": "AUD",
+            "owner": "emra",
+            "due.literal": "next week",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week."
+            ],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1840.35",
+            "currency": "AUD",
+            "owner": "emra",
+            "statement": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+            "due": {
+              "literal": "next week",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1840.35",
+            "currency": "AUD",
+            "owner": "emra",
+            "statement": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+            "due": {
+              "literal": "next week",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        },
+        {
+          "raw_index": 1,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 2,
+                "quote": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O2",
+              "amount": "1700",
+              "currency": "AUD",
+              "owner": "emra",
+              "statement": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+              "due": {
+                "literal": "either",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": [
+                {
+                  "literal": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ]
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_c707bccd9ceca3aa0b42bd2078679f9f7dd9091849baa4924277c9e5c66c749f",
+              "segment": 2,
+              "start": 0,
+              "end": 70,
+              "quote": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1700",
+            "currency": "AUD",
+            "owner": "emra",
+            "due.literal": "either",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [
+              "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea."
+            ],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": [
+              {
+                "literal": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+                "status": "unknown",
+                "value": null
+              }
+            ]
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1700",
+            "currency": "AUD",
+            "owner": "emra",
+            "statement": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+            "due": {
+              "literal": "either",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea."
+              }
+            ]
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1700",
+            "currency": "AUD",
+            "owner": "emra",
+            "statement": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+            "due": {
+              "literal": "either",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": [
+              {
+                "literal": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea."
+              }
+            ]
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H09-A1",
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1840.35",
+            "currency": "AUD",
+            "owner": "emra",
+            "due.literal": "next week",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": "Australia/Perth",
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due"
+            ],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_c707bccd9ceca3aa0b42bd2078679f9f7dd9091849baa4924277c9e5c66c749f",
+              "segment": 0,
+              "quote": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+              "start": 0,
+              "end": 69,
+              "speaker": "Emra",
+              "person_id": "emra",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H09-A1",
+            "source": "meeting-a",
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+                "start": 0,
+                "end": 69
+              }
+            ],
+            "owner": "emra",
+            "kind": "crm.amount",
+            "entity_id": "O2",
+            "amount": "1840.35",
+            "currency": "AUD",
+            "due": {
+              "literal": "next week",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": "Australia/Perth"
+            },
+            "conditions": [],
+            "unknown_fields": [
+              "due"
+            ]
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 10,
+          "raw_index": 0,
+          "gold_id": "H09-A1",
+          "source_alignment_choices": [
+            "H09-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "proposed",
+              "actual": "proposed",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O2",
+              "actual": "O2",
+              "correct": true
+            },
+            "amount": {
+              "expected": "1840.35",
+              "actual": "1840.35",
+              "correct": true
+            },
+            "currency": {
+              "expected": "AUD",
+              "actual": "AUD",
+              "correct": true
+            },
+            "owner": {
+              "expected": "emra",
+              "actual": "emra",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": "next week",
+              "actual": "next week",
+              "correct": true
+            },
+            "due.resolved": {
+              "expected": null,
+              "actual": null,
+              "correct": true
+            },
+            "due.precision": {
+              "expected": "unknown",
+              "actual": "unknown",
+              "correct": true
+            },
+            "due.zone": {
+              "expected": "Australia/Perth",
+              "actual": null,
+              "correct": false
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [
+                "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week."
+              ],
+              "correct": false
+            },
+            "unknown_fields": {
+              "expected": [
+                "due"
+              ],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [
+                {
+                  "literal": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+                  "status": "unknown",
+                  "value": null
+                }
+              ],
+              "correct": false
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H09-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H09-A1",
+              "differences": [
+                "due.zone",
+                "conditions.literals",
+                "unknown_fields"
+              ]
+            }
+          ]
+        },
+        {
+          "raw_index": 1,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        }
+      ],
+      "usage": {
+        "completion_tokens": 494,
+        "prompt_tokens": 1074,
+        "total_tokens": 1568,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    },
+    {
+      "run_index": 11,
+      "case_id": "H10",
+      "language": "ru",
+      "source_alias": "meeting-a",
+      "source_id": "src_558da0e8ff954bf242f1d80a04d497be08a1344d8c6916163585df3ce510951e",
+      "elapsed_ms": 69957.65029200003,
+      "raw_candidate_count": 2,
+      "known_predictions": 2,
+      "placeholder_count": 0,
+      "raw_response_available": true,
+      "failure": null,
+      "predictions": [
+        {
+          "raw_index": 0,
+          "raw": {
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+                "start": null,
+                "end": null
+              },
+              {
+                "segment": 1,
+                "quote": "Принимаю: Белта запишет 9050.15 USD именно в O1.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "crm.amount",
+              "entity_id": "O1",
+              "amount": "9050.15",
+              "currency": "USD",
+              "owner": "belta",
+              "statement": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+              "due": {
+                "literal": "до 18:00 19 сентября 2030 года, время UTC",
+                "resolved": null,
+                "precision": "unknown",
+                "zone": null
+              },
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_558da0e8ff954bf242f1d80a04d497be08a1344d8c6916163585df3ce510951e",
+              "segment": 0,
+              "start": 0,
+              "end": 97,
+              "quote": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC."
+            },
+            {
+              "source": "src_558da0e8ff954bf242f1d80a04d497be08a1344d8c6916163585df3ce510951e",
+              "segment": 1,
+              "start": 0,
+              "end": 48,
+              "quote": "Принимаю: Белта запишет 9050.15 USD именно в O1."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "9050.15",
+            "currency": "USD",
+            "owner": "belta",
+            "due.literal": "до 18:00 19 сентября 2030 года, время UTC",
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "due.resolved"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "9050.15",
+            "currency": "USD",
+            "owner": "belta",
+            "statement": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+            "due": {
+              "literal": "до 18:00 19 сентября 2030 года, время UTC",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "due.resolved"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "9050.15",
+            "currency": "USD",
+            "owner": "belta",
+            "statement": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+            "due": {
+              "literal": "до 18:00 19 сентября 2030 года, время UTC",
+              "resolved": null,
+              "precision": "unknown",
+              "zone": null
+            },
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "due.resolved"
+          ]
+        },
+        {
+          "raw_index": 1,
+          "raw": {
+            "agreement": "proposed",
+            "evidence": [
+              {
+                "segment": 2,
+                "quote": "На O2 ничего не менять.",
+                "start": null,
+                "end": null
+              }
+            ],
+            "terms": {
+              "kind": "proposal.sent",
+              "entity_id": "O2",
+              "amount": null,
+              "currency": null,
+              "owner": null,
+              "statement": "На O2 ничего не менять.",
+              "due": null,
+              "conditions": []
+            },
+            "unknown_fields": []
+          },
+          "placeholder": false,
+          "schema_valid": true,
+          "source_valid": true,
+          "quote_valid": true,
+          "spans": [
+            {
+              "source": "src_558da0e8ff954bf242f1d80a04d497be08a1344d8c6916163585df3ce510951e",
+              "segment": 2,
+              "start": 0,
+              "end": 23,
+              "quote": "На O2 ничего не менять."
+            }
+          ],
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "supported": true,
+          "semantic": {
+            "agreement": "proposed",
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": null,
+            "currency": null,
+            "owner": null,
+            "due.literal": null,
+            "due.resolved": null,
+            "due.precision": "unknown",
+            "due.zone": null,
+            "conditions.literals": [],
+            "unknown_fields": [
+              "amount",
+              "currency",
+              "due",
+              "owner"
+            ],
+            "conditions.claims": []
+          },
+          "normalized_terms": {
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": null,
+            "currency": null,
+            "owner": null,
+            "statement": "На O2 ничего не менять.",
+            "due": null,
+            "conditions": []
+          },
+          "normalized_unknown_fields": [
+            "amount",
+            "currency",
+            "due",
+            "owner"
+          ],
+          "recomputed_pipeline_terms": {
+            "kind": "proposal.sent",
+            "entity_id": "O2",
+            "amount": null,
+            "currency": null,
+            "owner": null,
+            "statement": "На O2 ничего не менять.",
+            "due": null,
+            "conditions": []
+          },
+          "recomputed_pipeline_unknown_fields": [
+            "amount",
+            "currency",
+            "due",
+            "owner"
+          ]
+        }
+      ],
+      "gold": [
+        {
+          "id": "H10-A1",
+          "semantic": {
+            "agreement": "accepted",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "9050.15",
+            "currency": "USD",
+            "owner": "belta",
+            "due.literal": "до 18:00 19 сентября 2030 года, время UTC",
+            "due.resolved": "2030-09-19T18:00:00.000Z",
+            "due.precision": "instant",
+            "due.zone": "Etc/UTC",
+            "conditions.literals": [],
+            "unknown_fields": [],
+            "conditions.claims": []
+          },
+          "spans": [
+            {
+              "source": "src_558da0e8ff954bf242f1d80a04d497be08a1344d8c6916163585df3ce510951e",
+              "segment": 0,
+              "quote": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+              "start": 0,
+              "end": 97,
+              "speaker": "Белта",
+              "person_id": "belta",
+              "supported": true
+            },
+            {
+              "source": "src_558da0e8ff954bf242f1d80a04d497be08a1344d8c6916163585df3ce510951e",
+              "segment": 1,
+              "quote": "Принимаю: Белта запишет 9050.15 USD именно в O1.",
+              "start": 0,
+              "end": 48,
+              "speaker": "Ровен",
+              "person_id": "roven",
+              "supported": true
+            }
+          ],
+          "raw": {
+            "id": "H10-A1",
+            "source": "meeting-a",
+            "agreement": "accepted",
+            "evidence": [
+              {
+                "segment": 0,
+                "quote": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+                "start": 0,
+                "end": 97
+              },
+              {
+                "segment": 1,
+                "quote": "Принимаю: Белта запишет 9050.15 USD именно в O1.",
+                "start": 0,
+                "end": 48
+              }
+            ],
+            "owner": "belta",
+            "kind": "crm.amount",
+            "entity_id": "O1",
+            "amount": "9050.15",
+            "currency": "USD",
+            "due": {
+              "literal": "до 18:00 19 сентября 2030 года, время UTC",
+              "resolved": "2030-09-19T18:00:00Z",
+              "precision": "instant",
+              "zone": "Etc/UTC"
+            },
+            "conditions": [],
+            "unknown_fields": []
+          }
+        }
+      ],
+      "strict_matches": [],
+      "aligned": [
+        {
+          "run_index": 11,
+          "raw_index": 0,
+          "gold_id": "H10-A1",
+          "source_alignment_choices": [
+            "H10-A1"
+          ],
+          "fields": {
+            "agreement": {
+              "expected": "accepted",
+              "actual": "accepted",
+              "correct": true
+            },
+            "kind": {
+              "expected": "crm.amount",
+              "actual": "crm.amount",
+              "correct": true
+            },
+            "entity_id": {
+              "expected": "O1",
+              "actual": "O1",
+              "correct": true
+            },
+            "amount": {
+              "expected": "9050.15",
+              "actual": "9050.15",
+              "correct": true
+            },
+            "currency": {
+              "expected": "USD",
+              "actual": "USD",
+              "correct": true
+            },
+            "owner": {
+              "expected": "belta",
+              "actual": "belta",
+              "correct": true
+            },
+            "due.literal": {
+              "expected": "до 18:00 19 сентября 2030 года, время UTC",
+              "actual": "до 18:00 19 сентября 2030 года, время UTC",
+              "correct": true
+            },
+            "due.resolved": {
+              "expected": "2030-09-19T18:00:00.000Z",
+              "actual": null,
+              "correct": false
+            },
+            "due.precision": {
+              "expected": "instant",
+              "actual": "unknown",
+              "correct": false
+            },
+            "due.zone": {
+              "expected": "Etc/UTC",
+              "actual": null,
+              "correct": false
+            },
+            "conditions.literals": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            },
+            "unknown_fields": {
+              "expected": [],
+              "actual": [
+                "due.resolved"
+              ],
+              "correct": false
+            },
+            "conditions.claims": {
+              "expected": [],
+              "actual": [],
+              "correct": true
+            }
+          }
+        }
+      ],
+      "unmatched_gold": [
+        "H10-A1"
+      ],
+      "unmatched_predictions": [
+        {
+          "raw_index": 0,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": [
+            {
+              "gold_id": "H10-A1",
+              "differences": [
+                "due.resolved",
+                "due.precision",
+                "due.zone",
+                "unknown_fields"
+              ]
+            }
+          ]
+        },
+        {
+          "raw_index": 1,
+          "placeholder": false,
+          "reason": "semantic_or_detection_mismatch",
+          "schema_errors": [],
+          "support_errors": [],
+          "quote_errors": [],
+          "source_aligned_gold": []
+        }
+      ],
+      "usage": {
+        "completion_tokens": 455,
+        "prompt_tokens": 1095,
+        "total_tokens": 1550,
+        "prompt_tokens_details": {
+          "cached_tokens": 805
+        }
+      },
+      "pipeline": {
+        "actual_model": "pactspan-qwen3-4b-q4_k_m",
+        "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+        "postprocessor": null
+      }
+    }
+  ],
+  "limitations": [
+    "Strict matching requires exact source overlap and all declared primary fields; citation validity alone is not semantic accuracy.",
+    "Detection alignment uses source spans only; field accuracy covers every aligned record, including strict errors.",
+    "Normalized pipeline due/unknown fields are scored after postprocessing; raw schema/citations/condition claims remain separate.",
+    "Unknown failure counts keep primary FP/precision unknown; known failure rows/placeholders are false positives and gold remains false negative.",
+    "No best-of-N, hidden filtering, confidence cutoff, human correction credit or evaluation threshold is applied."
+  ]
+}

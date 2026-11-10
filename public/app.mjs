@@ -140,6 +140,7 @@ function render() {
   }));
   const sourceIndex = $('source-index'); sourceIndex.replaceChildren();
   if (local) {
+    if (local.workspace.capabilities.extraction) sourceIndex.append(element('p', { class: 'hint' }, 'Experimental extraction. Review each term against the transcript; enter missing candidates manually.'));
     for (const source of Object.values(snapshot.sources)) sourceIndex.append(element('div', { class: 'source-entry' },
       details(source.title, source), local.workspace.capabilities.extraction ? button('Extract candidates', () => run(async () => {
         message('Extracting candidates with the local model…');

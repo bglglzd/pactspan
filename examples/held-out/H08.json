@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "H08",
+  "language": "ru",
+  "title": "Сохранить неоднозначное местное время",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Неоднозначный берлинский срок",
+      "meeting_at": "2030-10-25T08:00:00Z",
+      "time_zone": "Europe/Berlin",
+      "participants": [
+        {
+          "speaker": "Сера",
+          "person_id": "sera"
+        },
+        {
+          "speaker": "Лувен",
+          "person_id": "luven"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Сера",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени."
+        },
+        {
+          "speaker": "Лувен",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Согласен: Сера сохранит 1199.95 EUR в O1. Какой из двух разов 02:30 имеется в виду, мы не выбрали."
+        },
+        {
+          "speaker": "Сера",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "Возможно, позже перенесём срок; это пока не решение."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H08-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я, Сера, сохраню 1199.95 EUR как сумму сделки O1 к 02:30 27 октября 2030 года по берлинскому времени.",
+          "start": 0,
+          "end": 101
+        },
+        {
+          "segment": 1,
+          "quote": "Согласен: Сера сохранит 1199.95 EUR в O1. Какой из двух разов 02:30 имеется в виду, мы не выбрали.",
+          "start": 0,
+          "end": 98
+        }
+      ],
+      "owner": "sera",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "1199.95",
+      "currency": "EUR",
+      "due": {
+        "literal": "к 02:30 27 октября 2030 года по берлинскому времени",
+        "resolved": null,
+        "precision": "instant",
+        "zone": "Europe/Berlin"
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "Возможно, позже перенесём срок; это пока не решение.",
+      "start": 0,
+      "end": 52,
+      "reason": "possible future rescheduling is not an accepted amendment"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "1100",
+      "currency": "EUR",
+      "revision": 4
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H08-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed",
+      "retained_unknowns": [
+        "due"
+      ]
+    },
+    {
+      "action": "resolve_deadline",
+      "annotation": "H08-A1",
+      "version": 1,
+      "time_zone": "Europe/Berlin",
+      "meeting_at": "2030-10-25T08:00:00Z",
+      "refusal_reason": "ambiguous_local_time",
+      "expected_state": "confirmed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H08-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "1100",
+        "currency": "EUR",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "forbidden_inferences": [
+      "Do not select either UTC instant for the repeated local 02:30."
+    ],
+    "reason": "The terms are accepted but the explicitly unresolved repeated wall time retains its literal and instant precision without an invented UTC instant."
+  }
+}

@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "H10",
+  "language": "ru",
+  "title": "Сохранить квитанцию после изменения внешней суммы",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Проверка конкретной сделки и последующего расхождения",
+      "meeting_at": "2030-09-19T09:00:00Z",
+      "time_zone": "Etc/UTC",
+      "participants": [
+        {
+          "speaker": "Белта",
+          "person_id": "belta"
+        },
+        {
+          "speaker": "Ровен",
+          "person_id": "roven"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Белта",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC."
+        },
+        {
+          "speaker": "Ровен",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Принимаю: Белта запишет 9050.15 USD именно в O1."
+        },
+        {
+          "speaker": "Ровен",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "На O2 ничего не менять."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H10-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я, Белта, установлю 9050.15 USD в поле суммы сделки O1 до 18:00 19 сентября 2030 года, время UTC.",
+          "start": 0,
+          "end": 97
+        },
+        {
+          "segment": 1,
+          "quote": "Принимаю: Белта запишет 9050.15 USD именно в O1.",
+          "start": 0,
+          "end": 48
+        }
+      ],
+      "owner": "belta",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "9050.15",
+      "currency": "USD",
+      "due": {
+        "literal": "до 18:00 19 сентября 2030 года, время UTC",
+        "resolved": "2030-09-19T18:00:00Z",
+        "precision": "instant",
+        "zone": "Etc/UTC"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "На O2 ничего не менять.",
+      "start": 0,
+      "end": 23,
+      "reason": "explicit prohibition on changing a different entity"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "9000.15",
+      "currency": "USD",
+      "revision": 5
+    },
+    {
+      "entity_id": "O2",
+      "amount": "9050.15",
+      "currency": "USD",
+      "revision": 11
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H10-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H10-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O2",
+        "amount": "9050.15",
+        "currency": "USD",
+        "revision": 11
+      },
+      "observed_at": "2030-09-19T09:10:00Z",
+      "refusal_reason": "entity_mismatch",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "H10-A1",
+      "version": 1,
+      "approval_id": "APH10",
+      "entity_id": "O1",
+      "before_revision": 5,
+      "amount": "9050.15",
+      "currency": "USD",
+      "at": "2030-09-19T09:11:00Z",
+      "expires_at": "2030-09-19T09:51:00Z",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "H10-A1",
+      "version": 1,
+      "approval_id": "APH10",
+      "outcome": "acknowledged",
+      "at": "2030-09-19T09:12:00Z",
+      "result_revision": 6,
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H10-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "9050.15",
+        "currency": "USD",
+        "revision": 6
+      },
+      "observed_at": "2030-09-19T09:13:00Z",
+      "expected_state": "fulfilled"
+    },
+    {
+      "action": "external_crm_change",
+      "entity_id": "O1",
+      "amount": "8990.15",
+      "currency": "USD",
+      "revision": 7,
+      "at": "2030-09-19T10:00:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H10-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "8990.15",
+        "currency": "USD",
+        "revision": 7
+      },
+      "observed_at": "2030-09-19T10:01:00Z",
+      "refusal_reason": "amount_mismatch",
+      "expected_state": "disputed"
+    },
+    {
+      "action": "restart",
+      "at": "2030-09-19T10:02:00Z",
+      "expected_state": "disputed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H10-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "8990.15",
+        "currency": "USD",
+        "revision": 7
+      },
+      "observed_at": "2030-09-19T10:03:00Z",
+      "refusal_reason": "amount_mismatch",
+      "expected_state": "disputed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H10-A1",
+        "version": 1,
+        "state": "disputed",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "8990.15",
+        "currency": "USD",
+        "revision": 7
+      },
+      {
+        "entity_id": "O2",
+        "amount": "9050.15",
+        "currency": "USD",
+        "revision": 11
+      }
+    ],
+    "logical_writes": 1,
+    "logical_fulfillments": 1,
+    "retained_history": [
+      "H10-A1:fulfilled",
+      "H10-A1:disputed"
+    ],
+    "retained_receipt_revision": 6,
+    "reason": "A match on O2 cannot fulfill O1. The independently verified O1 write creates one receipt; a later operator change disputes current fulfillment while preserving the receipt and history through restart."
+  }
+}

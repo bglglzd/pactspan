@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "H09",
+  "language": "en",
+  "title": "Keep an explicit proposal unconfirmed",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Unaccepted budget proposal",
+      "meeting_at": "2030-08-05T03:00:00Z",
+      "time_zone": "Australia/Perth",
+      "participants": [
+        {
+          "speaker": "Emra",
+          "person_id": "emra"
+        },
+        {
+          "speaker": "Dovan",
+          "person_id": "dovan"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Emra",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week."
+        },
+        {
+          "speaker": "Dovan",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "I have not accepted AUD 1840.35; I need to check the budget first."
+        },
+        {
+          "speaker": "Emra",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H09-A1",
+      "source": "meeting-a",
+      "agreement": "proposed",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I propose that I, Emra, save AUD 1840.35 on opportunity O2 next week.",
+          "start": 0,
+          "end": 69
+        }
+      ],
+      "owner": "emra",
+      "kind": "crm.amount",
+      "entity_id": "O2",
+      "amount": "1840.35",
+      "currency": "AUD",
+      "due": {
+        "literal": "next week",
+        "resolved": null,
+        "precision": "unknown",
+        "zone": "Australia/Perth"
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 1,
+      "quote": "I have not accepted AUD 1840.35; I need to check the budget first.",
+      "start": 0,
+      "end": 66,
+      "reason": "explicit nonacceptance; no second promise is made"
+    },
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "Do not save AUD 1700 on O2 either. I am withdrawing that earlier idea.",
+      "start": 0,
+      "end": 70,
+      "reason": "withdrawn alternative and explicit prohibition"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O2",
+      "amount": "1840.35",
+      "currency": "AUD",
+      "revision": 1
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "attempt_action",
+      "source": "meeting-a",
+      "entity_id": "O2",
+      "refusal_reason": "no_confirmed_commitment",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H09-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O2",
+        "amount": "1840.35",
+        "currency": "AUD",
+        "revision": 1
+      },
+      "observed_at": "2030-08-05T03:10:00Z",
+      "refusal_reason": "not_confirmed",
+      "expected_state": "proposed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H09-A1",
+        "version": 1,
+        "state": "proposed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O2",
+        "amount": "1840.35",
+        "currency": "AUD",
+        "revision": 1
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "forbidden_inferences": [
+      "Do not infer an accepted agreement or a particular day/cutoff from next week."
+    ],
+    "reason": "The specific proposal is a candidate, not an agreement or confirmation. A current amount cannot establish fulfillment before a manager decision."
+  }
+}

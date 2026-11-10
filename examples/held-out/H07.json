@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "H07",
+  "language": "en",
+  "title": "Track dispatch without a supported receipt",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Final proposal dispatch",
+      "meeting_at": "2030-09-02T10:00:00Z",
+      "time_zone": "Europe/London",
+      "participants": [
+        {
+          "speaker": "Vessa",
+          "person_id": "vessa"
+        },
+        {
+          "speaker": "Onar",
+          "person_id": "onar"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Vessa",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "I will email the final proposal for opportunity O2 to the test review team."
+        },
+        {
+          "speaker": "Onar",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Accepted. Vessa will send that final proposal."
+        },
+        {
+          "speaker": "Vessa",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "The PDF in drafts is unfinished; saving GBP 3250.55 on O2 does not mean the proposal was sent."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H07-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will email the final proposal for opportunity O2 to the test review team.",
+          "start": 0,
+          "end": 75
+        },
+        {
+          "segment": 1,
+          "quote": "Accepted. Vessa will send that final proposal.",
+          "start": 0,
+          "end": 46
+        }
+      ],
+      "owner": "vessa",
+      "kind": "proposal.sent",
+      "entity_id": "O2",
+      "amount": null,
+      "currency": null,
+      "due": {
+        "literal": null,
+        "resolved": null,
+        "precision": "unknown",
+        "zone": null
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "The PDF in drafts is unfinished; saving GBP 3250.55 on O2 does not mean the proposal was sent.",
+      "start": 0,
+      "end": 94,
+      "reason": "draft status and an amount do not evidence sending"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O2",
+      "amount": "3250.55",
+      "currency": "GBP",
+      "revision": 1
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H07-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "offer_evidence",
+      "annotation": "H07-A1",
+      "version": 1,
+      "evidence_kind": "proposal.draft",
+      "entity_id": "O2",
+      "refusal_reason": "draft_is_not_sent",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H07-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O2",
+        "amount": "3250.55",
+        "currency": "GBP",
+        "revision": 1
+      },
+      "observed_at": "2030-09-02T10:10:00Z",
+      "refusal_reason": "unsupported_proposal_sent_predicate",
+      "expected_state": "confirmed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H07-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O2",
+        "amount": "3250.55",
+        "currency": "GBP",
+        "revision": 1
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "A confirmed promise to send remains unverified: a draft and a CRM amount are not a supported independently verified sending event."
+  }
+}

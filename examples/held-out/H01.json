@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "H01",
+  "language": "en",
+  "title": "Save an accepted decimal amount once",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Amount entry decision",
+      "meeting_at": "2030-03-12T09:00:00Z",
+      "time_zone": "Europe/Berlin",
+      "participants": [
+        {
+          "speaker": "Nera",
+          "person_id": "nera"
+        },
+        {
+          "speaker": "Tovan",
+          "person_id": "tovan"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Nera",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time."
+        },
+        {
+          "speaker": "Tovan",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Agreed. You, Nera, will save EUR 4725.65 on O1."
+        },
+        {
+          "speaker": "Tovan",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "I hope the next quarter is easier; that is just a hope."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H01-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will save EUR 4725.65 as the amount on opportunity O1 by 16:30 on 12 March 2030, Europe/Berlin time.",
+          "start": 0,
+          "end": 102
+        },
+        {
+          "segment": 1,
+          "quote": "Agreed. You, Nera, will save EUR 4725.65 on O1.",
+          "start": 0,
+          "end": 47
+        }
+      ],
+      "owner": "nera",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "4725.65",
+      "currency": "EUR",
+      "due": {
+        "literal": "by 16:30 on 12 March 2030, Europe/Berlin time",
+        "resolved": "2030-03-12T15:30:00Z",
+        "precision": "instant",
+        "zone": "Europe/Berlin"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "I hope the next quarter is easier; that is just a hope.",
+      "start": 0,
+      "end": 55,
+      "reason": "aspiration; no promised action"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "5000",
+      "currency": "EUR",
+      "revision": 3
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H01-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "observe_crm",
+      "annotation": "H01-A1",
+      "version": 1,
+      "observation": {
+        "entity_id": "O1",
+        "amount": "5000",
+        "currency": "EUR",
+        "revision": 3
+      },
+      "observed_at": "2030-03-12T09:20:00Z",
+      "expected_state": "confirmed",
+      "refusal_reason": "amount_mismatch"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "H01-A1",
+      "version": 1,
+      "approval_id": "APH01",
+      "entity_id": "O1",
+      "before_revision": 3,
+      "amount": "4725.65",
+      "currency": "EUR",
+      "at": "2030-03-12T09:31:00Z",
+      "expires_at": "2030-03-12T10:10:00Z",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "H01-A1",
+      "version": 1,
+      "approval_id": "APH01",
+      "outcome": "acknowledged",
+      "at": "2030-03-12T09:32:00Z",
+      "result_revision": 4,
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H01-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "4725.65",
+        "currency": "EUR",
+        "revision": 4
+      },
+      "observed_at": "2030-03-12T09:34:00Z",
+      "expected_state": "fulfilled"
+    },
+    {
+      "action": "restart",
+      "at": "2030-03-12T09:35:00Z",
+      "expected_state": "fulfilled"
+    },
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "fulfilled",
+      "expected_source_count": 1
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H01-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "4725.65",
+        "currency": "EUR",
+        "revision": 4
+      },
+      "observed_at": "2030-03-12T09:36:00Z",
+      "expected_state": "fulfilled"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H01-A1",
+        "version": 1,
+        "state": "fulfilled",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "4725.65",
+        "currency": "EUR",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 1,
+    "logical_fulfillments": 1,
+    "source_count": 1,
+    "reason": "One approved external change and a separate fresh read fulfill the confirmed amount. Restart and identical source/read repetition do not create another logical fulfillment."
+  }
+}

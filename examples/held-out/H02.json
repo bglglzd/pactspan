@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "H02",
+  "language": "ru",
+  "title": "Отказ и открытый вопрос",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Обсуждение без принятого действия",
+      "meeting_at": "2030-04-03T08:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Мира",
+          "person_id": "mira"
+        },
+        {
+          "speaker": "Тарен",
+          "person_id": "taren"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Мира",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю."
+        },
+        {
+          "speaker": "Тарен",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Тогда поставить 8000 RUB?"
+        },
+        {
+          "speaker": "Мира",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым."
+        }
+      ]
+    }
+  ],
+  "annotations": [],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 0,
+      "quote": "Может быть, когда-нибудь обсудим сумму по O1. Сейчас ничего менять не обещаю.",
+      "start": 0,
+      "end": 77,
+      "reason": "noncommittal discussion and explicit absence of a promise"
+    },
+    {
+      "source": "meeting-a",
+      "segment": 1,
+      "quote": "Тогда поставить 8000 RUB?",
+      "start": 0,
+      "end": 25,
+      "reason": "question, not an accepted action"
+    },
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "Нет, 8000 RUB не принимаю. Оставляем вопрос открытым.",
+      "start": 0,
+      "end": 53,
+      "reason": "explicit refusal"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "9000",
+      "currency": "RUB",
+      "revision": 2
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "no_commitment"
+    },
+    {
+      "action": "attempt_confirmation",
+      "source": "meeting-a",
+      "actor": "manager",
+      "refusal_reason": "counteroffer_refused",
+      "expected_state": "no_commitment"
+    },
+    {
+      "action": "attempt_action",
+      "source": "meeting-a",
+      "entity_id": "O1",
+      "refusal_reason": "no_specific_agreed_action",
+      "expected_state": "no_commitment"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "9000",
+        "currency": "RUB",
+        "revision": 2
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "source_count": 1,
+    "reason": "The source supplies discussion, a question and a refusal; it supplies no positive commitment candidate or action approval."
+  }
+}

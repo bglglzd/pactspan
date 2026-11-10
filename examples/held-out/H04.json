@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "H04",
+  "language": "ru",
+  "title": "Неисполненное условие при совпавшей сумме",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Условие разрешения на экспорт",
+      "meeting_at": "2030-05-21T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Фера",
+          "person_id": "fera"
+        },
+        {
+          "speaker": "Ковен",
+          "person_id": "koven"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Фера",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1."
+        },
+        {
+          "speaker": "Ковен",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "При этом условии согласен: Фера записывает 5600.45 EUR в O1."
+        },
+        {
+          "speaker": "Фера",
+          "start_secs": 24,
+          "end_secs": 34,
+          "text": "Разрешение пока не получено. Записку в черновике не считайте разрешением."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H04-A1",
+      "source": "meeting-a",
+      "agreement": "conditional",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Если письменное разрешение на экспорт получено, я, Фера, запишу 5600.45 EUR в сумму сделки O1.",
+          "start": 0,
+          "end": 94
+        },
+        {
+          "segment": 1,
+          "quote": "При этом условии согласен: Фера записывает 5600.45 EUR в O1.",
+          "start": 0,
+          "end": 60
+        },
+        {
+          "segment": 2,
+          "quote": "Разрешение пока не получено. Записку в черновике не считайте разрешением.",
+          "start": 0,
+          "end": 73
+        }
+      ],
+      "owner": "fera",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "5600.45",
+      "currency": "EUR",
+      "due": {
+        "literal": null,
+        "resolved": null,
+        "precision": "unknown",
+        "zone": null
+      },
+      "conditions": [
+        {
+          "literal": "письменное разрешение на экспорт получено",
+          "status": "known",
+          "value": false
+        }
+      ],
+      "unknown_fields": [
+        "due"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "Разрешение пока не получено. Записку в черновике не считайте разрешением.",
+      "start": 0,
+      "end": 73,
+      "reason": "permission is absent; a draft note is explicitly insufficient"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "5600.45",
+      "currency": "EUR",
+      "revision": 4
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H04-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed",
+      "retained_unknowns": [
+        "due"
+      ]
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H04-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "5600.45",
+        "currency": "EUR",
+        "revision": 4
+      },
+      "observed_at": "2030-05-21T09:10:00Z",
+      "refusal_reason": "condition_not_met",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "H04-A1",
+      "version": 1,
+      "approval_id": "APH04",
+      "entity_id": "O1",
+      "before_revision": 4,
+      "amount": "5600.45",
+      "currency": "EUR",
+      "at": "2030-05-21T09:11:00Z",
+      "expires_at": "2030-05-21T09:41:00Z",
+      "refusal_reason": "condition_not_met",
+      "expected_state": "confirmed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H04-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "5600.45",
+        "currency": "EUR",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "Confirmation records the conditional term; it does not attest a false prerequisite. Neither a matching CRM value nor a draft permission permits fulfillment or a write."
+  }
+}

@@ -16,6 +16,19 @@ for (const fixture of cases) test(`authored development journey ${fixture.id} ($
   assert.equal(report.pass, true, failures(report));
 });
 
+const heldDirectory = new URL('../examples/held-out/', import.meta.url);
+const heldCases = await Promise.all((await readdir(heldDirectory)).filter(name => /^H\d\d\.json$/.test(name)).sort()
+  .map(async name => JSON.parse(await readFile(new URL(name, heldDirectory), 'utf8'))));
+assert.deepEqual(heldCases.map(fixture => fixture.id), Array.from({ length: 10 }, (_, index) => `H${String(index + 1).padStart(2, '0')}`));
+assert.equal(heldCases.filter(fixture => fixture.language === 'en').length, 5);
+assert.equal(heldCases.filter(fixture => fixture.language === 'ru').length, 5);
+for (const fixture of heldCases) test(`published first-held-out manual journey ${fixture.id} (${fixture.language})`, async () => {
+  const report = await runJourney(fixture);
+  assert.equal(report.automatic_extraction, false);
+  assert.equal(report.steps.length, fixture.journey.length);
+  assert.equal(report.pass, true, failures(report));
+});
+
 test('D01 records real before/write/ACK/reader evidence, not only lifecycle labels', async () => {
   const report = await runJourney(byId('D01'));
   const execute = report.steps.find(step => step.input.action === 'execute_action');

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "evidence_history_sha256": "507bc6fd027aff0ffb87d39b442661c48c7c83f4bc538e0a816a100e2a882c10",
+    "scope": "Retained development experiments; no old result was replaced by a better rerun. Sources/labels are authored synthetic material, not customer data or a human study."
+  },
+  "experiments": [
+    {
+      "id": "baseline-v3",
+      "state": "completed",
+      "started_at": "2026-11-10T12:58:11.933Z",
+      "finished_at": "2026-11-10T13:26:48.714Z",
+      "config_version": "pactspan-extraction-v3",
+      "config_sha256": "74be48a2007f961d8b1820370a29709452b4492b5432e5ae24a24fd239ce325c",
+      "dataset_sha256": "494146e4e4c20e406d9db4882896b6e309af4e4339f83acffd9f35843653b3ff",
+      "report_sha256": "c88549296a1a6f5ff6a4bd1e03656f947262f33de76d14789e1f74fb3ddb581b",
+      "cache_ram_mib": 8192,
+      "cache_scope": "Default server cache",
+      "strict": {
+        "tp": 1,
+        "fp": 32,
+        "fp_known_lower_bound": 32,
+        "fn": 23,
+        "gold": 24,
+        "predictions": 33,
+        "known_predictions": 33,
+        "denominator_complete": true,
+        "precision": 0.030303030303030304,
+        "recall": 0.041666666666666664,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "counts": {
+        "runs": 25,
+        "successful": 25,
+        "failures": 0,
+        "successful_empty": 0,
+        "abstentions": 0,
+        "raw_count_unknown_runs": 0,
+        "placeholders": 0,
+        "schema_error_predictions": 0,
+        "unsupported_predictions": 4
+      },
+      "latency": {
+        "unit": "ms",
+        "measured": 25,
+        "missing": 0,
+        "median": 60456.827666,
+        "p90": 98376.60401400004,
+        "p90_method": "nearest rank",
+        "sum_observed_ms": 1715819.0152549997
+      }
+    },
+    {
+      "id": "development-v4-default-cache-interrupted",
+      "state": "interrupted",
+      "started_at": "2026-11-10T13:53:26.145779+00:00",
+      "finished_at": "2026-11-10T14:26:39.588431+00:00",
+      "cache_ram_mib": 8192,
+      "finished_calls": 13,
+      "complete_calls": 8,
+      "timeout_calls": 5,
+      "pending_first_calls": 1,
+      "not_attempted_sources": 11,
+      "strict": null,
+      "report_sha256": null,
+      "reason": "Stopped after measured memory reclaim/refault pressure at the6GiB container cap. No OOM kill. All partial calls and pending markers were preserved; no complete score was assigned."
+    },
+    {
+      "id": "development-v4-cache256",
+      "state": "completed",
+      "started_at": "2026-11-10T14:34:17.088Z",
+      "finished_at": "2026-11-10T14:48:30.051Z",
+      "config_version": "pactspan-extraction-v4",
+      "config_sha256": "d42f2130e104fe73a2d1c9c9589f256df8b52aae306f47bcc0b1b8f72c2e443f",
+      "dataset_sha256": "494146e4e4c20e406d9db4882896b6e309af4e4339f83acffd9f35843653b3ff",
+      "report_sha256": "7984384487909b973f765558d67ced8bfc90368e0e9faccddc31276bf29b9772",
+      "cache_ram_mib": 256,
+      "cache_scope": "Explicit bounded server cache",
+      "strict": {
+        "tp": 1,
+        "fp": 30,
+        "fp_known_lower_bound": 30,
+        "fn": 23,
+        "gold": 24,
+        "predictions": 31,
+        "known_predictions": 31,
+        "denominator_complete": true,
+        "precision": 0.03225806451612903,
+        "recall": 0.041666666666666664,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "counts": {
+        "runs": 25,
+        "successful": 25,
+        "failures": 0,
+        "successful_empty": 0,
+        "abstentions": 0,
+        "raw_count_unknown_runs": 0,
+        "placeholders": 0,
+        "schema_error_predictions": 0,
+        "unsupported_predictions": 5
+      },
+      "latency": {
+        "unit": "ms",
+        "measured": 25,
+        "missing": 0,
+        "median": 30331.81519299996,
+        "p90": 53146.456689999904,
+        "p90_method": "nearest rank",
+        "sum_observed_ms": 852774.3666549998
+      }
+    },
+    {
+      "id": "development-v5-cache256",
+      "state": "completed",
+      "started_at": "2026-11-10T15:00:19.057Z",
+      "finished_at": "2026-11-10T15:16:08.153Z",
+      "config_version": "pactspan-extraction-v5",
+      "config_sha256": "5651b16dece3b263fd5d11ebe95a4e5e332e95b8493c051c596d084426bc40a8",
+      "dataset_sha256": "494146e4e4c20e406d9db4882896b6e309af4e4339f83acffd9f35843653b3ff",
+      "report_sha256": "cb3c3b6a72d70b78555f4ea184ee4fa13b139a714d5a88897852e9c8e4cdb7fd",
+      "cache_ram_mib": 256,
+      "cache_scope": "Explicit bounded server cache",
+      "strict": {
+        "tp": 3,
+        "fp": 29,
+        "fp_known_lower_bound": 29,
+        "fn": 21,
+        "gold": 24,
+        "predictions": 32,
+        "known_predictions": 32,
+        "denominator_complete": true,
+        "precision": 0.09375,
+        "recall": 0.125,
+        "precision_upper_bound_from_known_rows": null
+      },
+      "counts": {
+        "runs": 25,
+        "successful": 25,
+        "failures": 0,
+        "successful_empty": 1,
+        "abstentions": 1,
+        "raw_count_unknown_runs": 0,
+        "placeholders": 0,
+        "schema_error_predictions": 0,
+        "unsupported_predictions": 1
+      },
+      "latency": {
+        "unit": "ms",
+        "measured": 25,
+        "missing": 0,
+        "median": 35753.78919899999,
+        "p90": 55849.56416100002,
+        "p90_method": "nearest rank",
+        "sum_observed_ms": 948833.7703669996
+      }
+    }
+  ],
+  "first_held_out": {
+    "created_at": "2026-11-10T15:23:43.300311+00:00",
+    "sealed_at": "2026-11-10T15:27:47.172200+00:00",
+    "first_unsealed_at": "2026-11-10T15:47:40.885137+00:00",
+    "freeze_sha256": "205a007e42da729dae14d1350636abea2bd41a807930545b606808dbc5e6e2af",
+    "dataset_sha256": "04d051c2bab28213db7b4cd16e884738576e54321189c468f3c4c618dc48b205",
+    "first_evaluation_finished_at": "2026-11-10T15:42:19.331Z",
+    "first_report_sha256": "e74444f41926db207ba6446fb0b9fa9436d17485b0929f64ef11782783abe00a"
+  }
+}

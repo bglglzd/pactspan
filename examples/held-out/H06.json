@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "H06",
+  "language": "ru",
+  "title": "Две принятые валюты без разрешения конфликта",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Первое согласование валюты",
+      "meeting_at": "2030-02-14T08:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Яра",
+          "person_id": "yara"
+        },
+        {
+          "speaker": "Велан",
+          "person_id": "velan"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Яра",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Я, Яра, внесу USD 7800 в O2."
+        },
+        {
+          "speaker": "Велан",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Согласен на USD 7800 в O2; исполнитель Яра."
+        }
+      ]
+    },
+    {
+      "id": "meeting-b",
+      "title": "Второе согласование без отмены первого",
+      "meeting_at": "2030-02-14T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Яра",
+          "person_id": "yara"
+        },
+        {
+          "speaker": "Велан",
+          "person_id": "velan"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Яра",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли."
+        },
+        {
+          "speaker": "Велан",
+          "start_secs": 12,
+          "end_secs": 22,
+          "text": "Согласен на EUR 7800 в O2. Какую запись считать действующей, пока не решили."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "H06-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я, Яра, внесу USD 7800 в O2.",
+          "start": 0,
+          "end": 28
+        },
+        {
+          "segment": 1,
+          "quote": "Согласен на USD 7800 в O2; исполнитель Яра.",
+          "start": 0,
+          "end": 43
+        }
+      ],
+      "owner": "yara",
+      "kind": "crm.amount",
+      "entity_id": "O2",
+      "amount": "7800",
+      "currency": "USD",
+      "due": {
+        "literal": null,
+        "resolved": null,
+        "precision": "unknown",
+        "zone": null
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ]
+    },
+    {
+      "id": "H06-A2",
+      "source": "meeting-b",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я, Яра, внесу EUR 7800 в O2. Это отдельное согласование, прежнее мы ещё не отменяли.",
+          "start": 0,
+          "end": 84
+        },
+        {
+          "segment": 1,
+          "quote": "Согласен на EUR 7800 в O2. Какую запись считать действующей, пока не решили.",
+          "start": 0,
+          "end": 76
+        }
+      ],
+      "owner": "yara",
+      "kind": "crm.amount",
+      "entity_id": "O2",
+      "amount": "7800",
+      "currency": "EUR",
+      "due": {
+        "literal": null,
+        "resolved": null,
+        "precision": "unknown",
+        "zone": null
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ],
+      "conflicts_with": [
+        "H06-A1"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-b",
+      "segment": 1,
+      "quote": "Какую запись считать действующей, пока не решили.",
+      "start": 27,
+      "end": 76,
+      "reason": "the speakers explicitly leave precedence unresolved"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O2",
+      "amount": "7800",
+      "currency": "EUR",
+      "revision": 9
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H06-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "import_source",
+      "source": "meeting-b",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "H06-A2",
+      "version": 2,
+      "actor": "manager",
+      "expected_state": "disputed"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "H06-A2",
+      "version": 2,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O2",
+        "amount": "7800",
+        "currency": "EUR",
+        "revision": 9
+      },
+      "observed_at": "2030-02-14T09:20:00Z",
+      "refusal_reason": "unresolved_term_conflict",
+      "expected_state": "disputed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "H06-A2",
+      "version": 2,
+      "approval_id": "APH06",
+      "entity_id": "O2",
+      "before_revision": 9,
+      "amount": "7800",
+      "currency": "EUR",
+      "at": "2030-02-14T09:21:00Z",
+      "expires_at": "2030-02-14T09:51:00Z",
+      "refusal_reason": "unresolved_term_conflict",
+      "expected_state": "disputed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "H06-A1",
+        "version": 1,
+        "state": "disputed",
+        "receipt_count": 0
+      },
+      {
+        "annotation": "H06-A2",
+        "version": 2,
+        "state": "disputed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O2",
+        "amount": "7800",
+        "currency": "EUR",
+        "revision": 9
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "Both agreements remain recorded and disputed. Import order and a match to the later currency do not select authority or supersede a version."
+  }
+}

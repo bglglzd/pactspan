@@ -2,6 +2,21 @@
 
 One JavaScript domain library runs in modern browsers and Node22+. Plain HTML/CSS/ES modules provide the UI; a small loopback Node server and CLI provide durable local operation and credentialed adapters. Runtime dependencies remain proportionate; no shared portfolio framework or duplicated browser/Python state machine is introduced.
 
+```mermaid
+flowchart LR
+  S[Original transcript] --> C[Unconfirmed candidate]
+  C --> M[Manager decision]
+  M --> V[Immutable term version]
+  V --> A[One-use approval]
+  A --> P[Persist pending attempt]
+  P --> W[Guarded CRM write]
+  W --> U[ACK: unverified]
+  V --> R[Independent reader GET]
+  U --> R
+  R --> F[Matching version-bound receipt]
+  R --> D[Contradiction: disputed]
+```
+
 Boundaries:
 
 - `src/core/`: strict data validation, canonical hashes, immutable sources/versions, transitions, approvals, verification and invariants. No network or filesystem calls.
@@ -19,4 +34,4 @@ The controller serializes decisions and external writes. Approval obtains its ow
 
 The loopback UI uses a per-process session token, strict numeric Host and same-origin mutations, no CORS, bounded JSON requests and a closed action dispatcher. Credentials, adapter origins and model configuration come from the local operator. Sources/model outputs cannot select endpoints or invoke raw writes. Static hosting has no session token or network capability and keeps its browser-only demonstration.
 
-Buildless static output is copied into `dist/` with relative paths for GitHub Pages. The local workflow follows the Sites portable/local source guidance; no separate Sites account/project is necessary for the user's GitHub-hosted source and demo. A release manifest will bind the exact source, toolchain/configuration and tested package/demo digests. The server/UI lifecycle and data recovery must be independently installed and checked before release.
+Buildless static output is copied into `dist/` with relative paths for GitHub Pages. The release manifest binds the source, toolchain/configuration and tested package/demo digests. The package and static ZIP contain the public allowlist; workspace data, credentials and operational evidence are excluded. [Measured results](evaluation-results.md) distinguish the domain journeys from experimental model suggestions and state their workload and machine.
