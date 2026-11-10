@@ -9,6 +9,28 @@ export function emptyState() {
 const RESTORED = Symbol('validated workspace');
 const MAX_UNKNOWNS = 32; // Includes locally derived flags beyond the wire model's16-field limit.
 
+export const WORKSPACE_LIMITS = Object.freeze({
+  soft: Object.freeze({ nodes: 12_000, events: 3000, bytes: 1024 * 1024 }),
+  hard: Object.freeze({ nodes: 20_000, events: 5000, bytes: 2 * 1024 * 1024 }),
+});
+
+function measureWorkspace(state) {
+  let nodes = 0;
+  const pending = [state];
+  while (pending.length) {
+    const item = pending.pop(); nodes++;
+    if (item !== null && typeof item === 'object') pending.push(...Object.values(item));
+  }
+  const usage = { nodes, events: state.events.length, bytes: new TextEncoder().encode(JSON.stringify(state)).length };
+  const fits = limits => Object.keys(limits).every(key => usage[key] <= limits[key]);
+  return { ...usage, within_soft: fits(WORKSPACE_LIMITS.soft), within_hard: fits(WORKSPACE_LIMITS.hard) };
+}
+
+export function workspaceUsage(state) {
+  jsonData(state);
+  return measureWorkspace(state);
+}
+
 function event(state, at, action, target, detail) {
   state.events.push({ sequence: state.events.length + 1, at, action, target, detail: structuredClone(detail) });
 }
@@ -50,15 +72,32 @@ function deadlineKnown(state, record) {
       .every(field => record.confirmation.resolved_unknowns.includes(field));
 }
 
-function unresolvedAttempts(state, record) {
-  return Object.values(state.attempts).filter(attempt => {
-    const previous = state.versions[attempt.version_id];
-    return attempt.outcome !== 'rejected' && !attempt.reconciliation && previous
-      && previous.terms.entity_id === record.terms.entity_id && canonical(previous.target) === canonical(record.target);
-  });
+function unresolvedAttempts(state) {
+  return Object.values(state.attempts).filter(attempt => attempt.state === 'pending'
+    || (attempt.outcome !== 'rejected' && !attempt.reconciliation));
 }
 
-async function acceptObservation(state, observed) {
+function reservedAttempt(state) {
+  const pending = unresolvedAttempts(state);
+  if (pending.length) return pending.length === 1 ? pending[0] : null;
+  const last = state.events.findLast(item => item?.action === 'write_attempt_started' && Object.hasOwn(state.attempts, item.target));
+  const attempt = last ? state.attempts[last.target] : null;
+  return attempt?.reconciliation && attempt.capacity_settled !== true ? attempt : null;
+}
+
+function settlementAttempt(state, { settleAttempt = null, verifyVersion = null, verifyAttempt = null }) {
+  const attempt = reservedAttempt(state);
+  if (!attempt) return null;
+  if (settleAttempt !== null) return attempt.id === settleAttempt ? attempt : null;
+  return attempt.capacity_settled !== true && attempt.version_id === verifyVersion
+    && (verifyAttempt === null || verifyAttempt === attempt.id) ? attempt : null;
+}
+
+export function workspaceSettlementEligible(state, options = {}) {
+  return Boolean(settlementAttempt(state, options));
+}
+
+async function acceptObservation(state, observed, { record = true } = {}) {
   const key = 'obs_' + await sha256({ target: targetOf(observed), entity_id: observed.entity_id });
   const previous = state.observations[key];
   if (previous) {
@@ -67,7 +106,7 @@ async function acceptObservation(state, observed) {
     requireValue(observed.revision !== previous.revision || (observed.amount === previous.amount && observed.currency === previous.currency),
       'CRM observations disagree on business fields for the same revision');
   }
-  state.observations[key] = structuredClone(observed);
+  if (record) state.observations[key] = structuredClone(observed);
 }
 
 function reconcile(state, attempt, observed, at) {
@@ -75,13 +114,18 @@ function reconcile(state, attempt, observed, at) {
   requireValue(canonical(targetOf(observed)) === canonical(record.target) && observed.entity_id === record.terms.entity_id,
     'Reconciliation observation names another CRM or entity');
   requireValue(Date.parse(observed.observed_at) >= Date.parse(attempt.created_at), 'Reconciliation requires an observation after the attempt began');
+  if (attempt.reconciliation) return { matched: attempt.reconciliation.matched, resolved: true, attempt, duplicate: true };
   const matched = observed.amount === record.terms.amount && observed.currency === record.terms.currency;
+  const first = !attempt.first_reconciliation;
   attempt.last_reconciliation = { matched, observation: structuredClone(observed), at };
+  attempt.first_reconciliation ??= structuredClone(attempt.last_reconciliation);
+  attempt.reconciliation_checks = Math.min(Number.MAX_SAFE_INTEGER, (attempt.reconciliation_checks ?? 0) + 1);
   // A nonmatch cannot prove that an uncertain request will never commit later.
   if (matched || attempt.outcome === 'acknowledged' || attempt.outcome === 'rejected') {
     attempt.reconciliation ??= structuredClone(attempt.last_reconciliation);
   }
-  event(state, at, 'attempt_reconciled', attempt.id, { matched, outcome_resolved: Boolean(attempt.reconciliation), observation: observed });
+  // Repeated nonmatches keep bounded first/latest evidence without spending the settlement reserve on history.
+  if (first || attempt.reconciliation) event(state, at, 'attempt_reconciled', attempt.id, { matched, outcome_resolved: Boolean(attempt.reconciliation), observation: observed });
   return { matched, resolved: Boolean(attempt.reconciliation), attempt };
 }
 
@@ -125,7 +169,8 @@ export class Pactspan {
     for (const key of Object.keys(emptyState()).filter(key => !['schema_version', 'events'].includes(key))) {
       requireValue(snapshot[key] !== null && typeof snapshot[key] === 'object' && !Array.isArray(snapshot[key]), `workspace.${key} must be an object`);
     }
-    list(snapshot.events, 'workspace.events', 5000);
+    list(snapshot.events, 'workspace.events', WORKSPACE_LIMITS.hard.events);
+    requireValue(measureWorkspace(snapshot).within_hard, 'Workspace exceeds its hard capacity; export the saved workspace and start a fresh workspace');
     requireValue(restoredToken === RESTORED || (snapshot.events.length === 0
       && Object.keys(emptyState()).filter(key => !['schema_version', 'events'].includes(key)).every(key => Object.keys(snapshot[key]).length === 0)),
     'Use await Pactspan.restore(snapshot) for a saved workspace');
@@ -150,16 +195,23 @@ export class Pactspan {
   now() { return instant(this.#clock(), 'clock'); }
   view(id) {
     const record = version(this.#state, id);
-    const pending = unresolvedAttempts(this.#state, record);
+    const pending = unresolvedAttempts(this.#state);
     return { ...structuredClone(record), execution_reasons: [...executionReasons(this.#state, record),
       ...(pending.length ? ['A prior write outcome requires reconciliation'] : [])],
     unresolved_attempts: pending.map(item => ({ id: item.id, version_id: item.version_id, outcome: item.outcome })) };
   }
 
-  #change(callback) {
+  #change(callback, settlement = {}) {
     const pending = this.#queue.then(async () => {
+      // Eligibility is evaluated in the queue against the state that the callback will actually change.
+      const critical = workspaceSettlementEligible(this.#state, settlement);
+      const before = JSON.stringify(this.#state);
       const draft = structuredClone(this.#state);
       const result = await callback(draft, this.now());
+      const usage = measureWorkspace(draft);
+      requireValue(usage.within_hard, 'Workspace exceeds its hard capacity; export the saved workspace and start a fresh workspace');
+      requireValue(usage.within_soft || critical || JSON.stringify(draft) === before,
+        'Workspace growth capacity reached; finish or reconcile the unsettled write, export this workspace, and start a fresh workspace');
       jsonData(draft);
       const errors = invariantErrors(draft);
       requireValue(!errors.length, errors.join('; '));
@@ -309,7 +361,7 @@ export class Pactspan {
       fields(options, ['actor', 'expires_at'], 'approval');
       const record = version(state, versionId);
       requireValue(!executionReasons(state, record).length, executionReasons(state, record).join('; '));
-      requireValue(!unresolvedAttempts(state, record).length, 'A prior write outcome requires fresh read reconciliation before another approval');
+      requireValue(!unresolvedAttempts(state).length, 'A prior workspace write outcome requires fresh read reconciliation before another approval');
       const observed = observation(rawObservation);
       requireValue(canonical(targetOf(observed)) === canonical(record.target), 'Approval observation names a different CRM');
       requireFresh(observed, at);
@@ -339,15 +391,16 @@ export class Pactspan {
       const record = version(state, approval.version_id);
       requireValue(approval.state === 'approved' && Date.parse(at) < Date.parse(approval.expires_at), 'Approval is expired, invalidated or consumed');
       requireValue(approval.terms_hash === record.terms_hash && !executionReasons(state, record).length, 'Approval no longer matches an executable current version');
-      requireValue(!unresolvedAttempts(state, record).length, 'A prior write outcome requires reconciliation before another command');
+      requireValue(!unresolvedAttempts(state).length, 'A prior workspace write outcome requires reconciliation before another command');
       const observed = observation(rawFreshObservation);
       requireFresh(observed, at);
       await acceptObservation(state, observed);
       requireValue(await sha256(beforeState(observed)) === approval.before_hash, 'Fresh CRM state differs from the approved before state');
       requireValue(canonical(approval.payload) === canonical({ amount: record.terms.amount, currency: record.terms.currency }), 'Approval payload differs from confirmed terms');
       const id = 'att_' + await sha256({ approval: approval.id });
+      for (const previous of Object.values(state.attempts)) previous.capacity_settled = true;
       const attempt = { id, approval_id: approval.id, version_id: record.id, terms_hash: record.terms_hash,
-        state: 'pending', created_at: at, outcome: null };
+        state: 'pending', created_at: at, outcome: null, capacity_settled: false };
       state.attempts[id] = attempt; approval.state = 'consumed';
       event(state, at, 'write_attempt_started', id, { approval_id: approval.id, version_id: record.id });
       return { attempt, reconcile: false, command: { entityId: observed.entity_id, amount: approval.payload.amount,
@@ -363,14 +416,16 @@ export class Pactspan {
       requireValue(attempt, 'Unknown attempt');
       requireValue(attempt.state === 'pending', 'Attempt outcome was already recorded');
       attempt.state = 'recorded'; attempt.outcome = options.outcome;
+      if (options.outcome === 'rejected') attempt.capacity_settled = true;
       attempt.reason = text(options.reason ?? '', 'attempt reason', 1000, { empty: true });
       event(state, at, 'write_outcome_recorded', attempt.id, { outcome: attempt.outcome, reason: attempt.reason });
       return attempt;
-    });
+    }, { settleAttempt: attemptId });
   }
 
   verify(versionId, rawObservation, { attemptId = null } = {}) {
     return this.#change(async (state, at) => {
+      const settling = settlementAttempt(state, { verifyVersion: versionId, verifyAttempt: attemptId });
       const record = version(state, versionId);
       const observed = observation(rawObservation);
       requireFresh(observed, at);
@@ -387,8 +442,9 @@ export class Pactspan {
         requireValue(attempt?.version_id === record.id && attempt.terms_hash === record.terms_hash, 'Attempt belongs to another term version');
         if (sameIdentity) reconcile(state, attempt, observed, at);
       } else if (sameIdentity) {
-        for (const pending of unresolvedAttempts(state, record).filter(item => item.version_id === record.id)) reconcile(state, pending, observed, at);
+        for (const pending of unresolvedAttempts(state).filter(item => item.version_id === record.id)) reconcile(state, pending, observed, at);
       }
+      if (sameIdentity && settling?.reconciliation) settling.capacity_settled = true;
       if (sameIdentity) record.verification = { observed: structuredClone(observed), at, matched: !reasons.length, reasons };
       if (reasons.length) {
         if (record.status === 'fulfilled' && sameTarget && observed.entity_id === record.terms.entity_id) {
@@ -412,7 +468,7 @@ export class Pactspan {
       record.status = 'fulfilled'; record.dispute_kind = null; record.fulfillment_receipt = id;
       invalidateApprovals(state, record.id, 'Confirmed terms are already verified');
       return { matched: true, receipt, duplicate, version: record };
-    });
+    }, { verifyVersion: versionId, verifyAttempt: attemptId });
   }
 
   checkDeadlines() {
@@ -436,9 +492,9 @@ export class Pactspan {
       requireValue(attempt, 'Unknown attempt');
       const observed = observation(rawObservation);
       requireFresh(observed, at);
-      await acceptObservation(state, observed);
+      await acceptObservation(state, observed, { record: !attempt.reconciliation });
       return reconcile(state, attempt, observed, at);
-    });
+    }, { settleAttempt: attemptId });
   }
 
   closeUncertainAttempt(attemptId, rawObservation, options) {
