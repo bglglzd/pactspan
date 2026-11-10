@@ -1,14 +1,14 @@
 # Local operation
 
-Node22+ is required. No dependency installation is needed. `npm start -- --example D01` starts a persistent synthetic workspace; `npm run demo` starts the browser-only static demonstration. Both print a numeric loopback URL and PID. Stop the process with Ctrl+C; do not expose either server through a public tunnel.
+Node 22+ is required. No dependency installation is needed. `npm start -- --example D01` starts a persistent synthetic workspace; `npm run demo` starts the browser-only static demonstration. Both print a numeric loopback URL and PID. Stop the process with Ctrl+C; do not expose either server through a public tunnel.
 
-`npm start -- --data /your/local/directory --port 49500` reopens an existing local workspace. The server binds only127.0.0.1. `--example D01` explicitly resets synthetic data, so omit it on normal restart. A real EspoCRM workspace starts empty and cannot load prepared examples or edit CRM state through the synthetic operator control.
+`npm start -- --data /your/local/directory --port 49500` reopens an existing local workspace. The server binds only 127.0.0.1. `--example D01` explicitly resets synthetic data, so omit it on normal restart. A real EspoCRM workspace starts empty and cannot load prepared examples or edit CRM state through the synthetic operator control.
 
 ## Decisions and external state
 
 Import transcript JSON/TXT, inspect the source and add a manual candidate or use the configured local extractor. Prepared examples are authored, not model output. Model runs preserve raw count, unsupported predictions, configuration and response digests in `runs/`. Export a run before sharing it: it contains the actual transcript/request/response and is private application data.
 
-Each local workspace retains up to200 extraction runs. The limit refuses a new request before inference and preserves prior evidence. Export and choose a separate data directory to continue; the application never silently prunes its history. Transcript files must be valid UTF-8 and at most256KiB.
+Each local workspace retains up to 200 extraction runs. The limit refuses a new request before inference and preserves prior evidence. Export and choose a separate data directory to continue; the application never silently prunes its history. Transcript files must be valid UTF-8 and at most 256 KiB.
 
 Confirm sourced terms explicitly. Replacement references the current confirmed version; otherwise conflicting confirmed terms remain disputed. Unmapped ownership, unsupported quotes, uncertain required fields and missing condition decisions block execution. A prerequisite decision is a manager attestation, not third-party proof.
 
@@ -26,13 +26,13 @@ If a request remains uncertain with a nonmatching read, **Operator recovery for 
 
 ## Configuration
 
-EspoCRM10.0.12 is the exercised target. Use a dedicated sandbox with one writer. Native `X-Version-Number` is a pre-save check, not atomic database compare-and-swap; arbitrary concurrent writers are outside scope. The writer should edit only Opportunity amount/currency, with no create/delete privileges. Use a separate read-only API user. Secrets are accepted through environment variables or the operator-selected JSON file, never browser forms or transcript content. HTTP is allowed only for numeric loopback CRM origins; remote CRM origins require HTTPS.
+EspoCRM 10.0.12 is the exercised target. Use a dedicated sandbox with one writer. Native `X-Version-Number` is a pre-save check, not atomic database compare-and-swap; arbitrary concurrent writers are outside scope. The writer should edit only Opportunity amount/currency, with no create/delete privileges. Use a separate read-only API user. Secrets are accepted through environment variables or the operator-selected JSON file, never browser forms or transcript content. HTTP is allowed only for numeric loopback CRM origins; remote CRM origins require HTTPS.
 
-For local extraction, configure a compatible server with the expected model ID, nested `response_format.json_schema.schema` support and `chat_template_kwargs.enable_thinking:false`. Pactspan sends no key, permits only numeric loopback origins, and does not retry/fallback. The default request is temperature0/seed42, up to2048 output tokens in the local CLI, response bound256KiB and120s deadline; the recorded CPU evaluation used300s. Extraction is experimental: the first held-out run had no exact commitment matches. Review every term and enter missing candidates manually. [Results and runtime](evaluation-results.md) record the errors and scoring limits. A valid JSON response or quote is not a semantic accuracy measurement.
+For local extraction, configure a compatible server with the expected model ID, nested `response_format.json_schema.schema` support and `chat_template_kwargs.enable_thinking:false`. Pactspan sends no key, permits only numeric loopback origins, and does not retry/fallback. The default request is temperature 0/seed 42, up to 2048 output tokens in the local CLI, response bound256 KiB and 120s deadline; the recorded CPU evaluation used300s. Extraction is experimental: the first held-out run had no exact commitment matches. Review every term and enter missing candidates manually. [Results and runtime](evaluation-results.md) record the errors and scoring limits. A valid JSON response or quote is not a semantic accuracy measurement.
 
 ## Files and recovery
 
-Import limits are256KiB of valid UTF-8,256 timestamped segments,8,000 UTF-16 text units per segment and a parsed source of at most512KiB. The full model JSON request, including prompt/schema, is limited to64KiB; the configured model's token context can reject a smaller source. The exercised model has4096 context tokens. Large meetings are not silently truncated or automatically chunked: use a smaller sourced excerpt with its interpretation context, or manual candidates. Limits are shown on the import/extraction controls.
+Import limits are 256 KiB of valid UTF-8,256 timestamped segments,8,000 UTF-16 text units per segment and a parsed source of at most 512 KiB. The full model JSON request, including prompt/schema, is limited to 64 KiB; the configured model's token context can reject a smaller source. The exercised model has 4096 context tokens. Large meetings are not silently truncated or automatically chunked: use a smaller sourced excerpt with its interpretation context, or manual candidates. Limits are shown on the import/extraction controls.
 
 `state.json` holds a revision/checksum envelope with the domain and metadata. `demo-crm.json` is the separate synthetic external store. `runs/*.json` retains extraction evidence. Keep the entire data directory private and back it up while the server is stopped. Hashes detect inconsistency; they are not signatures or a defense against a malicious local owner.
 
@@ -54,8 +54,8 @@ Growth stops at the first reached limit below. JSON nodes are containers and sca
 | --- | --- | --- |
 | Domain JSON nodes |12000 |20000 |
 | Domain events |3000 |5000 |
-| Serialized domain |1MiB |2MiB |
-| Complete disk envelope, including metadata |1.5MiB |2MiB |
+| Serialized domain |1 MiB |2 MiB |
+| Complete disk envelope, including metadata |1.5 MiB |2 MiB |
 
 The remaining space is reserved for finishing, reconciling and separately verifying the one admitted outstanding write. Repeated uncertain nonmatches retain first/latest observations and a check counter instead of appending unbounded events. An already oversized historical import does not gain extra space. When growth is refused, settle the outstanding operation, export history and use a fresh data directory; synthetic mode can explicitly load a new example after export. A deterministic input/size refusal preserves the saved state and leaves the process usable. An ambiguous filesystem commit failure still requires restart. Extraction requests are refused before inference when the workspace cannot retain another run; if candidate ingestion later exceeds capacity, its raw run remains indexed for export and no partial batch is retained.
 

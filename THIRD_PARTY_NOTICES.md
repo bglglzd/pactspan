@@ -6,7 +6,7 @@ The separately installed runtimes used during development are:
 
 | Component | Pinned source | License |
 | --- | --- | --- |
-| EspoCRM10.0.12 | [19cc201e515b17898c13bb406a75531b679ab975](https://github.com/espocrm/espocrm/tree/19cc201e515b17898c13bb406a75531b679ab975) | [AGPL3.0](https://github.com/espocrm/espocrm/blob/19cc201e515b17898c13bb406a75531b679ab975/LICENSE.txt) |
+| EspoCRM 10.0.12 | [19cc201e515b17898c13bb406a75531b679ab975](https://github.com/espocrm/espocrm/tree/19cc201e515b17898c13bb406a75531b679ab975) | [AGPL 3.0](https://github.com/espocrm/espocrm/blob/19cc201e515b17898c13bb406a75531b679ab975/LICENSE.txt) |
 | Qwen3-4B-GGUF | [bc640142c66e1fdd12af0bd68f40445458f3869b](https://huggingface.co/Qwen/Qwen3-4B-GGUF/tree/bc640142c66e1fdd12af0bd68f40445458f3869b) | [Apache2.0](https://huggingface.co/Qwen/Qwen3-4B-GGUF/blob/bc640142c66e1fdd12af0bd68f40445458f3869b/LICENSE) |
 | llama.cpp | [7d7f02875](https://github.com/ggml-org/llama.cpp/tree/7d7f02875) | [MIT](https://github.com/ggml-org/llama.cpp/blob/7d7f02875/LICENSE) |
 

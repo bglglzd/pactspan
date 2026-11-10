@@ -106,9 +106,9 @@ export class WorkspaceController {
       case 'propose': {
         fields(args, ['candidate', 'corrects', 'reason'], action);
         let provenance = { origin: 'Manual candidate' };
+        const snapshot = this.#app.snapshot();
         if (Object.hasOwn(args, 'corrects')) {
           const corrects = identifier(args.corrects, 'Corrected candidate ID');
-          const snapshot = this.#app.snapshot();
           requireValue(Object.hasOwn(snapshot.candidates, corrects), 'Unknown original candidate');
           const reason = text(args.reason, 'Correction reason', 1000).trim();
           requireValue(reason.length >= 3, 'Correction reason requires at least three characters');
@@ -116,17 +116,19 @@ export class WorkspaceController {
           const evidence = original.evidence.map(span => Object.fromEntries(['source', 'segment', 'quote', 'start', 'end']
             .filter(key => Object.hasOwn(span, key)).map(key => [key, span[key]])));
           requireValue(canonical(args.candidate?.evidence ?? null) === canonical(evidence), 'A correction must retain every original citation unchanged');
-          const sources = [...new Set(evidence.map(span => span.source))].map(id => snapshot.sources[id]).filter(Boolean);
-          const inSource = literal => sources.some(source => source.segments.some(segment => segment.text.includes(literal)));
-          if (typeof args.candidate?.terms?.due?.literal === 'string' && args.candidate.terms.due.literal.length) {
-            requireValue(inSource(args.candidate.terms.due.literal), 'Deadline wording must be an exact original source phrase');
-          }
-          if (Array.isArray(args.candidate?.terms?.conditions)) for (const condition of args.candidate.terms.conditions) {
-            if (typeof condition?.literal === 'string') requireValue(inSource(condition.literal), 'Prerequisite wording must be an exact original source phrase');
-          }
           provenance = { origin: 'Manual correction', corrects, reason, actor: 'manager' };
         } else requireValue(!Object.hasOwn(args, 'reason'), 'A correction reason requires an original candidate');
         result = await draft.propose(args.candidate);
+        // Check validated terms before committing either a new candidate or a correction.
+        const sources = [...new Set(result.candidate.evidence.map(span => span.source))].map(id => snapshot.sources[id]).filter(Boolean);
+        const inSource = literal => sources.some(source => source.segments.some(segment => segment.text.includes(literal)));
+        const terms = result.candidate.terms;
+        if (typeof terms.due?.literal === 'string' && terms.due.literal.length) {
+          requireValue(inSource(terms.due.literal), 'Deadline wording must be an exact original source phrase');
+        }
+        for (const condition of terms.conditions) {
+          requireValue(inSource(condition.literal), 'Prerequisite wording must be an exact original source phrase');
+        }
         metadata.labels[result.candidate.id] ??= provenance;
         break;
       }

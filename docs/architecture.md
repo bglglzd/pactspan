@@ -1,6 +1,6 @@
-# Architecture plan
+# Architecture
 
-One JavaScript domain library runs in modern browsers and Node22+. Plain HTML/CSS/ES modules provide the UI; a small loopback Node server and CLI provide durable local operation and credentialed adapters. Runtime dependencies remain proportionate; no shared portfolio framework or duplicated browser/Python state machine is introduced.
+One JavaScript domain library runs in modern browsers and Node 22+. Plain HTML/CSS/ES modules provide the UI; a small loopback Node server and CLI provide durable local operation and credentialed adapters. Runtime dependencies remain proportionate; no shared portfolio framework or duplicated browser/Python state machine is introduced.
 
 ```mermaid
 flowchart LR
@@ -24,7 +24,7 @@ Boundaries:
 - `src/adapters/`: separate mutable Demo CRM, actual EspoCRM reader/writer, and actual schema-constrained local extraction. Adapters cannot bypass domain guards.
 - `src/local/`: serialized durable store with atomic replacement/dead-owner lock recovery, loopback HTTP boundary and decision controller. `src/cli.mjs` starts the server or executes a JSON action file. Persist attempts before external writes; re-read/reconcile uncertain outcomes.
 - `public/`: original SVG, functional UI and static demo using the same core and explicitly synthetic adapter. No embedded credentials, private transcripts or automatic remote calls.
-- `examples/development/`: predeclared bilingual sources/annotations; held-out data is sealed outside the product until the first frozen evaluation.
+- `examples/development/`: predeclared bilingual development sources and annotations. `examples/held-out/` contains the ten cases published after their first frozen evaluation; they are now regression data. [Dataset provenance](dataset.md) records the original seal and reveal.
 
 Node/browser Web Crypto supplies SHA256. A content hash does not authenticate a CRM action. The live server obtains observations itself rather than accepting a client-supplied fulfillment receipt. Persistent application data and secrets are ignored and excluded from packages/demo archives.
 

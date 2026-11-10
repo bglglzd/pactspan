@@ -46,6 +46,30 @@ function corrected(original) {
   return raw;
 }
 
+test('fresh manual candidates reject invented source wording without changing saved state and remain usable', async () => {
+  const { controller, directory, original } = await seed({ owner: 'alex' });
+  try {
+    const before = controller.snapshot();
+    const saved = await readFile(path.join(directory, 'state.json'), 'utf8');
+    const invalidDeadline = corrected(original); invalidDeadline.terms.due.literal = 'Invented deadline';
+    await assert.rejects(controller.dispatch('propose', { candidate: invalidDeadline }), /Deadline wording must be an exact/);
+    assert.deepEqual(controller.snapshot(), before);
+    assert.equal(await readFile(path.join(directory, 'state.json'), 'utf8'), saved);
+    const invalidCondition = corrected(original); invalidCondition.terms.conditions = [{ literal: 'Invented prerequisite' }];
+    await assert.rejects(controller.dispatch('propose', { candidate: invalidCondition }), /Prerequisite wording must be an exact/);
+    assert.deepEqual(controller.snapshot(), before);
+    assert.equal(await readFile(path.join(directory, 'state.json'), 'utf8'), saved);
+    const accepted = await controller.dispatch('propose', { candidate: corrected(original) });
+    assert.equal(accepted.candidate.state, 'proposed');
+    assert.equal(accepted.candidate.version_id, null);
+    assert.equal(accepted.candidate.terms.due.literal, 'tomorrow by 17:00 UTC');
+    assert.equal(accepted.candidate.terms.conditions[0].literal, 'if Finance approves');
+    assert.equal(controller.snapshot().metadata.labels[accepted.candidate.id].origin, 'Manual candidate');
+    assert.equal(Object.keys(controller.snapshot().domain.versions).length, 0);
+    assert.equal(controller.snapshot().storage_error, null);
+  } finally { await controller.close(); }
+});
+
 test('manual correction creates a separate unconfirmed candidate, retaining all citations, unknowns and original run across restart', async () => {
   const fixture = await seed(); let controller = fixture.controller;
   try {
