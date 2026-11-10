@@ -156,13 +156,16 @@ test('repeated uncertain nonmatches retain bounded first/latest evidence and one
   assert.equal(Object.keys(app.snapshot().receipts).length, 1);
 });
 
-test('pending attempt reconciled before ACK can finish, then separately verify above soft', async () => {
+test('matching reconciliation settles pending exclusion while retaining late-ACK and verification reserves above soft', async () => {
   const { app: initial, rows: [row] } = await setup();
   const started = await initial.beginAttempt(row.approval.id, row.before);
   const app = await Pactspan.restore(nearNodes(initial.snapshot(), WORKSPACE_LIMITS.soft.nodes + 20), { clock });
   const after = await observed('O1', '12000', '2');
   await app.reconcileAttempt(started.attempt.id, after);
-  assert.equal(app.view(row.version.id).unresolved_attempts.length, 1);
+  assert.equal(app.view(row.version.id).unresolved_attempts.length, 0);
+  assert.equal(app.snapshot().attempts[started.attempt.id].outcome, null);
+  assert.equal(workspaceSettlementEligible(app.snapshot(), { settleAttempt: started.attempt.id }), true);
+  assert.equal(workspaceSettlementEligible(app.snapshot(), { verifyVersion: row.version.id }), true);
   await app.finishAttempt(started.attempt.id, { outcome: 'acknowledged' });
   assert.equal((await app.verify(row.version.id, after)).matched, true);
 });
@@ -216,6 +219,21 @@ test('an old reconciled attempt cannot spend the current attempt verification re
   await app.finishAttempt(current.attempt.id, { outcome: 'acknowledged' });
   assert.equal((await app.verify(row.version.id, matched, { attemptId: current.attempt.id })).matched, true);
   assert.equal(Object.keys(app.snapshot().receipts).length, 1);
+});
+
+test('an older reconciled pending attempt cannot spend the latest writer reserve', async () => {
+  const { app: initial, rows: [oldRow, nextRow] } = await setup(['O1', 'O2']);
+  const old = await initial.beginAttempt(oldRow.approval.id, oldRow.before);
+  await initial.reconcileAttempt(old.attempt.id, await observed('O1', '12000', '2'));
+  const next = await initial.beginAttempt(nextRow.approval.id, nextRow.before);
+  const app = await Pactspan.restore(nearNodes(initial.snapshot(), WORKSPACE_LIMITS.soft.nodes + 20), { clock });
+  const saved = app.snapshot();
+  assert.equal(workspaceSettlementEligible(saved, { settleAttempt: old.attempt.id }), false);
+  assert.equal(workspaceSettlementEligible(saved, { settleAttempt: next.attempt.id }), true);
+  await assert.rejects(app.finishAttempt(old.attempt.id, { outcome: 'acknowledged' }), /growth capacity/);
+  assert.deepEqual(app.snapshot(), saved);
+  await app.finishAttempt(next.attempt.id, { outcome: 'acknowledged' });
+  assert.equal(app.snapshot().attempts[next.attempt.id].state, 'recorded');
 });
 
 test('reported bytes count serialized UTF-8 and the hard domain byte limit also applies on restore', async () => {

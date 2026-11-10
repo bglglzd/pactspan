@@ -73,8 +73,9 @@ function deadlineKnown(state, record) {
 }
 
 function unresolvedAttempts(state) {
-  return Object.values(state.attempts).filter(attempt => attempt.state === 'pending'
-    || (attempt.outcome !== 'rejected' && !attempt.reconciliation));
+  // A fresh reconciliation settles the effect even if a crash prevented the ACK record.
+  return Object.values(state.attempts).filter(attempt => !attempt.reconciliation
+    && (attempt.state === 'pending' || attempt.outcome !== 'rejected'));
 }
 
 function reservedAttempt(state) {
@@ -82,7 +83,8 @@ function reservedAttempt(state) {
   if (pending.length) return pending.length === 1 ? pending[0] : null;
   const last = state.events.findLast(item => item?.action === 'write_attempt_started' && Object.hasOwn(state.attempts, item.target));
   const attempt = last ? state.attempts[last.target] : null;
-  return attempt?.reconciliation && attempt.capacity_settled !== true ? attempt : null;
+  // The latest pending attempt still needs room for a late ACK after verification.
+  return attempt && (attempt.state === 'pending' || (attempt.reconciliation && attempt.capacity_settled !== true)) ? attempt : null;
 }
 
 function settlementAttempt(state, { settleAttempt = null, verifyVersion = null, verifyAttempt = null }) {

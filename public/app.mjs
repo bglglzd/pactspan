@@ -266,7 +266,7 @@ function crmCard(candidate, current, snapshot) {
       catch (error) { await app.finishAttempt(started.attempt.id, { outcome: 'uncertain', reason: error.message }); throw error; }
     }, local ? '' : 'Demo CRM acknowledged the write. Use Verify CRM state to obtain a separate receipt.'), { primary: true, disabled: !approval, id: 'execute-approved' })));
     if (approval) body.append(element('p', { class: 'hint' }, `Approval expires ${approval.expires_at}; ${money(approval.before.amount, approval.before.currency)} → ${money(approval.payload.amount, approval.payload.currency)} on ${approval.before.entity_id}.`));
-    if (attempt) body.append(element('p', { class: 'hint' }, `Write outcome: ${attempt.outcome ?? 'pending'}${attempt.reconciliation ? ' · Independently reconciled' : ' · Separate read required'}.`));
+    if (attempt) body.append(element('p', { class: 'hint' }, `Write outcome: ${attempt.outcome ?? (attempt.reconciliation ? 'ACK not recorded' : 'pending')}${attempt.reconciliation ? ' · Independently reconciled' : ' · Separate read required'}.`));
     for (const pending of current.unresolved_attempts) body.append(element('div', { class: 'button-row' }, button('Reconcile prior attempt', () => run(async () => {
       const previous = app.snapshot().versions[pending.version_id];
       const fresh = await crm.readOpportunity(previous.terms.entity_id); reads[previous.terms.entity_id] = fresh;
