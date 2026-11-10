@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Pactspan, workspaceUsage, workspaceSettlementEligible } from '../core/engine.mjs';
 import { beforeState, adapterTarget } from '../core/terms.mjs';
-import { canonical, fields, identifier, instant, requireValue, object, list } from '../core/data.mjs';
+import { canonical, fields, identifier, instant, requireValue, object, list, text } from '../core/data.mjs';
 import { extractCandidates, extractionConfig } from '../adapters/extract.mjs';
 import { DEMO_TARGET } from '../adapters/demo.mjs';
 import { WorkspaceStore } from './store.mjs';
@@ -103,13 +103,45 @@ export class WorkspaceController {
     switch (action) {
       case 'importSource':
         fields(args, ['document'], action); result = await draft.importSource(args.document); break;
-      case 'propose':
-        fields(args, ['candidate'], action); result = await draft.propose(args.candidate);
-        metadata.labels[result.candidate.id] ??= { origin: 'Manual candidate' }; break;
-      case 'confirm':
+      case 'propose': {
+        fields(args, ['candidate', 'corrects', 'reason'], action);
+        let provenance = { origin: 'Manual candidate' };
+        if (Object.hasOwn(args, 'corrects')) {
+          const corrects = identifier(args.corrects, 'Corrected candidate ID');
+          const snapshot = this.#app.snapshot();
+          requireValue(Object.hasOwn(snapshot.candidates, corrects), 'Unknown original candidate');
+          const reason = text(args.reason, 'Correction reason', 1000).trim();
+          requireValue(reason.length >= 3, 'Correction reason requires at least three characters');
+          const original = snapshot.candidates[corrects];
+          const evidence = original.evidence.map(span => Object.fromEntries(['source', 'segment', 'quote', 'start', 'end']
+            .filter(key => Object.hasOwn(span, key)).map(key => [key, span[key]])));
+          requireValue(canonical(args.candidate?.evidence ?? null) === canonical(evidence), 'A correction must retain every original citation unchanged');
+          const sources = [...new Set(evidence.map(span => span.source))].map(id => snapshot.sources[id]).filter(Boolean);
+          const inSource = literal => sources.some(source => source.segments.some(segment => segment.text.includes(literal)));
+          if (typeof args.candidate?.terms?.due?.literal === 'string' && args.candidate.terms.due.literal.length) {
+            requireValue(inSource(args.candidate.terms.due.literal), 'Deadline wording must be an exact original source phrase');
+          }
+          if (Array.isArray(args.candidate?.terms?.conditions)) for (const condition of args.candidate.terms.conditions) {
+            if (typeof condition?.literal === 'string') requireValue(inSource(condition.literal), 'Prerequisite wording must be an exact original source phrase');
+          }
+          provenance = { origin: 'Manual correction', corrects, reason, actor: 'manager' };
+        } else requireValue(!Object.hasOwn(args, 'reason'), 'A correction reason requires an original candidate');
+        result = await draft.propose(args.candidate);
+        metadata.labels[result.candidate.id] ??= provenance;
+        break;
+      }
+      case 'confirm': {
         fields(args, ['candidate_id', 'options'], action);
         fields(args.options, ['actor', 'reason', 'replaces', 'related_to', 'resolved_unknowns'], 'Confirmation options');
-        result = await draft.confirm(args.candidate_id, { ...args.options, target: this.#target }); break;
+        const options = { ...args.options };
+        const provenance = metadata.labels[args.candidate_id];
+        if (provenance?.origin === 'Manual correction' && provenance.corrects) {
+          options.reason ??= provenance.reason;
+          requireValue(text(options.reason, 'Correction confirmation reason', 1000).trim().length >= 3,
+            'Correction confirmation requires at least three reason characters');
+        }
+        result = await draft.confirm(args.candidate_id, { ...options, target: this.#target }); break;
+      }
       case 'decideCondition':
         fields(args, ['version_id', 'options'], action); this.#record(args.version_id);
         result = await draft.decideCondition(args.version_id, args.options); break;

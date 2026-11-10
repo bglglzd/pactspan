@@ -10,6 +10,7 @@ const STORAGE = 'pactspan-demo-v1';
 const $ = id => document.getElementById(id);
 let app, crm, clock, selected = null, caseId = 'D01', labels = {}, reads = {}, busy = false, broken = null;
 let local = null;
+let manualOriginal = null, manualConditions = [], manualConditionsText = '';
 
 function syncLocal() {
   if (!local) return;
@@ -178,6 +179,11 @@ function termsCard(candidate, current, snapshot) {
       source ? details('View source segment', segment) : null);
   }));
   const body = element('div', {}, grid, quotes);
+  const provenance = labels[candidate.id];
+  body.append(element('div', { class: 'button-row' }, button('Create corrected candidate', () => openManual(candidate))));
+  if (provenance?.corrects) body.append(details('Correction decision', provenance), button('View original candidate', () => {
+    selected = provenance.corrects; persist(); render(); document.querySelector('#detail h2')?.focus({ preventScroll: true });
+  }));
   if (!current) {
     const compatible = Object.values(snapshot.commitments).map(group => snapshot.versions[group.current])
       .filter(record => record.terms.kind === value.kind && record.terms.entity_id === value.entity_id && record.target.adapter === (local?.workspace.target.adapter ?? 'demo'));
@@ -188,14 +194,16 @@ function termsCard(candidate, current, snapshot) {
       replacement.append(element('option', { value: 'replace:' + record.id }, 'Explicitly replace ' + label));
       if (value.kind !== 'crm.amount') replacement.append(element('option', { value: 'relate:' + record.id }, 'Record conflict with ' + label));
     }
-    const reason = element('input', { id: 'confirm-reason', placeholder: 'Required for ambiguous agreement', maxLength: 1000 });
+    const reason = element('input', { id: 'confirm-reason', value: provenance?.corrects ? provenance.reason : '',
+      placeholder: 'Required for ambiguous agreement or correction', maxLength: 1000 });
     body.append(element('div', { class: 'confirmation-fields' }, element('label', {}, 'Version relationship', replacement), element('label', {}, 'Manager clarification', reason)),
       element('div', { class: 'button-row' }, button('Confirm terms', () => run(async () => {
         const relationship = replacement.value.startsWith('replace:') ? { replaces: replacement.value.slice(8) }
           : replacement.value.startsWith('relate:') ? { related_to: replacement.value.slice(7) } : {};
+        if (provenance?.corrects && reason.value.trim().length < 3) throw new Error('Confirming a correction requires a reason of at least three characters.');
         await app.confirm(candidate.id, { actor: 'manager', target: DEMO_TARGET, reason: reason.value, ...relationship });
       }, 'Terms confirmed. A write or receipt still requires the separate checks below.'), { primary: true, disabled: !candidate.supported || value.owner === null || candidate.agreement === 'refused' })));
-    if (value.owner === null) body.append(element('p', { class: 'hint' }, 'The owner is unknown. Add a manual clarification as a new sourced candidate before confirming.'));
+    if (value.owner === null) body.append(element('p', { class: 'hint' }, 'The owner is unknown. Create a corrected candidate before confirming.'));
     if (!candidate.supported) body.append(element('ul', { class: 'guard-list' }, candidate.support_errors.map(reason => element('li', {}, reason))));
   } else {
     if (current.status === 'disputed' && current.dispute_kind === 'terms_conflict') {
@@ -350,21 +358,80 @@ function updateManualSegment() {
   $('manual-segment').replaceChildren(...source.segments.map((segment, index) => element('option', { value: index }, `${Math.floor(segment.start_secs)}s · ${segment.speaker}`)));
   $('manual-quote').value = source.segments[0].text;
 }
-$('add-manual').addEventListener('click', () => {
+function manualKind() { $('manual-statement').required = $('manual-kind').value !== 'crm.amount'; }
+function originalCitations(candidate) {
+  return candidate.evidence.map(span => Object.fromEntries(['source', 'segment', 'quote', 'start', 'end']
+    .filter(key => Object.hasOwn(span, key)).map(key => [key, span[key]])));
+}
+function openManual(candidate = null) {
+  if (busy || broken || local?.workspace.storage_error) return;
   const sources = Object.values(app.snapshot().sources);
   if (!sources.length) { message('Import a transcript first.', true); return; }
+  $('manual-form').reset(); manualOriginal = candidate ? structuredClone(candidate) : null;
   $('manual-source').replaceChildren(...sources.map(source => element('option', { value: source.id }, source.title)));
-  $('manual-error').hidden = true; updateManualSegment(); $('manual-dialog').showModal();
-});
+  updateManualSegment();
+  $('manual-source-fields').hidden = Boolean(candidate);
+  for (const id of ['manual-source', 'manual-segment', 'manual-quote']) $(id).disabled = Boolean(candidate);
+  $('manual-citations').hidden = !candidate;
+  $('manual-citations').replaceChildren(...(candidate ? candidate.evidence.map(span => element('blockquote', {},
+    element('p', {}, span.quote), element('footer', {}, `${sources.find(source => source.id === span.source)?.title ?? 'Unknown source'} · Segment ${span.segment} · ${span.start ?? '?'}–${span.end ?? '?'}`))) : []));
+  $('manual-title').textContent = candidate ? 'Correct candidate' : 'Sourced candidate';
+  $('manual-submit').textContent = candidate ? 'Add corrected candidate' : 'Add candidate';
+  $('manual-reason-field').hidden = !candidate; $('manual-reason').required = Boolean(candidate);
+  $('manual-kind').value = candidate?.terms.kind ?? 'crm.amount';
+  $('manual-statement').value = candidate?.terms.statement ?? '';
+  $('manual-entity').value = candidate ? candidate.terms.entity_id ?? '' : 'O1';
+  $('manual-owner').value = candidate?.terms.owner ?? '';
+  $('manual-amount').value = candidate?.terms.amount ?? '';
+  $('manual-currency').value = candidate ? candidate.terms.currency ?? '' : 'USD';
+  $('manual-agreement').value = candidate?.agreement ?? 'proposed';
+  $('manual-unknowns').value = candidate?.unknown_fields.join('\n') ?? '';
+  $('manual-due-literal').value = candidate?.terms.due?.literal ?? '';
+  $('manual-due-resolved').value = candidate?.terms.due?.resolved ?? '';
+  $('manual-due-precision').value = candidate?.terms.due?.precision ?? 'unknown';
+  $('manual-due-zone').value = candidate?.terms.due?.zone ?? '';
+  manualConditions = candidate?.terms.conditions.map(condition => ({ literal: condition.literal })) ?? [];
+  manualConditionsText = manualConditions.map(condition => condition.literal).join('\n');
+  $('manual-conditions').value = manualConditionsText;
+  $('manual-advanced').open = false; manualKind();
+  $('manual-error').hidden = true; $('manual-dialog').showModal();
+}
+$('add-manual').addEventListener('click', () => openManual());
+$('manual-kind').addEventListener('change', manualKind);
 $('manual-source').addEventListener('change', updateManualSegment);
 $('manual-segment').addEventListener('change', () => { $('manual-quote').value = app.snapshot().sources[$('manual-source').value].segments[Number($('manual-segment').value)].text; });
 $('manual-cancel').addEventListener('click', () => $('manual-dialog').close());
 $('manual-form').addEventListener('submit', event => {
   event.preventDefault();
-  const raw = { agreement: $('manual-agreement').value, terms: { kind: 'crm.amount', entity_id: $('manual-entity').value,
-    amount: $('manual-amount').value, currency: $('manual-currency').value, owner: $('manual-owner').value || null },
-    evidence: [{ source: $('manual-source').value, segment: Number($('manual-segment').value), quote: $('manual-quote').value }] };
-  run(async () => { const proposed = await app.propose(raw); selected = proposed.candidate.id; labels[selected] = { origin: 'Manual candidate' }; $('manual-dialog').close(); }, 'Manual candidate retained with its source. Confirmation is separate.');
+  run(async () => {
+    const original = manualOriginal;
+    const literal = $('manual-due-literal').value, resolved = $('manual-due-resolved').value.trim() || null;
+    const precision = $('manual-due-precision').value, zone = $('manual-due-zone').value.trim() || null;
+    const due = literal || resolved || zone || precision !== 'unknown' ? { literal, resolved, precision, zone } : null;
+    const conditions = $('manual-conditions').value === manualConditionsText ? structuredClone(manualConditions)
+      : $('manual-conditions').value.split(/\r?\n/).filter(line => line.trim()).map(literal => ({ literal }));
+    const snapshot = app.snapshot();
+    const sourceIds = original ? original.evidence.map(span => span.source) : [$('manual-source').value];
+    const sources = [...new Set(sourceIds)].map(id => snapshot.sources[id]).filter(Boolean);
+    const inSource = text => sources.some(source => source.segments.some(segment => segment.text.includes(text)));
+    if (literal && !inSource(literal)) throw new Error('Deadline wording must be an exact source phrase.');
+    if (conditions.some(condition => !inSource(condition.literal))) throw new Error('Each prerequisite must be an exact source phrase.');
+    const correction = original ? { corrects: original.id, reason: $('manual-reason').value.trim() } : {};
+    if (original && correction.reason.length < 3) throw new Error('A correction reason needs at least three characters.');
+    const raw = { agreement: $('manual-agreement').value, terms: { kind: $('manual-kind').value,
+      statement: $('manual-statement').value, entity_id: $('manual-entity').value.trim() || null,
+      amount: $('manual-amount').value.trim() || null, currency: $('manual-currency').value.trim() || null,
+      owner: $('manual-owner').value.trim() || null, due, conditions },
+      unknown_fields: $('manual-unknowns').value.split(/\r?\n/).map(value => value.trim()).filter(Boolean),
+      evidence: original ? originalCitations(original) : [{ source: $('manual-source').value,
+        segment: Number($('manual-segment').value), quote: $('manual-quote').value }] };
+    const proposed = local ? await local.propose(raw, correction) : await app.propose(raw);
+    selected = proposed.candidate.id;
+    if (!local) labels[selected] ??= original ? { origin: 'Manual correction', ...correction, actor: 'manager' } : { origin: 'Manual candidate' };
+    $('manual-dialog').close();
+    message(proposed.duplicate ? 'Matching candidate already exists. Its first origin and confirmation status were retained.'
+      : original ? 'Corrected candidate retained. Review it and confirm separately.' : 'Manual candidate retained with its source. Confirmation is separate.');
+  });
 });
 
 try {

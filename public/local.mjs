@@ -31,7 +31,7 @@ export class LocalWorkspace {
     } catch (error) { await this.refresh().catch(() => {}); throw error; }
   }
   importSource(document) { return this.action('importSource', { document }); }
-  propose(candidate) { return this.action('propose', { candidate }); }
+  propose(candidate, correction = {}) { return this.action('propose', { ...correction, candidate }); }
   confirm(candidate_id, { target: _target, ...options }) { return this.action('confirm', { candidate_id, options }); }
   decideCondition(version_id, options) { return this.action('decideCondition', { version_id, options }); }
   resolveConflict(version_id, options) { return this.action('resolveConflict', { version_id, options }); }

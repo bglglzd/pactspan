@@ -37,13 +37,28 @@
   <dialog id="manual-dialog" aria-labelledby="manual-title"><form id="manual-form" method="dialog">
     <h2 id="manual-title">Sourced candidate</h2>
     <p id="manual-error" class="message error" role="alert" hidden></p>
-    <p class="muted">A manual proposal. Confirmation is a separate decision.</p>
-    <label>Source<select id="manual-source" required></select></label>
-    <label>Segment<select id="manual-segment" required></select></label>
-    <label>Exact quote<textarea id="manual-quote" rows="3" required maxlength="2000"></textarea></label>
-    <div class="form-grid"><label>Opportunity ID<input id="manual-entity" value="O1" required maxlength="128"></label><label>Owner ID<input id="manual-owner" placeholder="Mapped person ID" maxlength="128"></label><label>Amount<input id="manual-amount" inputmode="decimal" required></label><label>Currency<input id="manual-currency" value="USD" maxlength="3" required></label></div>
-    <label>Agreement<select id="manual-agreement"><option value="proposed">Proposed</option><option value="accepted">Accepted in source</option><option value="unknown">Unclear</option></select></label>
-    <div class="button-row"><button type="button" id="manual-cancel">Cancel</button><button type="submit" class="primary">Add candidate</button></div>
+    <p class="muted">Creates an unconfirmed candidate. Confirmation is separate.</p>
+    <div id="manual-source-fields" class="manual-fields">
+      <label>Source<select id="manual-source" required></select></label>
+      <label>Segment<select id="manual-segment" required></select></label>
+      <label>Exact quote<textarea id="manual-quote" rows="3" required maxlength="2000"></textarea></label>
+    </div>
+    <section id="manual-citations" aria-label="Retained original citations" hidden></section>
+    <label>Kind<select id="manual-kind"><option value="crm.amount">CRM amount</option><option value="proposal.sent">Send proposal</option><option value="other">Other promise</option></select></label>
+    <label>Statement<textarea id="manual-statement" rows="2" maxlength="1000"></textarea></label>
+    <div class="form-grid"><label>Opportunity ID<input id="manual-entity" value="O1" maxlength="128"></label><label>Owner ID<input id="manual-owner" placeholder="Mapped person ID" maxlength="128"></label><label>Amount<input id="manual-amount" inputmode="decimal"></label><label>Currency<input id="manual-currency" value="USD" maxlength="3"></label></div>
+    <label>Agreement<select id="manual-agreement"><option value="proposed">Proposed</option><option value="accepted">Accepted in source</option><option value="conditional">Conditional</option><option value="unknown">Unclear</option><option value="refused">Refused</option></select></label>
+    <label>Unresolved fields · one path per line<textarea id="manual-unknowns" rows="2" maxlength="1295" aria-describedby="manual-unknowns-help"></textarea></label>
+    <p id="manual-unknowns-help" class="hint">Remove a path only after clarifying it. Filling a value does not clear it.</p>
+    <details id="manual-advanced"><summary>Deadline and prerequisites</summary><div class="manual-fields">
+      <label>Deadline wording<textarea id="manual-due-literal" rows="2" maxlength="500"></textarea></label>
+      <div class="form-grid"><label>Precision<select id="manual-due-precision"><option value="unknown">Unknown</option><option value="date">Date only</option><option value="instant">Instant</option></select></label><label>IANA time zone<input id="manual-due-zone" placeholder="Europe/Moscow" maxlength="80"></label></div>
+      <label>Resolved date or instant<input id="manual-due-resolved" placeholder="YYYY-MM-DD or ISO date/time with offset" maxlength="40" aria-describedby="manual-due-help"></label>
+      <p id="manual-due-help" class="hint">Leave unresolved values empty. An instant needs an explicit offset and IANA zone.</p>
+      <label>Prerequisites · one exact source phrase per line<textarea id="manual-conditions" rows="3" maxlength="16015"></textarea></label>
+    </div></details>
+    <label id="manual-reason-field" hidden>Correction reason<textarea id="manual-reason" rows="2" minlength="3" maxlength="1000"></textarea></label>
+    <div class="button-row"><button type="button" id="manual-cancel">Cancel</button><button type="submit" id="manual-submit" class="primary">Add candidate</button></div>
   </form></dialog>
 </body>
 </html>
