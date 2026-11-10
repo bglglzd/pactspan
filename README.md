@@ -4,13 +4,15 @@ Review meeting commitments as immutable confirmed term versions. Link accepted a
 
 ## Try the synthetic demo
 
-Node22 or newer. From this checkout:
+Node22 or newer; npm is used for convenience commands. From this checkout:
 
 ```sh
 npm run demo
 ```
 
 Open the printed loopback URL. No dependency installation, paid model or CRM account is needed for this demo.
+
+With a Node-only installation, use `node scripts/serve-demo.mjs` for the same static demo.
 
 With D01 selected, confirm its sourced terms, read the Demo CRM, approve the exact amount change, execute that approval, then verify the state independently. The write acknowledgment leaves the commitment unverified. Expand the separate Demo CRM editor, change its amount and verify again to inspect the contradiction and retained receipt.
 
@@ -23,6 +25,10 @@ npm start -- --example D01
 ```
 
 Open the printed numeric loopback URL. Commitments and the separate synthetic CRM survive server/browser restarts in `.pactspan/`. Omit `--example` when restarting: that option explicitly replaces the synthetic workspace. Export history before replacing an example. Only one process can open the same data directory.
+
+The equivalent Node-only command is `node src/cli.mjs serve --example D01`.
+
+For a downloaded release package, extract `pactspan-0.1.0.tgz` into an empty directory, enter its `package/` folder and run that Node command. No npm install step is required. Keep the release manifest with its SHA256 digests when verifying downloaded bytes.
 
 For an externally installed EspoCRM single-writer sandbox, set `PACTSPAN_CRM_ORIGIN`, `PACTSPAN_SINGLE_WRITER=1` and provide separate reader/writer API keys through `--keys /private/api-identities.json` (`reader.apiKey` and `writer.apiKey`) or `PACTSPAN_READ_KEY`/`PACTSPAN_WRITE_KEY`. Keys stay server-side. Then run:
 
