@@ -35,7 +35,7 @@ test('approved write ACK is not fulfillment; fresh receipt, replay and restart p
   const first = await app.verify(current.id, after, { attemptId: started.attempt.id });
   assert.equal(first.matched, true);
   assert.equal(first.receipt.version_id, current.id);
-  const restored = new Pactspan(app.snapshot(), { clock: () => AT });
+  const restored = await Pactspan.restore(app.snapshot(), { clock: () => AT });
   const repeat = await restored.verify(current.id, after);
   assert.equal(repeat.duplicate, true);
   assert.equal(restored.snapshot().events.filter(row => row.action === 'fulfilled').length, 1);
@@ -68,7 +68,7 @@ test('unknown prerequisites, missing owner, draft-only proposal and unsupported 
   await assert.rejects(confirm(app, missing, { replaces: conditional.id }), /Owner requires clarification/);
   assert.equal(app.snapshot().candidates[missing.id].state, 'proposed');
   const proposal = await confirm(app, await candidate(app, '8000', { kind: 'proposal.sent' }));
-  assert.equal((await app.verify(proposal.id, await observed('8000'))).matched, false);
+  assert.equal((await app.verify(proposal.id, await observed('8000', '2'))).matched, false);
   const source = Object.values(app.snapshot().sources)[0];
   const unsupported = (await app.propose({ agreement: 'accepted', evidence: [{ source: source.id, segment: 0, quote: 'Invented agreement' }],
     terms: { kind: 'crm.amount', entity_id: 'O2', amount: '10800', currency: 'USD', owner: 'alex' } })).candidate;
@@ -87,12 +87,13 @@ test('conflicts and changed/expired approvals are refused before any write comma
   assert.equal(Object.keys(app.snapshot().attempts).length, 0);
   const conflicting = await confirm(app, await candidate(app, '10800'));
   assert.equal(app.view(first.id).status, 'disputed'); assert.equal(app.view(conflicting.id).status, 'disputed');
-  assert.equal((await app.verify(conflicting.id, await observed('10800'))).matched, false);
+  assert.equal((await app.verify(conflicting.id, await observed('10800', '2'))).matched, false);
   await assert.rejects(app.beginAttempt(approval.id, before), /invalidated/);
   await app.resolveConflict(conflicting.id, { actor: 'manager', reason: 'Reviewed both exact sources and selected the accepted amendment' });
-  const newApproval = await app.approve(conflicting.id, before, { actor: 'manager', expires_at: LATER });
+  const currentBefore = await observed('15000', '3');
+  const newApproval = await app.approve(conflicting.id, currentBefore, { actor: 'manager', expires_at: LATER });
   now = '2030-01-08T09:11:00.000Z';
-  await assert.rejects(app.beginAttempt(newApproval.id, await observed('15000', '1', { observed_at: now })), /expired/);
+  await assert.rejects(app.beginAttempt(newApproval.id, await observed('15000', '3', { observed_at: now })), /expired/);
   assert.equal(Object.keys(app.snapshot().attempts).length, 0);
 });
 
@@ -119,5 +120,80 @@ test('failed malformed changes preserve the prior workspace and cannot poison th
   assert.throws(() => app.view('constructor'), /Unknown commitment version/);
   assert.equal((await app.verify(current.id, await observed('12000'))).matched, true);
   const forged = app.snapshot(); forged.versions[current.id].fulfillment_receipt = 'missing';
-  assert.throws(() => new Pactspan(forged), /receipt/);
+  await assert.rejects(Pactspan.restore(forged), /receipt/);
+});
+
+test('an older matching observation cannot erase newer rollback evidence, including after restart', async () => {
+  let now = AT;
+  const app = engine(() => now); const current = await confirm(app, await candidate(app));
+  const earlier = await observed('12000', '2');
+  await app.verify(current.id, earlier);
+  now = '2030-01-08T09:00:10.000Z';
+  await app.verify(current.id, await observed('15000', '3', { observed_at: now }));
+  now = '2030-01-08T09:00:20.000Z';
+  const restored = await Pactspan.restore(app.snapshot(), { clock: () => now });
+  await assert.rejects(restored.verify(current.id, earlier), /Stale observation/);
+  assert.equal(restored.view(current.id).status, 'disputed');
+  assert.equal(restored.view(current.id).verification.observed.amount, '15000');
+  assert.equal(restored.snapshot().events.filter(row => row.action === 'verification_restored').length, 0);
+});
+
+test('uncertain attempt blocks a new approval across versions until a matching fresh read reconciles it', async () => {
+  let now = AT;
+  const app = engine(() => now); const first = await confirm(app, await candidate(app));
+  const before = await observed('15000');
+  const approved = await app.approve(first.id, before, { actor: 'manager', expires_at: LATER });
+  const started = await app.beginAttempt(approved.id, before);
+  await app.finishAttempt(started.attempt.id, { outcome: 'uncertain' });
+  const restored = await Pactspan.restore(app.snapshot(), { clock: () => now });
+  await assert.rejects(restored.approve(first.id, before, { actor: 'manager', expires_at: '2030-01-08T09:11:00Z' }), /reconciliation/);
+  const second = await confirm(restored, await candidate(restored, '10800'), { replaces: first.id });
+  await assert.rejects(restored.approve(second.id, before, { actor: 'manager', expires_at: LATER }), /reconciliation/);
+  now = '2030-01-08T09:00:10.000Z';
+  const stillOld = await observed('15000', '1', { observed_at: now });
+  assert.equal((await restored.reconcileAttempt(started.attempt.id, stillOld)).resolved, false);
+  await assert.rejects(restored.approve(second.id, stillOld, { actor: 'manager', expires_at: LATER }), /reconciliation/);
+  const committed = await observed('12000', '2', { observed_at: now });
+  assert.equal((await restored.reconcileAttempt(started.attempt.id, committed)).resolved, true);
+  assert.equal(restored.view(first.id).status, 'superseded');
+  assert.equal(Object.keys(restored.snapshot().receipts).length, 0);
+  const newApproval = await restored.approve(second.id, committed, { actor: 'manager', expires_at: LATER });
+  assert.equal((await restored.beginAttempt(newApproval.id, committed)).command.amount, '10800');
+});
+
+test('restored terms, candidates and hashes must agree before another approval is possible', async () => {
+  const app = engine(); const current = await confirm(app, await candidate(app));
+  const changed = app.snapshot(); changed.versions[current.id].terms.amount = '99999';
+  await assert.rejects(Pactspan.restore(changed), /candidate/);
+  const changedTogether = app.snapshot();
+  changedTogether.versions[current.id].terms.amount = '99999';
+  changedTogether.candidates[current.candidate_id].terms.amount = '99999';
+  await assert.rejects(Pactspan.restore(changedTogether), /hash/);
+  assert.throws(() => new Pactspan(app.snapshot()), /Pactspan.restore/);
+});
+
+test('a later replacement cannot erase an unresolved conflict or survive selection of another version', async () => {
+  const app = engine(); const a = await confirm(app, await candidate(app, '12000'));
+  const b = await confirm(app, await candidate(app, '11000'));
+  const c = await confirm(app, await candidate(app, '10800'), { replaces: b.id });
+  assert.equal(app.view(c.id).status, 'disputed');
+  await assert.rejects(app.approve(c.id, await observed('15000'), { actor: 'manager', expires_at: LATER }), /Conflicting/);
+  await app.resolveConflict(a.id, { actor: 'manager', reason: 'Explicitly selected original source after reviewing all three' });
+  assert.equal(app.view(a.id).status, 'confirmed');
+  assert.equal(app.view(b.id).status, 'superseded'); assert.equal(app.view(c.id).status, 'superseded');
+  await assert.rejects(app.approve(c.id, await observed('15000'), { actor: 'manager', expires_at: LATER }), /not current/);
+});
+
+test('uncertain deadline fields cannot create an overdue or on-time claim', async () => {
+  let now = AT;
+  const app = engine(() => now);
+  const original = await candidate(app, '12000', { due: { literal: 'Unclarified time', precision: 'instant', resolved: '2030-01-08T09:05:00Z', zone: 'UTC' } });
+  const raw = { agreement: 'accepted', terms: original.terms, evidence: original.evidence.map(({ source, segment, quote, start, end }) => ({ source, segment, quote, start, end })), unknown_fields: ['due.resolved'] };
+  const uncertain = (await app.propose(raw)).candidate;
+  const current = await confirm(app, uncertain);
+  now = LATER;
+  assert.deepEqual(await app.checkDeadlines(), []);
+  const result = await app.verify(current.id, await observed('12000', '1', { observed_at: now }));
+  assert.equal(result.receipt.deadline_observation, 'deadline_unresolved');
+  assert.equal(app.snapshot().events.filter(row => row.action === 'overdue_without_receipt').length, 0);
 });

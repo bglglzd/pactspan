@@ -1,10 +1,12 @@
-import { canonical, fields, identifier, instant, integer, jsonData, list, requireValue, sha256, text } from './data.mjs';
+import { InputError, canonical, fields, identifier, instant, integer, jsonData, list, requireValue, sha256, text } from './data.mjs';
 import { makeSource, citation } from './source.mjs';
 import { adapterTarget, beforeState, observation, targetOf, terms } from './terms.mjs';
 
 export function emptyState() {
-  return { schema_version: 1, sources: {}, candidates: {}, commitments: {}, versions: {}, approvals: {}, attempts: {}, receipts: {}, events: [] };
+  return { schema_version: 1, sources: {}, candidates: {}, commitments: {}, versions: {}, approvals: {}, attempts: {}, receipts: {}, observations: {}, events: [] };
 }
+
+const RESTORED = Symbol('validated workspace');
 
 function event(state, at, action, target, detail) {
   state.events.push({ sequence: state.events.length + 1, at, action, target, detail: structuredClone(detail) });
@@ -41,6 +43,47 @@ function executionReasons(state, record) {
   return reasons;
 }
 
+function deadlineKnown(state, record) {
+  return record.terms.due?.precision === 'instant' && record.terms.due.resolved !== null
+    && state.candidates[record.candidate_id].unknown_fields.filter(field => field === 'due' || field.startsWith('due.'))
+      .every(field => record.confirmation.resolved_unknowns.includes(field));
+}
+
+function unresolvedAttempts(state, record) {
+  return Object.values(state.attempts).filter(attempt => {
+    const previous = state.versions[attempt.version_id];
+    return attempt.outcome !== 'rejected' && !attempt.reconciliation && previous
+      && previous.terms.entity_id === record.terms.entity_id && canonical(previous.target) === canonical(record.target);
+  });
+}
+
+async function acceptObservation(state, observed) {
+  const key = 'obs_' + await sha256({ target: targetOf(observed), entity_id: observed.entity_id });
+  const previous = state.observations[key];
+  if (previous) {
+    requireValue(Number(observed.revision) >= Number(previous.revision)
+      && Date.parse(observed.observed_at) >= Date.parse(previous.observed_at), 'Stale observation cannot replace newer CRM evidence');
+    requireValue(observed.revision !== previous.revision || (observed.amount === previous.amount && observed.currency === previous.currency),
+      'CRM observations disagree on business fields for the same revision');
+  }
+  state.observations[key] = structuredClone(observed);
+}
+
+function reconcile(state, attempt, observed, at) {
+  const record = version(state, attempt.version_id);
+  requireValue(canonical(targetOf(observed)) === canonical(record.target) && observed.entity_id === record.terms.entity_id,
+    'Reconciliation observation names another CRM or entity');
+  requireValue(Date.parse(observed.observed_at) >= Date.parse(attempt.created_at), 'Reconciliation requires an observation after the attempt began');
+  const matched = observed.amount === record.terms.amount && observed.currency === record.terms.currency;
+  attempt.last_reconciliation = { matched, observation: structuredClone(observed), at };
+  // A nonmatch cannot prove that an uncertain request will never commit later.
+  if (matched || attempt.outcome === 'acknowledged' || attempt.outcome === 'rejected') {
+    attempt.reconciliation ??= structuredClone(attempt.last_reconciliation);
+  }
+  event(state, at, 'attempt_reconciled', attempt.id, { matched, outcome_resolved: Boolean(attempt.reconciliation), observation: observed });
+  return { matched, resolved: Boolean(attempt.reconciliation), attempt };
+}
+
 export function invariantErrors(state) {
   const errors = [];
   for (const group of Object.values(state.commitments)) {
@@ -49,6 +92,10 @@ export function invariantErrors(state) {
   }
   for (const record of Object.values(state.versions)) {
     if (!state.candidates[record.candidate_id] || !record.confirmation) errors.push('Version has no candidate or manager confirmation');
+    if (canonical(record.terms) !== canonical(state.candidates[record.candidate_id]?.terms ?? null)) errors.push('Version terms differ from the confirmed candidate');
+    if (!['confirmed', 'superseded', 'fulfilled', 'disputed', 'overdue'].includes(record.status)) errors.push('Unknown version state');
+    if (['confirmed', 'fulfilled', 'overdue'].includes(record.status)
+      && state.commitments[record.commitment_id]?.current !== record.id) errors.push('A noncurrent version has an active state');
     if (record.status === 'fulfilled') {
       const receipt = state.receipts[record.fulfillment_receipt];
       if (!receipt || receipt.version_id !== record.id || receipt.terms_hash !== record.terms_hash
@@ -70,7 +117,7 @@ export class Pactspan {
   #clock;
   #queue = Promise.resolve();
 
-  constructor(snapshot = emptyState(), { clock = () => new Date().toISOString() } = {}) {
+  constructor(snapshot = emptyState(), { clock = () => new Date().toISOString() } = {}, restoredToken = null) {
     jsonData(snapshot);
     fields(snapshot, Object.keys(emptyState()), 'workspace');
     requireValue(snapshot.schema_version === 1, 'workspace.schema_version must be 1');
@@ -78,16 +125,34 @@ export class Pactspan {
       requireValue(snapshot[key] !== null && typeof snapshot[key] === 'object' && !Array.isArray(snapshot[key]), `workspace.${key} must be an object`);
     }
     list(snapshot.events, 'workspace.events', 5000);
-    const errors = invariantErrors(snapshot);
+    requireValue(restoredToken === RESTORED || (snapshot.events.length === 0
+      && Object.keys(emptyState()).filter(key => !['schema_version', 'events'].includes(key)).every(key => Object.keys(snapshot[key]).length === 0)),
+    'Use await Pactspan.restore(snapshot) for a saved workspace');
+    let errors;
+    try { errors = invariantErrors(snapshot); }
+    catch { requireValue(false, 'Workspace has an invalid record shape'); }
     requireValue(!errors.length, errors.join('; '));
     this.#state = structuredClone(snapshot); this.#clock = clock;
+  }
+
+  static async restore(snapshot, options = {}) {
+    const restored = new Pactspan(snapshot, options, RESTORED);
+    try { await validateIntegrity(restored.#state); }
+    catch (error) {
+      if (error instanceof InputError) throw error;
+      throw new InputError('Saved workspace contains an invalid record shape or integrity binding');
+    }
+    return restored;
   }
 
   snapshot() { return structuredClone(this.#state); }
   now() { return instant(this.#clock(), 'clock'); }
   view(id) {
     const record = version(this.#state, id);
-    return { ...structuredClone(record), execution_reasons: executionReasons(this.#state, record) };
+    const pending = unresolvedAttempts(this.#state, record);
+    return { ...structuredClone(record), execution_reasons: [...executionReasons(this.#state, record),
+      ...(pending.length ? ['A prior write outcome requires reconciliation'] : [])],
+    unresolved_attempts: pending.map(item => ({ id: item.id, version_id: item.version_id, outcome: item.outcome })) };
   }
 
   #change(callback) {
@@ -125,7 +190,8 @@ export class Pactspan {
       const unknownFields = [...new Set(list(raw.unknown_fields ?? [], 'candidate.unknown_fields', 16).map(item =>
         text(item, 'candidate.unknown_fields item', 80)))];
       for (const key of ['owner', 'entity_id', 'amount', 'currency', 'due']) if (proposedTerms[key] === null && !unknownFields.includes(key)) unknownFields.push(key);
-      const id = 'can_' + await sha256({ agreement: raw.agreement, terms: proposedTerms, evidence });
+      unknownFields.sort();
+      const id = 'can_' + await sha256({ agreement: raw.agreement, terms: proposedTerms, evidence, unknown_fields: unknownFields });
       if (state.candidates[id]) return { candidate: state.candidates[id], duplicate: true };
       const supportErrors = evidence.filter(item => !item.supported).map(item => item.reason);
       if (!evidence.length) supportErrors.push('An exact source quote is required');
@@ -173,6 +239,9 @@ export class Pactspan {
         invalidateApprovals(state, previous.id, 'Conflicting confirmed terms');
         event(state, at, 'terms_conflict', previous.id, { other_version: id, actor });
       } else if (previous) {
+        if (group.versions.some(existingId => state.versions[existingId].dispute_kind === 'terms_conflict')) {
+          record.status = 'disputed'; record.dispute_kind = 'terms_conflict';
+        }
         previous.status = 'superseded'; previous.dispute_kind = null;
         invalidateApprovals(state, previous.id, 'Version superseded');
         event(state, at, 'superseded', previous.id, { replacement: id, actor });
@@ -211,10 +280,8 @@ export class Pactspan {
       const group = state.commitments[chosen.commitment_id];
       for (const id of group.versions) {
         const record = state.versions[id];
-        if (record.dispute_kind === 'terms_conflict') {
-          record.status = id === chosen.id ? 'confirmed' : 'superseded'; record.dispute_kind = null;
-          invalidateApprovals(state, id, 'Term conflict resolved');
-        }
+        record.status = id === chosen.id ? 'confirmed' : 'superseded'; record.dispute_kind = null;
+        invalidateApprovals(state, id, 'Term conflict resolved');
       }
       group.current = chosen.id;
       event(state, at, 'conflict_resolved', chosen.id, { actor, reason });
@@ -227,9 +294,11 @@ export class Pactspan {
       fields(options, ['actor', 'expires_at'], 'approval');
       const record = version(state, versionId);
       requireValue(!executionReasons(state, record).length, executionReasons(state, record).join('; '));
+      requireValue(!unresolvedAttempts(state, record).length, 'A prior write outcome requires fresh read reconciliation before another approval');
       const observed = observation(rawObservation);
       requireValue(canonical(targetOf(observed)) === canonical(record.target), 'Approval observation names a different CRM');
       requireFresh(observed, at);
+      await acceptObservation(state, observed);
       requireValue(observed.entity_id === record.terms.entity_id, 'Approval observation names a different entity');
       requireValue(observed.amount !== record.terms.amount || observed.currency !== record.terms.currency, 'CRM already matches; verify instead of writing');
       const expires = instant(options.expires_at, 'approval.expires_at');
@@ -255,8 +324,10 @@ export class Pactspan {
       const record = version(state, approval.version_id);
       requireValue(approval.state === 'approved' && Date.parse(at) < Date.parse(approval.expires_at), 'Approval is expired, invalidated or consumed');
       requireValue(approval.terms_hash === record.terms_hash && !executionReasons(state, record).length, 'Approval no longer matches an executable current version');
+      requireValue(!unresolvedAttempts(state, record).length, 'A prior write outcome requires reconciliation before another command');
       const observed = observation(rawFreshObservation);
       requireFresh(observed, at);
+      await acceptObservation(state, observed);
       requireValue(await sha256(beforeState(observed)) === approval.before_hash, 'Fresh CRM state differs from the approved before state');
       requireValue(canonical(approval.payload) === canonical({ amount: record.terms.amount, currency: record.terms.currency }), 'Approval payload differs from confirmed terms');
       const id = 'att_' + await sha256({ approval: approval.id });
@@ -293,12 +364,17 @@ export class Pactspan {
       if (!sameTarget) reasons.push('Receipt names a different CRM');
       if (observed.entity_id !== record.terms.entity_id) reasons.push('Receipt entity differs from the confirmed entity');
       if (observed.amount !== record.terms.amount || observed.currency !== record.terms.currency) reasons.push('Observed CRM fields differ from confirmed terms');
+      const sameIdentity = sameTarget && observed.entity_id === record.terms.entity_id;
+      if (sameIdentity) await acceptObservation(state, observed);
       let attempt = null;
       if (attemptId !== null) {
         attempt = state.attempts[identifier(attemptId, 'attempt ID')];
         requireValue(attempt?.version_id === record.id && attempt.terms_hash === record.terms_hash, 'Attempt belongs to another term version');
+        if (sameIdentity) reconcile(state, attempt, observed, at);
+      } else if (sameIdentity) {
+        for (const pending of unresolvedAttempts(state, record).filter(item => item.version_id === record.id)) reconcile(state, pending, observed, at);
       }
-      record.verification = { observed, at, matched: !reasons.length, reasons };
+      if (sameIdentity) record.verification = { observed: structuredClone(observed), at, matched: !reasons.length, reasons };
       if (reasons.length) {
         if (record.status === 'fulfilled' && sameTarget && observed.entity_id === record.terms.entity_id) {
           record.status = 'disputed'; record.dispute_kind = 'external_mismatch';
@@ -312,10 +388,9 @@ export class Pactspan {
       const id = 'rcp_' + await sha256(identity);
       const duplicate = Boolean(state.receipts[id]);
       const receipt = state.receipts[id] ?? { id, ...identity, predicate: 'crm.amount', confirmation: structuredClone(record.confirmation),
-        observation: observed, attempt_id: attempt?.id ?? null, recorded_at: at,
-        deadline_observation: record.terms.due?.precision === 'instant' && record.terms.due.resolved !== null
-          && state.candidates[record.candidate_id].unknown_fields.filter(field => field === 'due' || field.startsWith('due.'))
-            .every(field => record.confirmation.resolved_unknowns.includes(field))
+        observation: structuredClone(observed), condition_decisions: structuredClone(record.condition_decisions),
+        attempt_id: attempt?.id ?? null, recorded_at: at,
+        deadline_observation: deadlineKnown(state, record)
           ? (Date.parse(observed.observed_at) <= Date.parse(record.terms.due.resolved) ? 'observed_by_deadline' : 'observed_after_deadline') : 'deadline_unresolved' };
       state.receipts[id] = receipt;
       if (record.status !== 'fulfilled') event(state, at, record.fulfillment_receipt ? 'verification_restored' : 'fulfilled', record.id, { receipt_id: id });
@@ -330,7 +405,7 @@ export class Pactspan {
       const changed = [];
       for (const record of Object.values(state.versions)) {
         if (record.status === 'confirmed' && state.commitments[record.commitment_id].current === record.id
-          && record.terms.due?.precision === 'instant' && Date.parse(at) > Date.parse(record.terms.due.resolved)) {
+          && deadlineKnown(state, record) && Date.parse(at) > Date.parse(record.terms.due.resolved)) {
           record.status = 'overdue'; record.first_overdue_at ??= at;
           event(state, at, 'overdue_without_receipt', record.id, { deadline: record.terms.due.resolved });
           changed.push(record.id);
@@ -338,6 +413,64 @@ export class Pactspan {
       }
       return changed;
     });
+  }
+
+  reconcileAttempt(attemptId, rawObservation) {
+    return this.#change(async (state, at) => {
+      const attempt = state.attempts[identifier(attemptId, 'attempt ID')];
+      requireValue(attempt, 'Unknown attempt');
+      const observed = observation(rawObservation);
+      requireFresh(observed, at);
+      await acceptObservation(state, observed);
+      return reconcile(state, attempt, observed, at);
+    });
+  }
+}
+
+async function validateIntegrity(state) {
+  for (const [id, source] of Object.entries(state.sources)) requireValue((await makeSource(source)).id === id && source.id === id, 'Saved source hash does not match its content');
+  for (const [id, candidate] of Object.entries(state.candidates)) {
+    requireValue(canonical(terms(candidate.terms)) === canonical(candidate.terms), 'Saved candidate terms are not canonical');
+    const checked = candidate.evidence.map(item => citation(state.sources[item.source], Object.fromEntries(
+      ['source', 'segment', 'quote', 'start', 'end'].filter(key => Object.hasOwn(item, key)).map(key => [key, item[key]]))));
+    requireValue(canonical(checked) === canonical(candidate.evidence), 'Saved source citations changed');
+    requireValue(candidate.supported === (checked.length > 0 && checked.every(item => item.supported)), 'Saved candidate support flag disagrees with its source evidence');
+    requireValue(['proposed', 'confirmed', 'rejected'].includes(candidate.state)
+      && (candidate.state === 'confirmed' ? Object.hasOwn(state.versions, candidate.version_id) : candidate.version_id === null), 'Saved candidate lifecycle changed');
+    const expected = 'can_' + await sha256({ agreement: candidate.agreement, terms: candidate.terms, evidence: checked, unknown_fields: candidate.unknown_fields });
+    requireValue(id === expected && candidate.id === id, 'Saved candidate hash does not match its content');
+  }
+  for (const record of Object.values(state.versions)) {
+    requireValue(await sha256({ terms: record.terms, target: adapterTarget(record.target) }) === record.terms_hash, 'Saved version terms hash does not match');
+    requireValue(state.candidates[record.candidate_id].version_id === record.id, 'Saved candidate/version link changed');
+    if (record.verification) {
+      const checked = observation(record.verification.observed);
+      const key = 'obs_' + await sha256({ target: targetOf(checked), entity_id: checked.entity_id });
+      const high = state.observations[key];
+      requireValue(high && Number(high.revision) >= Number(checked.revision)
+        && Date.parse(high.observed_at) >= Date.parse(checked.observed_at), 'Saved observation ordering was downgraded');
+    }
+  }
+  for (const [id, approval] of Object.entries(state.approvals)) {
+    const body = Object.fromEntries(['version_id', 'terms_hash', 'actor', 'before', 'before_hash', 'payload', 'expires_at'].map(key => [key, approval[key]]));
+    requireValue(await sha256(approval.before) === approval.before_hash && id === 'apr_' + await sha256(body) && approval.id === id, 'Saved approval binding changed');
+    requireValue(state.versions[approval.version_id]?.terms_hash === approval.terms_hash, 'Saved approval names different terms');
+  }
+  for (const [id, attempt] of Object.entries(state.attempts)) requireValue(id === 'att_' + await sha256({ approval: attempt.approval_id })
+    && attempt.id === id && state.approvals[attempt.approval_id]?.version_id === attempt.version_id
+    && state.versions[attempt.version_id]?.terms_hash === attempt.terms_hash, 'Saved attempt binding changed');
+  for (const [id, receipt] of Object.entries(state.receipts)) {
+    const body = Object.fromEntries(['version_id', 'terms_hash', 'adapter', 'mode', 'origin', 'entity_id', 'revision', 'response_sha256'].map(key => [key, receipt[key]]));
+    const record = state.versions[receipt.version_id]; const observed = observation(receipt.observation);
+    requireValue(id === 'rcp_' + await sha256(body) && receipt.id === id && record?.terms_hash === receipt.terms_hash
+      && canonical(targetOf(observed)) === canonical(record.target) && observed.entity_id === record.terms.entity_id
+      && observed.amount === record.terms.amount && observed.currency === record.terms.currency, 'Saved fulfillment receipt binding changed');
+    requireValue(['adapter', 'mode', 'origin', 'entity_id', 'revision', 'response_sha256'].every(key => body[key] === observed[key]),
+      'Saved receipt identity differs from its observation');
+  }
+  for (const [id, raw] of Object.entries(state.observations)) {
+    const observed = observation(raw);
+    requireValue(id === 'obs_' + await sha256({ target: targetOf(observed), entity_id: observed.entity_id }), 'Saved observation identity changed');
   }
 }
 

@@ -23,8 +23,9 @@ export function terms(raw) {
   }
   const conditions = list(raw.conditions ?? [], 'terms.conditions', 16).map((condition, index) => {
     fields(condition, ['literal', 'status', 'value'], `terms.conditions[${index}]`);
-    if ('status' in condition) requireValue(['unknown', 'satisfied', 'unsatisfied'].includes(condition.status), `condition[${index}].status is invalid`);
+    if ('status' in condition) requireValue(['unknown', 'known', 'satisfied', 'unsatisfied'].includes(condition.status), `condition[${index}].status is invalid`);
     if ('value' in condition) requireValue(typeof condition.value === 'boolean' || condition.value === null, `condition[${index}].value is invalid`);
+    if (condition.status === 'known') requireValue(typeof condition.value === 'boolean', `condition[${index}].known requires a boolean value`);
     // Extracted assertions are not manager attestations or external verification.
     return { literal: text(condition.literal, `condition[${index}].literal`, 1000) };
   });
@@ -43,8 +44,15 @@ export function observation(raw) {
   requireValue(typeof raw.response_sha256 === 'string' && /^[a-f0-9]{64}$/.test(raw.response_sha256), 'observation.response_sha256 must be SHA256');
   return { schema_version: 1, ...target, entity_id: identifier(raw.entity_id, 'observation.entity_id'),
     amount: amount(raw.amount, 'observation.amount'), currency: currencyCode(raw.currency, 'observation.currency'),
-    revision: identifier(raw.revision, 'observation.revision'), observed_at: instant(raw.observed_at, 'observation.observed_at'),
+    revision: revisionNumber(raw.revision), observed_at: instant(raw.observed_at, 'observation.observed_at'),
     response_sha256: raw.response_sha256 };
+}
+
+export function revisionNumber(value) {
+  requireValue(typeof value === 'string' && /^[1-9]\d{0,15}$/.test(value)
+    && Number.isSafeInteger(Number(value)) && String(Number(value)) === value,
+  'observation.revision must be a canonical positive safe-integer string');
+  return value;
 }
 
 export function adapterTarget(raw) {
