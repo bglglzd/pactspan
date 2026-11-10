@@ -26,10 +26,16 @@ function element(tag, attributes = {}, ...children) {
 }
 
 function button(label, action, { primary = false, disabled = false, id = null } = {}) {
-  return element('button', { type: 'button', id, class: primary ? 'primary' : '', disabled: busy || disabled, onclick: action }, label);
+  return element('button', { type: 'button', id, 'data-focus-key': label.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    class: primary ? 'primary' : '', disabled: busy || disabled, onclick: action }, label);
 }
 
 function message(value, error = false) {
+  const modalError = $('manual-error');
+  modalError.hidden = true;
+  if (value && error && $('manual-dialog').open) {
+    modalError.textContent = value; modalError.hidden = false; return;
+  }
   $('message').textContent = value; $('message').hidden = !value;
   $('message').className = 'message' + (error ? ' error' : '');
   $('message').setAttribute('role', error ? 'alert' : 'status');
@@ -42,12 +48,26 @@ function persist() {
   catch { $('storage-state').textContent = 'Browser storage unavailable · Export to keep changes'; }
 }
 
-async function run(action, success = '') {
+async function run(action, success = '', { allowRecovery = false } = {}) {
   if (busy) return;
+  if (broken && !allowRecovery) { message('Export the original saved JSON or load an example before editing a recovery workspace.', true); return; }
+  const active = document.activeElement;
+  const focusId = active?.id;
+  const focusKey = active?.dataset?.focusKey;
   busy = true; render(); message('');
   try { await action(); persist(); if (success) message(success); }
   catch (error) { message(error.message || 'The action could not complete.', true); }
-  finally { busy = false; render(); }
+  finally {
+    const currentFocus = document.activeElement;
+    const restore = currentFocus === document.body || $('detail').contains(currentFocus) || $('candidate-list').contains(currentFocus);
+    busy = false; render();
+    if (restore) {
+      const previous = (focusId && $(focusId)) || (focusKey && document.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`));
+      const targets = [previous, $('execute-approved'), $('verify-crm'), document.querySelector('#detail h2')];
+      const next = targets.find(node => node && !node.disabled && node.getClientRects().length);
+      next?.focus({ preventScroll: true });
+    }
+  }
 }
 
 function money(value, currency) {
@@ -84,11 +104,13 @@ async function loadCase(id) {
 
 function render() {
   if (!app) return;
+  const openIds = [...document.querySelectorAll('details[open][id]')].map(node => node.id);
   const snapshot = app.snapshot();
   $('demo-clock').value = clock.slice(0, 19);
-  for (const id of ['load-example', 'export-workspace', 'advance-clock', 'add-manual', 'import-file']) $(id).disabled = busy;
+  for (const id of ['load-example', 'export-workspace']) $(id).disabled = busy;
+  for (const id of ['advance-clock', 'add-manual', 'import-file']) $(id).disabled = busy || Boolean(broken);
   $('candidate-list').replaceChildren(...Object.values(snapshot.candidates).map(candidate => {
-    const item = button('', () => { selected = candidate.id; persist(); render(); });
+    const item = button('', () => { selected = candidate.id; persist(); render(); $(`candidate-${candidate.id}`)?.focus({ preventScroll: true }); }, { id: `candidate-${candidate.id}` });
     item.className = 'candidate'; item.setAttribute('aria-current', String(candidate.id === selected));
     const current = candidate.version_id ? snapshot.versions[candidate.version_id] : null;
     item.append(element('span', { class: 'name' }, `${candidate.terms.entity_id ?? 'Entity unknown'} · ${money(candidate.terms.amount, candidate.terms.currency)}`),
@@ -101,10 +123,11 @@ function render() {
     return;
   }
   const current = candidate.version_id ? app.view(candidate.version_id) : null;
-  const heading = element('div', { class: 'detail-title' }, element('div', {}, element('h2', {}, money(candidate.terms.amount, candidate.terms.currency)),
+  const heading = element('div', { class: 'detail-title' }, element('div', {}, element('h2', { tabIndex: -1 }, money(candidate.terms.amount, candidate.terms.currency)),
     element('p', { class: 'muted' }, `${candidate.terms.entity_id ?? 'Entity unknown'} · ${candidate.terms.kind}${current ? ` · Version ${current.number}` : ''}`)),
   element('span', { class: `status ${status(candidate, snapshot)}` }, stateLabel(status(candidate, snapshot))));
   $('detail').replaceChildren(heading, termsCard(candidate, current, snapshot), crmCard(candidate, current, snapshot), historyCard(candidate, current, snapshot));
+  for (const id of openIds) if ($(id)) $(id).open = true;
 }
 
 function termsCard(candidate, current, snapshot) {
@@ -165,7 +188,8 @@ function crmCard(candidate, current, snapshot) {
   });
   const body = element('div', {}, compare, element('div', { class: 'button-row' }, button(current ? 'Verify CRM state' : 'Read Demo CRM', check, { id: 'verify-crm', disabled: wanted.entity_id === null })));
   if (current) {
-    const approval = Object.values(snapshot.approvals).find(item => item.version_id === current.id && item.state === 'approved');
+    const approval = Object.values(snapshot.approvals).find(item => item.version_id === current.id && item.state === 'approved'
+      && Date.parse(clock) < Date.parse(item.expires_at));
     const attempt = Object.values(snapshot.attempts).findLast(item => item.version_id === current.id);
     body.append(element('div', { class: 'button-row' }, button('Approve exact change', () => run(async () => {
       if (!read) throw new Error('Read and review the CRM comparison first.');
@@ -174,7 +198,7 @@ function crmCard(candidate, current, snapshot) {
         reads[wanted.entity_id] = fresh; throw new Error('CRM changed. Review the new comparison before approving.');
       }
       await app.approve(current.id, fresh, { actor: 'manager', expires_at: new Date(Date.parse(clock) + 15 * 60_000).toISOString() });
-    }, 'Approved one exact change for fifteen demo minutes. No write has run yet.'), { disabled: current.execution_reasons.length > 0 || !read }),
+    }, 'Approved one exact change for fifteen demo minutes. No write has run yet.'), { disabled: current.execution_reasons.length > 0 || !read || Boolean(approval) }),
     button('Execute approved change', () => run(async () => {
       if (!approval) throw new Error('An exact unexpired approval is required.');
       const fresh = await crm.readOpportunity(wanted.entity_id);
@@ -199,7 +223,7 @@ function crmCard(candidate, current, snapshot) {
   if (external) {
     const amount = element('input', { value: external.amount, inputMode: 'decimal', 'aria-label': 'Demo CRM amount' });
     const currency = element('input', { value: external.currency, maxLength: 3, 'aria-label': 'Demo CRM currency' });
-    body.append(element('details', {}, element('summary', {}, 'Edit the separate Demo CRM'), element('p', { class: 'hint' }, 'This changes synthetic external state. It does not update a commitment or create a receipt.'),
+    body.append(element('details', { id: 'external-demo-editor' }, element('summary', {}, 'Edit the separate Demo CRM'), element('p', { class: 'hint' }, 'This changes synthetic external state. It does not update a commitment or create a receipt.'),
       element('div', { class: 'operator-form' }, element('label', {}, 'Amount', amount), element('label', {}, 'Currency', currency),
         button('Apply external edit', () => run(() => crm.operatorChange(wanted.entity_id, { amount: amount.value, currency: currency.value }), 'External demo state changed. Verify again to inspect its effect on the commitment.'))),
       details('External store and effect history', crm.snapshot())));
@@ -216,7 +240,7 @@ function historyCard(candidate, current, snapshot) {
 for (const value of CASES) $('case-select').append(element('option', { value: value.id }, `${value.id} · ${value.title}`));
 $('load-example').addEventListener('click', () => {
   if ((Object.keys(app.snapshot().sources).length || broken) && !confirm('Replace this browser demo workspace? Export its history first if you want to keep it.')) return;
-  run(() => loadCase($('case-select').value), 'Prepared example loaded. Candidates remain unconfirmed.');
+  run(() => loadCase($('case-select').value), 'Prepared example loaded. Candidates remain unconfirmed.', { allowRecovery: true });
 });
 $('advance-clock').addEventListener('click', () => {
   const requested = $('demo-clock').value;
@@ -233,10 +257,10 @@ $('export-workspace').addEventListener('click', () => {
 });
 $('import-file').addEventListener('change', event => {
   const file = event.target.files?.[0]; if (!file) return;
+  event.target.value = '';
   run(async () => {
     if (file.size > 256 * 1024) throw new Error('Transcript exceeds 256 KiB.');
     const text = await file.text(); await app.importSource(importedDocument(text, { title: file.name }));
-    $('import-file').value = '';
   }, 'Transcript imported locally. Add an exact sourced candidate; no extraction model was called.');
 });
 document.querySelector('.file-button').addEventListener('keydown', event => {
@@ -252,7 +276,7 @@ $('add-manual').addEventListener('click', () => {
   const sources = Object.values(app.snapshot().sources);
   if (!sources.length) { message('Import a transcript first.', true); return; }
   $('manual-source').replaceChildren(...sources.map(source => element('option', { value: source.id }, source.title)));
-  updateManualSegment(); $('manual-dialog').showModal();
+  $('manual-error').hidden = true; updateManualSegment(); $('manual-dialog').showModal();
 });
 $('manual-source').addEventListener('change', updateManualSegment);
 $('manual-segment').addEventListener('change', () => { $('manual-quote').value = app.snapshot().sources[$('manual-source').value].segments[Number($('manual-segment').value)].text; });
@@ -280,6 +304,7 @@ try {
       $('case-select').value = caseId;
     } catch {
       broken = saved; clock = '2030-01-08T10:00:00.000Z'; app = new Pactspan(undefined, { clock: () => clock }); crm = new DemoCRM({ clock: () => clock });
+      $('storage-state').textContent = 'Recovery required · Export original data';
       message('Saved workspace could not be restored. Export its original JSON before loading another example.', true);
     }
   } else { await loadCase('D01'); persist(); }
