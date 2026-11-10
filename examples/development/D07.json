@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "D07",
+  "language": "en",
+  "title": "Date granularity and repeated local time",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Autumn scheduling details",
+      "meeting_at": "2030-10-25T09:00:00Z",
+      "time_zone": "Europe/London",
+      "participants": [
+        {
+          "speaker": "Sam",
+          "person_id": "sam"
+        },
+        {
+          "speaker": "Ruth",
+          "person_id": "ruth"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Sam",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "I will record GBP 7400 on O1 on 27 October 2030."
+        },
+        {
+          "speaker": "Ruth",
+          "start_secs": 16,
+          "end_secs": 23,
+          "text": "Agreed. We have not chosen a cutoff time for O1."
+        },
+        {
+          "speaker": "Sam",
+          "start_secs": 27,
+          "end_secs": 42,
+          "text": "For O2, I will record GBP 7600 at 01:30 London time on 27 October 2030."
+        },
+        {
+          "speaker": "Ruth",
+          "start_secs": 46,
+          "end_secs": 57,
+          "text": "That amount is accepted, but we must clarify which occurrence of 01:30 after the clock change."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D07-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will record GBP 7400 on O1 on 27 October 2030.",
+          "start": 0,
+          "end": 48
+        },
+        {
+          "segment": 1,
+          "quote": "Agreed. We have not chosen a cutoff time for O1.",
+          "start": 0,
+          "end": 48
+        }
+      ],
+      "owner": "sam",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "7400",
+      "currency": "GBP",
+      "due": {
+        "literal": "on 27 October 2030",
+        "resolved": "2030-10-27",
+        "precision": "date",
+        "zone": "Europe/London"
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due.cutoff"
+      ]
+    },
+    {
+      "id": "D07-A2",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 2,
+          "quote": "For O2, I will record GBP 7600 at 01:30 London time on 27 October 2030.",
+          "start": 0,
+          "end": 71
+        },
+        {
+          "segment": 3,
+          "quote": "That amount is accepted, but we must clarify which occurrence of 01:30 after the clock change.",
+          "start": 0,
+          "end": 94
+        }
+      ],
+      "owner": "sam",
+      "kind": "crm.amount",
+      "entity_id": "O2",
+      "amount": "7600",
+      "currency": "GBP",
+      "due": {
+        "literal": "at 01:30 London time on 27 October 2030",
+        "resolved": null,
+        "precision": "instant",
+        "zone": "Europe/London"
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due.resolved"
+      ]
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "7000",
+      "currency": "GBP",
+      "revision": 1
+    },
+    {
+      "entity_id": "O2",
+      "amount": "7500",
+      "currency": "GBP",
+      "revision": 4
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D07-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed",
+      "retained_unknowns": [
+        "due.cutoff"
+      ]
+    },
+    {
+      "action": "confirm",
+      "annotation": "D07-A2",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed",
+      "retained_unknowns": [
+        "due.resolved"
+      ]
+    },
+    {
+      "action": "advance_time",
+      "now": "2030-10-27T00:01:00Z",
+      "annotation": "D07-A1",
+      "expected_state": "confirmed",
+      "reason": "date_only_has_no_invented_midnight_cutoff"
+    },
+    {
+      "action": "resolve_deadline",
+      "annotation": "D07-A2",
+      "expected_state": "confirmed",
+      "refusal_reason": "ambiguous_local_time"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D07-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      },
+      {
+        "annotation": "D07-A2",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "7000",
+        "currency": "GBP",
+        "revision": 1
+      },
+      {
+        "entity_id": "O2",
+        "amount": "7500",
+        "currency": "GBP",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "forbidden_inferences": [
+      "O1 deadline at midnight",
+      "O2 deadline arbitrarily 00:30Z or 01:30Z"
+    ],
+    "reason": "A date is preserved as a date. London 01:30 occurs twice on this explicitly authored clock-change date; the instant remains unresolved."
+  }
+}

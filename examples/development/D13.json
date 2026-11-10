@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "D13",
+  "language": "en",
+  "title": "A draft does not prove dispatch",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Proposal dispatch follow-up",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Zoe",
+          "person_id": "zoe"
+        },
+        {
+          "speaker": "Owen",
+          "person_id": "owen"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Zoe",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "I will send the proposal for O1 to you by 17:00 UTC on 8 January 2030."
+        },
+        {
+          "speaker": "Owen",
+          "start_secs": 16,
+          "end_secs": 22,
+          "text": "Yes, please send it by that time."
+        },
+        {
+          "speaker": "Zoe",
+          "start_secs": 26,
+          "end_secs": 35,
+          "text": "I have prepared an internal draft, but I have not sent it."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D13-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will send the proposal for O1 to you by 17:00 UTC on 8 January 2030.",
+          "start": 0,
+          "end": 70
+        },
+        {
+          "segment": 1,
+          "quote": "Yes, please send it by that time.",
+          "start": 0,
+          "end": 33
+        }
+      ],
+      "owner": "zoe",
+      "kind": "proposal.sent",
+      "entity_id": "O1",
+      "amount": null,
+      "currency": null,
+      "due": {
+        "literal": "by 17:00 UTC on 8 January 2030",
+        "resolved": "2030-01-08T17:00:00Z",
+        "precision": "instant",
+        "zone": "UTC"
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "amount",
+        "currency"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "I have prepared an internal draft, but I have not sent it.",
+      "start": 0,
+      "end": 58,
+      "reason": "negated_action"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "8200",
+      "currency": "USD",
+      "revision": 5
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D13-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "offer_evidence",
+      "annotation": "D13-A1",
+      "version": 1,
+      "evidence_kind": "proposal.draft",
+      "entity_id": "O1",
+      "expected_state": "confirmed",
+      "refusal_reason": "draft_is_not_sent"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D13-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "8200",
+        "currency": "USD",
+        "revision": 5
+      },
+      "expected_state": "confirmed",
+      "refusal_reason": "unsupported_proposal_sent_predicate"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D13-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "8200",
+        "currency": "USD",
+        "revision": 5
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "An amount in CRM and an internal draft cannot verify customer dispatch. The supported current-amount predicate cannot be substituted for the tracked proposal.sent promise."
+  }
+}

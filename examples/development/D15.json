@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "D15",
+  "language": "en",
+  "title": "Old proof and a match after the deadline",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Initial amount and deadline",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Ivy",
+          "person_id": "ivy"
+        },
+        {
+          "speaker": "Miles",
+          "person_id": "miles"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Ivy",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "I will record USD 10500 on O1 by 12:00 UTC on 8 January 2030."
+        },
+        {
+          "speaker": "Miles",
+          "start_secs": 16,
+          "end_secs": 21,
+          "text": "Accepted, USD 10500 by 12:00 UTC."
+        }
+      ]
+    },
+    {
+      "id": "meeting-b",
+      "title": "Accepted replacement terms",
+      "meeting_at": "2030-01-08T10:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Ivy",
+          "person_id": "ivy"
+        },
+        {
+          "speaker": "Miles",
+          "person_id": "miles"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Miles",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "Replace that agreement with USD 10900 on O1 by 13:00 UTC on 8 January 2030."
+        },
+        {
+          "speaker": "Ivy",
+          "start_secs": 16,
+          "end_secs": 25,
+          "text": "I accept. I will record USD 10900 on O1 by that new deadline."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D15-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will record USD 10500 on O1 by 12:00 UTC on 8 January 2030.",
+          "start": 0,
+          "end": 61
+        },
+        {
+          "segment": 1,
+          "quote": "Accepted, USD 10500 by 12:00 UTC.",
+          "start": 0,
+          "end": 33
+        }
+      ],
+      "owner": "ivy",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "10500",
+      "currency": "USD",
+      "due": {
+        "literal": "by 12:00 UTC on 8 January 2030",
+        "resolved": "2030-01-08T12:00:00Z",
+        "precision": "instant",
+        "zone": "UTC"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    },
+    {
+      "id": "D15-A2",
+      "source": "meeting-b",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Replace that agreement with USD 10900 on O1 by 13:00 UTC on 8 January 2030.",
+          "start": 0,
+          "end": 75
+        },
+        {
+          "segment": 1,
+          "quote": "I accept. I will record USD 10900 on O1 by that new deadline.",
+          "start": 0,
+          "end": 61
+        }
+      ],
+      "owner": "ivy",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "10900",
+      "currency": "USD",
+      "due": {
+        "literal": "by 13:00 UTC on 8 January 2030",
+        "resolved": "2030-01-08T13:00:00Z",
+        "precision": "instant",
+        "zone": "UTC"
+      },
+      "conditions": [],
+      "unknown_fields": [],
+      "supersedes": "D15-A1"
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "10500",
+      "currency": "USD",
+      "revision": 4
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D15-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "confirm_replacement",
+      "annotation": "D15-A2",
+      "version": 2,
+      "supersedes": "D15-A1",
+      "actor": "manager",
+      "expected_state": "confirmed",
+      "replaced_state": "superseded"
+    },
+    {
+      "action": "offer_receipt",
+      "annotation": "D15-A2",
+      "version": 2,
+      "receipt": {
+        "annotation": "D15-A1",
+        "version": 1,
+        "entity_id": "O1",
+        "amount": "10500",
+        "currency": "USD",
+        "revision": 4
+      },
+      "expected_state": "confirmed",
+      "refusal_reason": "superseded_version_receipt"
+    },
+    {
+      "action": "advance_time",
+      "annotation": "D15-A2",
+      "now": "2030-01-08T13:01:00Z",
+      "expected_state": "overdue"
+    },
+    {
+      "action": "external_crm_change",
+      "entity_id": "O1",
+      "amount": "10900",
+      "currency": "USD",
+      "revision": 5,
+      "at": "2030-01-08T14:00:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D15-A2",
+      "version": 2,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "10900",
+        "currency": "USD",
+        "revision": 5
+      },
+      "observed_at": "2030-01-08T14:05:00Z",
+      "expected_state": "fulfilled",
+      "on_time_proven": false
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D15-A1",
+        "version": 1,
+        "state": "superseded",
+        "receipt_count": 0
+      },
+      {
+        "annotation": "D15-A2",
+        "version": 2,
+        "state": "fulfilled",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "10900",
+        "currency": "USD",
+        "revision": 5
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 1,
+    "retained_history": [
+      "D15-A2:overdue",
+      "D15-A2:fulfilled"
+    ],
+    "on_time_proven": false,
+    "reason": "Version-one proof is not transferable. A later current match can fulfill version two while retaining overdue history; it cannot assert on-time execution."
+  }
+}

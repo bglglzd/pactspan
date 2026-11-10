@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "D20",
+  "language": "ru",
+  "title": "Откат после подтверждённого совпадения",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Повторная проверка текущего значения",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Вера",
+          "person_id": "vera"
+        },
+        {
+          "speaker": "Кирилл",
+          "person_id": "kirill"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Вера",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "Я запишу 7200 GBP в O1 до 18:00 по Москве 8 января 2030 года."
+        },
+        {
+          "speaker": "Кирилл",
+          "start_secs": 16,
+          "end_secs": 23,
+          "text": "Да, принимаю 7200 GBP по O1."
+        },
+        {
+          "speaker": "Вера",
+          "start_secs": 27,
+          "end_secs": 37,
+          "text": "Нам важно текущее значение в CRM; если его позже изменят, прежняя проверка останется только историей."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D20-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я запишу 7200 GBP в O1 до 18:00 по Москве 8 января 2030 года.",
+          "start": 0,
+          "end": 61
+        },
+        {
+          "segment": 1,
+          "quote": "Да, принимаю 7200 GBP по O1.",
+          "start": 0,
+          "end": 28
+        }
+      ],
+      "owner": "vera",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "7200",
+      "currency": "GBP",
+      "due": {
+        "literal": "до 18:00 по Москве 8 января 2030 года",
+        "resolved": "2030-01-08T15:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/Moscow"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "7000",
+      "currency": "GBP",
+      "revision": 30
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D20-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D20-A1",
+      "version": 1,
+      "approval_id": "AP20",
+      "entity_id": "O1",
+      "before_revision": 30,
+      "amount": "7200",
+      "currency": "GBP",
+      "expires_at": "2030-01-08T11:00:00Z",
+      "at": "2030-01-08T10:00:00Z"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "D20-A1",
+      "version": 1,
+      "approval_id": "AP20",
+      "outcome": "acknowledged",
+      "result_revision": 31,
+      "expected_state": "confirmed",
+      "at": "2030-01-08T10:05:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D20-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "7200",
+        "currency": "GBP",
+        "revision": 31
+      },
+      "observed_at": "2030-01-08T10:30:00Z",
+      "expected_state": "fulfilled"
+    },
+    {
+      "action": "external_crm_change",
+      "entity_id": "O1",
+      "amount": "7000",
+      "currency": "GBP",
+      "revision": 32,
+      "at": "2030-01-08T12:00:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D20-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "7000",
+        "currency": "GBP",
+        "revision": 32
+      },
+      "observed_at": "2030-01-08T12:05:00Z",
+      "expected_state": "disputed",
+      "reason": "current_state_contradicts_verified_terms"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D20-A1",
+        "version": 1,
+        "state": "disputed",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "7000",
+        "currency": "GBP",
+        "revision": 32
+      }
+    ],
+    "logical_writes": 1,
+    "logical_fulfillments": 1,
+    "retained_history": [
+      "D20-A1:fulfilled",
+      "D20-A1:disputed"
+    ],
+    "retained_receipt_revision": 31,
+    "reason": "The rollback disputes the current-state predicate, without deleting the earlier matching observation/receipt or silently issuing another corrective write."
+  }
+}

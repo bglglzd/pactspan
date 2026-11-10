@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "id": "D09",
+  "language": "en",
+  "title": "Later text does not replace accepted terms",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Accepted commercial amount",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Eva",
+          "person_id": "eva"
+        },
+        {
+          "speaker": "Liam",
+          "person_id": "liam"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Eva",
+          "start_secs": 0,
+          "end_secs": 11,
+          "text": "I will record USD 5000 on O1 by 17:00 UTC on 10 January 2030."
+        },
+        {
+          "speaker": "Liam",
+          "start_secs": 15,
+          "end_secs": 21,
+          "text": "Yes, USD 5000 on O1 is accepted."
+        }
+      ]
+    },
+    {
+      "id": "meeting-b",
+      "title": "Unaccepted price proposal",
+      "meeting_at": "2030-01-09T09:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Eva",
+          "person_id": "eva"
+        },
+        {
+          "speaker": "Liam",
+          "person_id": "liam"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Liam",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "I propose that Eva records USD 4800 on O1 instead."
+        },
+        {
+          "speaker": "Eva",
+          "start_secs": 16,
+          "end_secs": 28,
+          "text": "That change is not accepted. Keep the agreed USD 5000 until we review it."
+        },
+        {
+          "speaker": "Liam",
+          "start_secs": 32,
+          "end_secs": 38,
+          "text": "All right, this remains a proposal."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D09-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will record USD 5000 on O1 by 17:00 UTC on 10 January 2030.",
+          "start": 0,
+          "end": 61
+        },
+        {
+          "segment": 1,
+          "quote": "Yes, USD 5000 on O1 is accepted.",
+          "start": 0,
+          "end": 32
+        }
+      ],
+      "owner": "eva",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "5000",
+      "currency": "USD",
+      "due": {
+        "literal": "by 17:00 UTC on 10 January 2030",
+        "resolved": "2030-01-10T17:00:00Z",
+        "precision": "instant",
+        "zone": "UTC"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    },
+    {
+      "id": "D09-A2",
+      "source": "meeting-b",
+      "agreement": "proposed",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I propose that Eva records USD 4800 on O1 instead.",
+          "start": 0,
+          "end": 50
+        }
+      ],
+      "owner": "eva",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "4800",
+      "currency": "USD",
+      "due": {
+        "literal": null,
+        "resolved": null,
+        "precision": "unknown",
+        "zone": null
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-b",
+      "segment": 1,
+      "quote": "That change is not accepted. Keep the agreed USD 5000 until we review it.",
+      "start": 0,
+      "end": 73,
+      "reason": "refusal"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "5000",
+      "currency": "USD",
+      "revision": 3
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D09-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "import_source",
+      "source": "meeting-b",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm_replacement",
+      "annotation": "D09-A2",
+      "version": 2,
+      "supersedes": "D09-A1",
+      "actor": "manager",
+      "expected_state": "proposed",
+      "refusal_reason": "amendment_not_accepted"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D09-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "5000",
+        "currency": "USD",
+        "revision": 3
+      },
+      "observed_at": "2030-01-09T10:00:00Z",
+      "expected_state": "fulfilled"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D09-A1",
+        "version": 1,
+        "state": "fulfilled",
+        "receipt_count": 1
+      },
+      {
+        "annotation": "D09-A2",
+        "version": 2,
+        "state": "proposed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "5000",
+        "currency": "USD",
+        "revision": 3
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 1,
+    "reason": "The explicit unaccepted proposal is a candidate, but it neither supersedes the accepted terms nor authorizes a write."
+  }
+}

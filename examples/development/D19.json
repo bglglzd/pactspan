@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "D19",
+  "language": "en",
+  "title": "Timeout requires read reconciliation",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Uncertain write result",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Noah",
+          "person_id": "noah"
+        },
+        {
+          "speaker": "Tessa",
+          "person_id": "tessa"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Noah",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "I will record USD 14500 on O1 by 17:00 UTC on 8 January 2030."
+        },
+        {
+          "speaker": "Tessa",
+          "start_secs": 16,
+          "end_secs": 22,
+          "text": "Agreed, USD 14500 on O1."
+        },
+        {
+          "speaker": "Noah",
+          "start_secs": 26,
+          "end_secs": 35,
+          "text": "A timeout does not tell us whether the new amount was saved."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D19-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will record USD 14500 on O1 by 17:00 UTC on 8 January 2030.",
+          "start": 0,
+          "end": 61
+        },
+        {
+          "segment": 1,
+          "quote": "Agreed, USD 14500 on O1.",
+          "start": 0,
+          "end": 24
+        }
+      ],
+      "owner": "noah",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "14500",
+      "currency": "USD",
+      "due": {
+        "literal": "by 17:00 UTC on 8 January 2030",
+        "resolved": "2030-01-08T17:00:00Z",
+        "precision": "instant",
+        "zone": "UTC"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "14000",
+      "currency": "USD",
+      "revision": 20
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D19-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D19-A1",
+      "version": 1,
+      "approval_id": "AP19",
+      "entity_id": "O1",
+      "before_revision": 20,
+      "amount": "14500",
+      "currency": "USD",
+      "expires_at": "2030-01-08T10:30:00Z",
+      "at": "2030-01-08T10:00:00Z"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "D19-A1",
+      "version": 1,
+      "approval_id": "AP19",
+      "attempt_id": "AT19",
+      "persist_before_send": true,
+      "outcome": "timeout_after_write",
+      "external_state": {
+        "entity_id": "O1",
+        "amount": "14500",
+        "currency": "USD",
+        "revision": 21
+      },
+      "expected_state": "confirmed",
+      "at": "2030-01-08T10:05:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D19-A1",
+      "version": 1,
+      "role": "reader",
+      "outcome": "unavailable",
+      "at": "2030-01-08T10:06:00Z",
+      "expected_state": "confirmed",
+      "refusal_reason": "verification_unavailable"
+    },
+    {
+      "action": "restart",
+      "annotation": "D19-A1",
+      "version": 1,
+      "retained_attempt_id": "AT19",
+      "expected_state": "confirmed",
+      "at": "2030-01-08T10:07:00Z"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "D19-A1",
+      "version": 1,
+      "approval_id": "AP19",
+      "expected_state": "confirmed",
+      "refusal_reason": "reconcile_uncertain_attempt_before_retry",
+      "at": "2030-01-08T10:08:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D19-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "14500",
+        "currency": "USD",
+        "revision": 21
+      },
+      "observed_at": "2030-01-08T10:10:00Z",
+      "expected_state": "fulfilled"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D19-A1",
+        "version": 1,
+        "state": "fulfilled",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "14500",
+        "currency": "USD",
+        "revision": 21
+      }
+    ],
+    "logical_writes": 1,
+    "logical_fulfillments": 1,
+    "persisted_attempts": 1,
+    "reason": "The independent scenario declares that the first write committed despite the timeout. Unavailable verification cannot fulfill; restart preserves uncertainty until a fresh read, without a second write."
+  }
+}

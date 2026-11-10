@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "D02",
+  "language": "ru",
+  "title": "Условие ещё не выполнено",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Согласование суммы после проверки",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Ирина",
+          "person_id": "irina"
+        },
+        {
+          "speaker": "Олег",
+          "person_id": "oleg"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Олег",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "В O1 пока стоит 8000 EUR. Новая сумма зависит от проверки службы безопасности."
+        },
+        {
+          "speaker": "Ирина",
+          "start_secs": 14,
+          "end_secs": 29,
+          "text": "Если служба безопасности одобрит заявку, я запишу 8400 EUR в O1 до 16:00 по Москве 9 января 2030 года."
+        },
+        {
+          "speaker": "Олег",
+          "start_secs": 33,
+          "end_secs": 41,
+          "text": "Согласен на этих условиях, но одобрения пока нет."
+        },
+        {
+          "speaker": "Ирина",
+          "start_secs": 45,
+          "end_secs": 52,
+          "text": "Тогда сначала дождёмся решения; само совпадение цифр условие не заменяет."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D02-A1",
+      "source": "meeting-a",
+      "agreement": "conditional",
+      "evidence": [
+        {
+          "segment": 1,
+          "quote": "Если служба безопасности одобрит заявку, я запишу 8400 EUR в O1 до 16:00 по Москве 9 января 2030 года.",
+          "start": 0,
+          "end": 102
+        },
+        {
+          "segment": 2,
+          "quote": "Согласен на этих условиях, но одобрения пока нет.",
+          "start": 0,
+          "end": 49
+        }
+      ],
+      "owner": "irina",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "8400",
+      "currency": "EUR",
+      "due": {
+        "literal": "до 16:00 по Москве 9 января 2030 года",
+        "resolved": "2030-01-09T13:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/Moscow"
+      },
+      "conditions": [
+        {
+          "literal": "Если служба безопасности одобрит заявку",
+          "status": "known",
+          "value": false
+        }
+      ],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "8400",
+      "currency": "EUR",
+      "revision": 2
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D02-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D02-A1",
+      "version": 1,
+      "entity_id": "O1",
+      "amount": "8400",
+      "currency": "EUR",
+      "expected_state": "confirmed",
+      "refusal_reason": "condition_not_met"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D02-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "8400",
+        "currency": "EUR",
+        "revision": 2
+      },
+      "expected_state": "confirmed",
+      "refusal_reason": "condition_not_met"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D02-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "8400",
+        "currency": "EUR",
+        "revision": 2
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "The accepted conditional action cannot execute or fulfill while the explicitly required approval is absent, even if the current value already matches."
+  }
+}

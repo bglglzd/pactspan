@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "D05",
+  "language": "en",
+  "title": "An agreed action lacks an owner",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Assignment left open",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "UTC",
+      "participants": [
+        {
+          "speaker": "Claire",
+          "person_id": "claire"
+        },
+        {
+          "speaker": "Ben",
+          "person_id": "ben"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Claire",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Agreed: O1 should be updated to USD 9600 by 15:00 UTC on 9 January 2030."
+        },
+        {
+          "speaker": "Ben",
+          "start_secs": 14,
+          "end_secs": 21,
+          "text": "Yes, USD 9600 is agreed. We have not assigned that update to anyone yet."
+        },
+        {
+          "speaker": "Claire",
+          "start_secs": 25,
+          "end_secs": 33,
+          "text": "No one on this call has taken ownership of the CRM update."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D05-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Agreed: O1 should be updated to USD 9600 by 15:00 UTC on 9 January 2030.",
+          "start": 0,
+          "end": 72
+        },
+        {
+          "segment": 1,
+          "quote": "Yes, USD 9600 is agreed. We have not assigned that update to anyone yet.",
+          "start": 0,
+          "end": 72
+        }
+      ],
+      "owner": null,
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "9600",
+      "currency": "USD",
+      "due": {
+        "literal": "by 15:00 UTC on 9 January 2030",
+        "resolved": "2030-01-09T15:00:00Z",
+        "precision": "instant",
+        "zone": "UTC"
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "owner"
+      ]
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "9600",
+      "currency": "USD",
+      "revision": 4
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "D05-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "proposed",
+      "refusal_reason": "owner_unknown"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D05-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "9600",
+        "currency": "USD",
+        "revision": 4
+      },
+      "expected_state": "proposed",
+      "refusal_reason": "not_confirmed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D05-A1",
+        "version": 1,
+        "state": "proposed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "9600",
+        "currency": "USD",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "Neither speaker accepts ownership. A matching CRM amount cannot supply the missing owner or replace explicit confirmation."
+  }
+}

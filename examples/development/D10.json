@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "D10",
+  "language": "ru",
+  "title": "Принятые условия конфликтуют без замены",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Первая договорённость",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Наталья",
+          "person_id": "natalya"
+        },
+        {
+          "speaker": "Самир",
+          "person_id": "samir"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Наталья",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "Я запишу 9000 USD в O1 до 18:00 по Москве 10 января 2030 года."
+        },
+        {
+          "speaker": "Самир",
+          "start_secs": 14,
+          "end_secs": 21,
+          "text": "Подтверждаю 9000 USD по O1."
+        }
+      ]
+    },
+    {
+      "id": "meeting-b",
+      "title": "Несовместимые условия",
+      "meeting_at": "2030-01-09T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Наталья",
+          "person_id": "natalya"
+        },
+        {
+          "speaker": "Борис",
+          "person_id": "boris"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Наталья",
+          "start_secs": 0,
+          "end_secs": 11,
+          "text": "Я запишу 9000 EUR в O1 до 18:00 по Москве 10 января 2030 года."
+        },
+        {
+          "speaker": "Борис",
+          "start_secs": 15,
+          "end_secs": 21,
+          "text": "Да, согласовано 9000 EUR по O1."
+        },
+        {
+          "speaker": "Наталья",
+          "start_secs": 25,
+          "end_secs": 35,
+          "text": "Отмену или замену условий вчерашней встречи мы сейчас не обсуждаем."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D10-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я запишу 9000 USD в O1 до 18:00 по Москве 10 января 2030 года.",
+          "start": 0,
+          "end": 62
+        },
+        {
+          "segment": 1,
+          "quote": "Подтверждаю 9000 USD по O1.",
+          "start": 0,
+          "end": 27
+        }
+      ],
+      "owner": "natalya",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "9000",
+      "currency": "USD",
+      "due": {
+        "literal": "до 18:00 по Москве 10 января 2030 года",
+        "resolved": "2030-01-10T15:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/Moscow"
+      },
+      "conditions": [],
+      "unknown_fields": [],
+      "conflicts_with": [
+        "D10-A2"
+      ]
+    },
+    {
+      "id": "D10-A2",
+      "source": "meeting-b",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Я запишу 9000 EUR в O1 до 18:00 по Москве 10 января 2030 года.",
+          "start": 0,
+          "end": 62
+        },
+        {
+          "segment": 1,
+          "quote": "Да, согласовано 9000 EUR по O1.",
+          "start": 0,
+          "end": 31
+        }
+      ],
+      "owner": "natalya",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "9000",
+      "currency": "EUR",
+      "due": {
+        "literal": "до 18:00 по Москве 10 января 2030 года",
+        "resolved": "2030-01-10T15:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/Moscow"
+      },
+      "conditions": [],
+      "unknown_fields": [],
+      "conflicts_with": [
+        "D10-A1"
+      ]
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "9000",
+      "currency": "USD",
+      "revision": 6
+    }
+  ],
+  "journey": [
+    {
+      "action": "confirm",
+      "annotation": "D10-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "D10-A2",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "disputed",
+      "conflicting_annotation": "D10-A1"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D10-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "9000",
+        "currency": "USD",
+        "revision": 6
+      },
+      "expected_state": "disputed",
+      "refusal_reason": "unresolved_term_conflict"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D10-A2",
+      "version": 1,
+      "entity_id": "O1",
+      "amount": "9000",
+      "currency": "EUR",
+      "expected_state": "disputed",
+      "refusal_reason": "unresolved_term_conflict"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D10-A1",
+        "version": 1,
+        "state": "disputed",
+        "receipt_count": 0
+      },
+      {
+        "annotation": "D10-A2",
+        "version": 1,
+        "state": "disputed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "9000",
+        "currency": "USD",
+        "revision": 6
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "Two individually accepted statements disagree about currency. Neither chronological order nor one matching CRM value resolves authority without an explicit decision."
+  }
+}

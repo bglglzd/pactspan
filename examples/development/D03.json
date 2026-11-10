@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "D03",
+  "language": "en",
+  "title": "A counteroffer is refused",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Counteroffer review",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/London",
+      "participants": [
+        {
+          "speaker": "Theo",
+          "person_id": "theo"
+        },
+        {
+          "speaker": "Ava",
+          "person_id": "ava"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Theo",
+          "start_secs": 0,
+          "end_secs": 10,
+          "text": "The current amount for O1 is GBP 7500. Could we record GBP 7200 instead?"
+        },
+        {
+          "speaker": "Ava",
+          "start_secs": 14,
+          "end_secs": 24,
+          "text": "No. I reject GBP 7200; keep GBP 7500 on O1."
+        },
+        {
+          "speaker": "Theo",
+          "start_secs": 28,
+          "end_secs": 35,
+          "text": "Understood. The commercial question remains open, with no amount change agreed today."
+        }
+      ]
+    }
+  ],
+  "annotations": [],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 0,
+      "quote": "Could we record GBP 7200 instead?",
+      "start": 39,
+      "end": 72,
+      "reason": "question"
+    },
+    {
+      "source": "meeting-a",
+      "segment": 1,
+      "quote": "No. I reject GBP 7200; keep GBP 7500 on O1.",
+      "start": 0,
+      "end": 43,
+      "reason": "refusal"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "7500",
+      "currency": "GBP",
+      "revision": 3
+    }
+  ],
+  "journey": [
+    {
+      "action": "attempt_confirmation",
+      "source": "meeting-a",
+      "segment": 0,
+      "expected_state": "no_commitment",
+      "refusal_reason": "counteroffer_refused"
+    },
+    {
+      "action": "attempt_action",
+      "entity_id": "O1",
+      "amount": "7200",
+      "currency": "GBP",
+      "expected_state": "no_commitment",
+      "refusal_reason": "no_confirmed_commitment"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "7500",
+        "currency": "GBP",
+        "revision": 3
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "A pricing question explicitly refused by the other speaker is negative evidence, not an accepted amount-change commitment."
+  }
+}

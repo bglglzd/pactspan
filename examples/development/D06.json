@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "D06",
+  "language": "ru",
+  "title": "Относительный срок с явным контекстом",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Срок на следующий день",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Антон",
+          "person_id": "anton"
+        },
+        {
+          "speaker": "Мария",
+          "person_id": "maria"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Мария",
+          "start_secs": 0,
+          "end_secs": 8,
+          "text": "По O1 согласована сумма 15000 RUB; сейчас в CRM ещё 14000 RUB."
+        },
+        {
+          "speaker": "Антон",
+          "start_secs": 12,
+          "end_secs": 24,
+          "text": "Я завтра к 17:00 по Москве запишу 15000 RUB в O1."
+        },
+        {
+          "speaker": "Мария",
+          "start_secs": 28,
+          "end_secs": 35,
+          "text": "Да, договорились: завтра к 17:00 по Москве."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D06-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 1,
+          "quote": "Я завтра к 17:00 по Москве запишу 15000 RUB в O1.",
+          "start": 0,
+          "end": 49
+        },
+        {
+          "segment": 2,
+          "quote": "Да, договорились: завтра к 17:00 по Москве.",
+          "start": 0,
+          "end": 43
+        }
+      ],
+      "owner": "anton",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "15000",
+      "currency": "RUB",
+      "due": {
+        "literal": "завтра к 17:00 по Москве",
+        "resolved": "2030-01-09T14:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/Moscow"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "14000",
+      "currency": "RUB",
+      "revision": 3
+    }
+  ],
+  "journey": [
+    {
+      "action": "resolve_deadline",
+      "annotation": "D06-A1",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "resolved": "2030-01-09T14:00:00Z"
+    },
+    {
+      "action": "confirm",
+      "annotation": "D06-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D06-A1",
+      "version": 1,
+      "approval_id": "AP06",
+      "entity_id": "O1",
+      "before_revision": 3,
+      "amount": "15000",
+      "currency": "RUB",
+      "expires_at": "2030-01-09T13:30:00Z",
+      "at": "2030-01-09T12:50:00Z"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "D06-A1",
+      "version": 1,
+      "approval_id": "AP06",
+      "outcome": "acknowledged",
+      "result_revision": 4,
+      "expected_state": "confirmed",
+      "at": "2030-01-09T12:55:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D06-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "15000",
+        "currency": "RUB",
+        "revision": 4
+      },
+      "observed_at": "2030-01-09T13:00:00Z",
+      "expected_state": "fulfilled"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D06-A1",
+        "version": 1,
+        "state": "fulfilled",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "15000",
+        "currency": "RUB",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 1,
+    "logical_fulfillments": 1,
+    "reason": "The explicit meeting anchor is 8 January in Moscow; tomorrow at 17:00 resolves to 9 January 14:00Z, not the file date or a guessed zone."
+  }
+}

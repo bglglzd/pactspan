@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "D17",
+  "language": "en",
+  "title": "Identical reimport versus edited text",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Amount review notes",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/London",
+      "participants": [
+        {
+          "speaker": "Mia",
+          "person_id": "mia"
+        },
+        {
+          "speaker": "Finn",
+          "person_id": "finn"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Mia",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "I will record GBP 4500 on O1 by 16:00 London time on 9 January 2030."
+        },
+        {
+          "speaker": "Finn",
+          "start_secs": 16,
+          "end_secs": 22,
+          "text": "Agreed: GBP 4500 on O1."
+        }
+      ]
+    },
+    {
+      "id": "meeting-a-edited",
+      "title": "Amount review notes",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/London",
+      "participants": [
+        {
+          "speaker": "Mia",
+          "person_id": "mia"
+        },
+        {
+          "speaker": "Finn",
+          "person_id": "finn"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Mia",
+          "start_secs": 0,
+          "end_secs": 12,
+          "text": "Correction to these notes: I propose recording GBP 4700 on O1."
+        },
+        {
+          "speaker": "Finn",
+          "start_secs": 16,
+          "end_secs": 25,
+          "text": "That proposal still needs review; GBP 4500 remains the accepted amount."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D17-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "I will record GBP 4500 on O1 by 16:00 London time on 9 January 2030.",
+          "start": 0,
+          "end": 68
+        },
+        {
+          "segment": 1,
+          "quote": "Agreed: GBP 4500 on O1.",
+          "start": 0,
+          "end": 23
+        }
+      ],
+      "owner": "mia",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "4500",
+      "currency": "GBP",
+      "due": {
+        "literal": "by 16:00 London time on 9 January 2030",
+        "resolved": "2030-01-09T16:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/London"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    },
+    {
+      "id": "D17-A2",
+      "source": "meeting-a-edited",
+      "agreement": "proposed",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Correction to these notes: I propose recording GBP 4700 on O1.",
+          "start": 0,
+          "end": 62
+        }
+      ],
+      "owner": "mia",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "4700",
+      "currency": "GBP",
+      "due": {
+        "literal": null,
+        "resolved": null,
+        "precision": "unknown",
+        "zone": null
+      },
+      "conditions": [],
+      "unknown_fields": [
+        "due"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a-edited",
+      "segment": 1,
+      "quote": "That proposal still needs review; GBP 4500 remains the accepted amount.",
+      "start": 0,
+      "end": 71,
+      "reason": "amendment_not_accepted"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "4500",
+      "currency": "GBP",
+      "revision": 10
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_source_count": 1
+    },
+    {
+      "action": "confirm",
+      "annotation": "D17-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_source_count": 1,
+      "reason": "identical_content_and_context_deduplicated"
+    },
+    {
+      "action": "import_source",
+      "source": "meeting-a-edited",
+      "expected_source_count": 2,
+      "expected_state": "proposed",
+      "reason": "edited_source_is_distinct"
+    },
+    {
+      "action": "attempt_automatic_supersession",
+      "annotation": "D17-A2",
+      "version": 2,
+      "supersedes": "D17-A1",
+      "expected_state": "proposed",
+      "refusal_reason": "explicit_confirmed_replacement_required"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D17-A1",
+        "version": 1,
+        "state": "confirmed",
+        "receipt_count": 0
+      },
+      {
+        "annotation": "D17-A2",
+        "version": 2,
+        "state": "proposed",
+        "receipt_count": 0
+      }
+    ],
+    "source_count": 2,
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "4500",
+        "currency": "GBP",
+        "revision": 10
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "The duplicate import creates no second candidate/commitment. Edited source text is retained separately and cannot rewrite earlier evidence or confirmed terms."
+  }
+}

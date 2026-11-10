@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "D04",
+  "language": "ru",
+  "title": "Обсуждение без обязательства",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Темы следующей встречи",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Лев",
+          "person_id": "lev"
+        },
+        {
+          "speaker": "Софья",
+          "person_id": "sofya"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Лев",
+          "start_secs": 0,
+          "end_secs": 9,
+          "text": "На следующей неделе можно обсудить, стоит ли менять сумму по O1."
+        },
+        {
+          "speaker": "Софья",
+          "start_secs": 13,
+          "end_secs": 22,
+          "text": "Пока это только тема для обсуждения. Ни новую сумму, ни исполнителя мы не согласовали."
+        },
+        {
+          "speaker": "Лев",
+          "start_secs": 26,
+          "end_secs": 32,
+          "text": "Хорошо, этот вопрос пока в повестке. Изменений в CRM не согласовано."
+        }
+      ]
+    }
+  ],
+  "annotations": [],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 0,
+      "quote": "На следующей неделе можно обсудить, стоит ли менять сумму по O1.",
+      "start": 0,
+      "end": 64,
+      "reason": "aspiration"
+    },
+    {
+      "source": "meeting-a",
+      "segment": 1,
+      "quote": "Пока это только тема для обсуждения. Ни новую сумму, ни исполнителя мы не согласовали.",
+      "start": 0,
+      "end": 86,
+      "reason": "noncommittal"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "60000",
+      "currency": "RUB",
+      "revision": 1
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "no_commitment"
+    },
+    {
+      "action": "attempt_action",
+      "entity_id": "O1",
+      "expected_state": "no_commitment",
+      "refusal_reason": "no_specific_agreed_action"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "60000",
+        "currency": "RUB",
+        "revision": 1
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "Scheduling a discussion supplies neither a concrete amount nor an accepted action; no commitment or write is invented."
+  }
+}

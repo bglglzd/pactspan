@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "D01",
+  "language": "en",
+  "title": "Record an agreed amount",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Commercial amount follow-up",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/London",
+      "participants": [
+        {
+          "speaker": "Morgan",
+          "person_id": "morgan"
+        },
+        {
+          "speaker": "Riley",
+          "person_id": "riley"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Riley",
+          "start_secs": 0,
+          "end_secs": 8,
+          "text": "The amount in opportunity O1 is still USD 12000. We agreed a revised figure this morning."
+        },
+        {
+          "speaker": "Morgan",
+          "start_secs": 12,
+          "end_secs": 25,
+          "text": "I will record USD 10800 on opportunity O1 by 17:00 London time on 8 January 2030."
+        },
+        {
+          "speaker": "Riley",
+          "start_secs": 28,
+          "end_secs": 34,
+          "text": "Yes, record USD 10800 on O1; those are the terms I accept."
+        },
+        {
+          "speaker": "Morgan",
+          "start_secs": 38,
+          "end_secs": 44,
+          "text": "We need the saved CRM value, rather than an internal draft."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D01-A1",
+      "source": "meeting-a",
+      "agreement": "accepted",
+      "evidence": [
+        {
+          "segment": 1,
+          "quote": "I will record USD 10800 on opportunity O1 by 17:00 London time on 8 January 2030.",
+          "start": 0,
+          "end": 81
+        },
+        {
+          "segment": 2,
+          "quote": "Yes, record USD 10800 on O1; those are the terms I accept.",
+          "start": 0,
+          "end": 58
+        }
+      ],
+      "owner": "morgan",
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "10800",
+      "currency": "USD",
+      "due": {
+        "literal": "by 17:00 London time on 8 January 2030",
+        "resolved": "2030-01-08T17:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/London"
+      },
+      "conditions": [],
+      "unknown_fields": []
+    }
+  ],
+  "negative_evidence": [],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "12000",
+      "currency": "USD",
+      "revision": 7
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "D01-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "confirmed"
+    },
+    {
+      "action": "observe_crm",
+      "annotation": "D01-A1",
+      "version": 1,
+      "observation": {
+        "entity_id": "O1",
+        "amount": "12000",
+        "currency": "USD",
+        "revision": 7
+      },
+      "observed_at": "2030-01-08T10:00:00Z",
+      "expected_state": "confirmed",
+      "reason": "amount_mismatch"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D01-A1",
+      "version": 1,
+      "approval_id": "AP01",
+      "entity_id": "O1",
+      "before_revision": 7,
+      "amount": "10800",
+      "currency": "USD",
+      "expires_at": "2030-01-08T11:00:00Z",
+      "expected_state": "confirmed",
+      "at": "2030-01-08T10:01:00Z"
+    },
+    {
+      "action": "execute_action",
+      "annotation": "D01-A1",
+      "version": 1,
+      "approval_id": "AP01",
+      "outcome": "acknowledged",
+      "result_revision": 8,
+      "expected_state": "confirmed",
+      "at": "2030-01-08T10:02:00Z"
+    },
+    {
+      "action": "verify_fresh_read",
+      "annotation": "D01-A1",
+      "version": 1,
+      "role": "reader",
+      "observation": {
+        "entity_id": "O1",
+        "amount": "10800",
+        "currency": "USD",
+        "revision": 8
+      },
+      "observed_at": "2030-01-08T10:05:00Z",
+      "expected_state": "fulfilled"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D01-A1",
+        "version": 1,
+        "state": "fulfilled",
+        "receipt_count": 1
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "10800",
+        "currency": "USD",
+        "revision": 8
+      }
+    ],
+    "logical_writes": 1,
+    "logical_fulfillments": 1,
+    "reason": "A manager confirms the exact accepted terms; an independent fresh matching read supplies the one fulfillment receipt."
+  }
+}

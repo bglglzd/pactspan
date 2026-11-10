@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "D12",
+  "language": "ru",
+  "title": "Местоимение не определяет исполнителя",
+  "sources": [
+    {
+      "id": "meeting-a",
+      "title": "Назначение исполнителя неясно",
+      "meeting_at": "2030-01-08T09:00:00Z",
+      "time_zone": "Europe/Moscow",
+      "participants": [
+        {
+          "speaker": "Нина",
+          "person_id": "nina"
+        },
+        {
+          "speaker": "Алексей — продажи",
+          "person_id": "alex-sales"
+        },
+        {
+          "speaker": "Алексей — внедрение",
+          "person_id": "alex-implementation"
+        }
+      ],
+      "segments": [
+        {
+          "speaker": "Нина",
+          "start_secs": 0,
+          "end_secs": 14,
+          "text": "Договорились: он запишет 72000 RUB в O1 до 18:00 по Москве 9 января 2030 года, если бухгалтерия подтвердит бюджет."
+        },
+        {
+          "speaker": "Алексей — продажи",
+          "start_secs": 18,
+          "end_secs": 25,
+          "text": "Под «он» имеется в виду кто из нас? Здесь два Алексея."
+        },
+        {
+          "speaker": "Алексей — внедрение",
+          "start_secs": 29,
+          "end_secs": 37,
+          "text": "Исполнителя пока не уточнили. Не назначайте задачу одному из нас наугад."
+        },
+        {
+          "speaker": "Нина",
+          "start_secs": 41,
+          "end_secs": 46,
+          "text": "Верно, это нужно уточнить отдельно."
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "id": "D12-A1",
+      "source": "meeting-a",
+      "agreement": "unknown",
+      "evidence": [
+        {
+          "segment": 0,
+          "quote": "Договорились: он запишет 72000 RUB в O1 до 18:00 по Москве 9 января 2030 года, если бухгалтерия подтвердит бюджет.",
+          "start": 0,
+          "end": 114
+        }
+      ],
+      "owner": null,
+      "kind": "crm.amount",
+      "entity_id": "O1",
+      "amount": "72000",
+      "currency": "RUB",
+      "due": {
+        "literal": "до 18:00 по Москве 9 января 2030 года",
+        "resolved": "2030-01-09T15:00:00Z",
+        "precision": "instant",
+        "zone": "Europe/Moscow"
+      },
+      "conditions": [
+        {
+          "literal": "если бухгалтерия подтвердит бюджет",
+          "status": "unknown"
+        }
+      ],
+      "unknown_fields": [
+        "owner",
+        "agreement",
+        "conditions.budget_approval"
+      ]
+    }
+  ],
+  "negative_evidence": [
+    {
+      "source": "meeting-a",
+      "segment": 1,
+      "quote": "Под «он» имеется в виду кто из нас? Здесь два Алексея.",
+      "start": 0,
+      "end": 54,
+      "reason": "unresolved_pronoun"
+    },
+    {
+      "source": "meeting-a",
+      "segment": 2,
+      "quote": "Исполнителя пока не уточнили. Не назначайте задачу одному из нас наугад.",
+      "start": 0,
+      "end": 72,
+      "reason": "unresolved_pronoun"
+    }
+  ],
+  "crm_initial": [
+    {
+      "entity_id": "O1",
+      "amount": "70000",
+      "currency": "RUB",
+      "revision": 4
+    }
+  ],
+  "journey": [
+    {
+      "action": "import_source",
+      "source": "meeting-a",
+      "expected_state": "proposed"
+    },
+    {
+      "action": "confirm",
+      "annotation": "D12-A1",
+      "version": 1,
+      "actor": "manager",
+      "expected_state": "proposed",
+      "refusal_reason": "owner_and_agreement_unresolved"
+    },
+    {
+      "action": "approve_action",
+      "annotation": "D12-A1",
+      "version": 1,
+      "entity_id": "O1",
+      "amount": "72000",
+      "currency": "RUB",
+      "expected_state": "proposed",
+      "refusal_reason": "not_confirmed"
+    }
+  ],
+  "expected": {
+    "wrong_fulfillments": 0,
+    "commitments": [
+      {
+        "annotation": "D12-A1",
+        "version": 1,
+        "state": "proposed",
+        "receipt_count": 0
+      }
+    ],
+    "crm": [
+      {
+        "entity_id": "O1",
+        "amount": "70000",
+        "currency": "RUB",
+        "revision": 4
+      }
+    ],
+    "logical_writes": 0,
+    "logical_fulfillments": 0,
+    "reason": "The action wording is a candidate, but neither the speaker nor the shared first name identifies the owner or proves that either Alex accepted it."
+  }
+}
