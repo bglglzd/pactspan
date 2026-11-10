@@ -34,7 +34,7 @@ Failures are never successful empty arrays. A failed call cannot earn a TP, even
 
 ## Pipeline authentication and strict matching
 
-Each raw record is independently checked against the frozen candidate schema. Citations are rechecked against the bound original source using UTF-16 spans; a missing unique quote can derive offsets, while repeated, altered or invalid quotes remain unsupported. An extra source claim cannot redirect a citation.
+Each raw record is independently checked against the frozen candidate schema. In extraction wire version5, a present deadline carries its exact literal and fixed `resolved:null`, `precision:"unknown"`, `zone:null`; these placeholders do not assert source uncertainty. The client parser alone computes typed deadline values and related uncertainty. Model-computed values violate the wire schema, remain in raw inventory and cannot earn a strict TP. Citations are rechecked against the bound original source using UTF-16 spans; a missing unique quote can derive offsets, while repeated, altered or invalid quotes remain unsupported. An extra source claim cannot redirect a citation.
 
 The semantic record is recomputed from raw terms with the actual `terms`, `resolveDeadline`, `deadlineUnknowns` and explicit-null unknown-field rules. Supplied normalized terms/unknowns must agree. Thus canonical money and the deterministic deadline/unknown pipeline are allowed, while a wrapper cannot repair an erroneous amount, owner, entity, currency, prerequisite or arbitrary uncertainty. Raw output remains visible. Deadline resolution is a separate deterministic component, not evidence that the model inferred the resolved date.
 

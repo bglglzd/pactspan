@@ -13,7 +13,8 @@ function fixture(id = 'A', language = 'en', text = 'Alex will record USD 100 on 
 function prediction(f) {
   const g = f.annotations[0];
   return { agreement: g.agreement, evidence: g.evidence.map(({ segment, quote }) => ({ segment, quote, start: null, end: null })),
-    terms: { kind: g.kind, entity_id: g.entity_id, amount: g.amount, currency: g.currency, owner: g.owner, statement: 'Authored scorer input, not model output', due: g.due, conditions: g.conditions }, unknown_fields: g.unknown_fields };
+    terms: { kind: g.kind, entity_id: g.entity_id, amount: g.amount, currency: g.currency, owner: g.owner, statement: 'Authored scorer input, not model output',
+      due: g.due === null ? null : { literal: g.due.literal, resolved: null, precision: 'unknown', zone: null }, conditions: g.conditions }, unknown_fields: g.unknown_fields };
 }
 async function run(f, raw, { elapsed_ms = 10, normalize = null } = {}) {
   const source = await makeSource(f.sources[0]);
@@ -129,6 +130,26 @@ test('postprocessed deadline/unknown fields are scored while untouched raw claim
   assert.equal(report.strict.tp, 1);
   assert.equal(report.runs[0].predictions[0].raw.terms.due.resolved, null);
   assert.equal(report.runs[0].predictions[0].semantic['due.resolved'], '2030-01-09T14:00:00.000Z');
+});
+
+test('model-computed deadline fields remain schema-invalid FP even when they copy the correct gold values', async () => {
+  const literal = 'by 17:00 London time on 8 January 2030', f = fixture('W', 'en', 'Alex will record USD 100 on O1 ' + literal + '.');
+  f.sources[0].meeting_at = '2030-01-08T09:00:00Z'; f.sources[0].time_zone = 'Europe/London';
+  f.annotations[0].due = { literal, resolved: '2030-01-08T17:00:00Z', precision: 'instant', zone: 'Europe/London' };
+  f.annotations[0].unknown_fields = [];
+  const valid = prediction(f);
+  const invalid = [{ resolved: f.annotations[0].due.resolved }, { precision: 'instant' }, { zone: 'Europe/London' }]
+    .map(change => { const raw = structuredClone(valid); Object.assign(raw.terms.due, change); return raw; });
+  const report = await scoreExtractions([f], [await run(f, [...invalid, valid])]);
+  assert.deepEqual([report.strict.tp, report.strict.fp, report.strict.fn], [1, 3, 0]);
+  assert.equal(report.counts.schema_error_predictions, 3);
+  for (const [index, raw] of invalid.entries()) {
+    assert.equal(report.runs[0].predictions[index].schema_valid, false);
+    assert.deepEqual(report.runs[0].predictions[index].raw, raw);
+    assert.ok(report.runs[0].unmatched_predictions.some(item => item.raw_index === index));
+  }
+  assert.deepEqual(report.runs[0].predictions[3].raw.terms.due, { literal, resolved: null, precision: 'unknown', zone: null });
+  assert.equal(report.runs[0].predictions[3].semantic['due.resolved'], '2030-01-08T17:00:00.000Z');
 });
 
 test('prerequisite truth claims are separate from literal/strict correctness and confer no authority', async () => {

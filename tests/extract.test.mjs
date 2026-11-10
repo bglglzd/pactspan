@@ -76,6 +76,7 @@ test('a valid large source exceeding the full64KiB request limit is refused befo
 test('request profile and digest metadata are explicit, stable and closed to keys or remote origins', async t => {
   const { calls, options } = await server(t, (_data, response) => respond(response, envelope([])));
   const first = extractionConfig(options); const second = extractionConfig({ ...options });
+  assert.equal(first.version, 'pactspan-extraction-v5');
   assert.equal(first.config_sha256, second.config_sha256);
   assert.notEqual(first.config_sha256, extractionConfig({ ...options, maxTokens: 512 }).config_sha256);
   assert.ok(Object.isFrozen(EXTRACTION_SCHEMA.properties.candidates.items));
@@ -134,6 +135,58 @@ test('mismatched UTF16 offsets, invalid terms, unmapped owners and unsupported m
   assert.ok(result.candidates.every(row => row.supported === false && row.diagnostics.length));
   assert.equal(result.candidates[0].schema_valid, false);
   assert.equal(result.candidates[1].schema_valid, false);
+});
+
+test('wire deadlines reject model-derived dates, precision and zones before normalization, retaining every raw prediction', async t => {
+  const literal = 'by 17:00 London time on 8 January 2030';
+  const canonical = await makeSource({ meeting_at: '2030-01-08T09:00:00Z', time_zone: 'Europe/London',
+    participants: [{ speaker: 'Alex', person_id: 'alex' }],
+    segments: [{ speaker: 'Alex', start_secs: 0, end_secs: 5, text: 'Record USD 12000 on O1. Deadline: ' + literal + '.' }] });
+  const base = candidate(); base.terms.due = { literal, resolved: null, precision: 'unknown', zone: null };
+  const changes = [{ resolved: '2030-01-08T17:00:00Z' }, { precision: 'instant' }, { precision: 'date' }, { zone: 'Europe/London' }];
+  const predictions = changes.map(change => { const raw = structuredClone(base); Object.assign(raw.terms.due, change); return raw; });
+  const { options } = await server(t, (_data, response) => respond(response, envelope([...predictions, base])));
+  const result = await extractCandidates(canonical, options);
+  assert.equal(result.status, 'invalid_output'); assert.equal(result.raw_candidate_count, 5);
+  for (const [index, raw] of predictions.entries()) {
+    const record = result.candidates[index];
+    assert.equal(record.schema_valid, false); assert.equal(record.supported, false);
+    assert.deepEqual(record.raw, raw); assert.equal(record.terms, undefined);
+    assert.equal(record.deadline_resolution, undefined); assert.ok(record.diagnostics.some(item => item.code === 'schema'));
+  }
+  const literalOnly = result.candidates[4];
+  assert.equal(literalOnly.schema_valid, true); assert.equal(literalOnly.supported, true);
+  assert.deepEqual(literalOnly.raw.terms.due, base.terms.due);
+  assert.deepEqual(literalOnly.terms.due, { literal, resolved: '2030-01-08T17:00:00.000Z', precision: 'instant', zone: 'Europe/London' });
+});
+
+test('literal-only deadlines use the existing parser and preserve date-only, fold and missing-year uncertainty', async t => {
+  let prediction;
+  const { options } = await server(t, (_data, response) => respond(response, envelope([prediction])));
+  const cases = [
+    { literal: 'by 17:00 London time on 8 January 2030', resolved: '2030-01-08T17:00:00.000Z', precision: 'instant', zone: 'Europe/London', status: 'resolved', unknowns: [] },
+    { literal: 'до 18:00 по Москве 10 января 2030 года', resolved: '2030-01-10T15:00:00.000Z', precision: 'instant', zone: 'Europe/Moscow', status: 'resolved', unknowns: [] },
+    { literal: 'on 27 October 2030', resolved: '2030-10-27', precision: 'date', zone: 'Europe/London', status: 'date-only', unknowns: ['due.cutoff'] },
+    { literal: 'at 01:30 London time on 27 October 2030', resolved: null, precision: 'instant', zone: 'Europe/London', status: 'unresolved', unknowns: ['due.resolved'] },
+    { literal: 'on 8 January', resolved: null, precision: 'unknown', zone: null, status: 'unresolved', unknowns: ['due.resolved'] },
+  ];
+  for (const expected of cases) {
+    const canonical = await makeSource({ meeting_at: '2030-01-08T09:00:00Z', time_zone: 'Europe/London',
+      participants: [{ speaker: 'Alex', person_id: 'alex' }],
+      segments: [{ speaker: 'Alex', start_secs: 0, end_secs: 5, text: 'Record USD 12000 on O1. Deadline: ' + expected.literal + '.' }] });
+    prediction = candidate(); prediction.terms.due = { literal: expected.literal, resolved: null, precision: 'unknown', zone: null };
+    const untouched = structuredClone(prediction);
+    const result = await extractCandidates(canonical, options); const record = result.candidates[0];
+    assert.equal(result.status, 'complete'); assert.equal(record.supported, true, expected.literal);
+    assert.deepEqual(record.raw, untouched); assert.equal(record.deadline_resolution.status, expected.status);
+    assert.deepEqual(record.terms.due, Object.fromEntries(['literal', 'resolved', 'precision', 'zone'].map(key => [key, expected[key]])));
+    assert.deepEqual(record.unknown_fields, expected.unknowns);
+    const app = new Pactspan(); await app.importSource(canonical);
+    const proposed = await app.propose({ agreement: record.agreement, terms: record.terms, unknown_fields: record.unknown_fields,
+      evidence: record.evidence.map(({ source, segment, quote, start, end }) => ({ source, segment, quote, start, end })) });
+    assert.equal(proposed.candidate.state, 'proposed'); assert.equal(proposed.candidate.version_id, null);
+    assert.deepEqual(proposed.candidate.terms.due, record.terms.due);
+  }
 });
 
 test('a reserved key or invalid Unicode in one prediction cannot erase later raw indices', async t => {
