@@ -92,6 +92,10 @@ function normalizeCandidate(raw, rawIndex, source) {
     result.deadline_resolution = resolveDeadline(result.terms.due, source);
     result.terms.due = result.deadline_resolution.due;
     result.unknown_fields = deadlineUnknowns(result.unknown_fields, result.deadline_resolution);
+    for (const field of ['owner', 'entity_id', 'amount', 'currency', 'due']) {
+      if (result.terms[field] === null && !result.unknown_fields.includes(field)) result.unknown_fields.push(field);
+    }
+    result.unknown_fields.sort();
     if (result.deadline_resolution.unsupported) diagnostics.push({ code: 'unsupported_deadline', message: result.deadline_resolution.reason });
     if (raw.terms.conditions.some(condition => condition.status === 'unknown' && condition.value !== null)) throw new Error();
   } catch { diagnostics.push({ code: 'invalid_terms', message: 'Candidate terms failed local domain validation' }); }

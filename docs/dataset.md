@@ -43,6 +43,8 @@ The CRM snapshot is the state at journey start, which can be later than the reco
 
 ## Declarative journeys
 
+Before model evaluation, executable replay found four oracle inconsistencies: D08/D16/D18 used approvals longer than the specified one-hour limit, and D10 numbered both conflicting versions1. The journey parameters now use45-minute approvals and D10's second confirmed version2. Source text, semantic annotations and quotes were unchanged; these were workflow-oracle corrections, not model-output-based relabeling.
+
 Journeys are independent author-written specifications, not executable commands or captured implementation output. `action` names describe a decision, observation, attempted action or external change. `expected_state`/`refusal_reason` specify the intended result. The `manager` actor and `reader` role are synthetic application roles. An absent refusal does not waive the normal version, scope, prerequisite or fresh-read guards.
 
 `expected.commitments` identifies the annotated version and final lifecycle. `receipt_count` counts logical fulfillment receipt bindings, not every observation; repeated matching reads can be retained without another logical fulfillment. `logical_writes` counts successful Pactspan external changes, excluding external operator edits and refused local requests. D19's `persisted_attempts` counts external write attempts, excluding its guarded refusal to send again. D15's current match supplies no proof of on-time execution, and D20 retains its earlier receipt while ending disputed. These distinctions must survive any later executable test mapping.

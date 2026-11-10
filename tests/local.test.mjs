@@ -152,7 +152,9 @@ test('local extraction retains every raw prediction but unmapped model ownership
   const model = 'SYNTHETIC_LOCAL_MODEL'; const quote = 'Alex will record USD 10800 on O1.';
   const prediction = owner => ({ agreement: 'accepted', terms: { kind: 'crm.amount', entity_id: 'O1', amount: '10800', currency: 'USD',
     owner, statement: 'Record amount', due: null, conditions: [] }, unknown_fields: [], evidence: [{ segment: 0, quote, start: null, end: null }] });
+  let calls = 0;
   const modelServer = http.createServer(async (request, response) => {
+    calls++;
     const chunks = []; for await (const chunk of request) chunks.push(chunk);
     const input = JSON.parse(Buffer.concat(chunks)); const source = JSON.parse(input.messages[1].content);
     assert.ok(!Object.hasOwn(source, 'annotations') && !Object.hasOwn(source, 'expected'));
@@ -161,7 +163,8 @@ test('local extraction retains every raw prediction but unmapped model ownership
   });
   await new Promise(resolve => modelServer.listen(0, '127.0.0.1', resolve));
   t.after(async () => { modelServer.closeAllConnections(); await new Promise(resolve => modelServer.close(resolve)); });
-  const controller = await WorkspaceController.open({ directory: await directory(), extraction: { origin: `http://127.0.0.1:${modelServer.address().port}`, model } });
+  const folder = await directory(); const extraction = { origin: `http://127.0.0.1:${modelServer.address().port}`, model };
+  let controller = await WorkspaceController.open({ directory: folder, extraction });
   t.after(() => controller.close());
   const { source } = await controller.dispatch('importSource', { document: { participants: [{ speaker: 'Alex', person_id: 'alex' }],
     segments: [{ speaker: 'Alex', start_secs: 0, end_secs: 3, text: quote }] } });
@@ -172,4 +175,14 @@ test('local extraction retains every raw prediction but unmapped model ownership
   const evidence = JSON.parse(await controller.runEvidence(extracted.run.id));
   assert.equal(evidence.result.candidates.length, 2); assert.equal(evidence.result.candidates[0].raw.terms.owner, 'invented');
   assert.equal(evidence.result.candidates[0].supported, false); assert.equal(evidence.result.candidates[1].supported, true);
+  await controller.close();
+  const store = await WorkspaceStore.open(folder); const saved = await store.load();
+  saved.metadata.runs = Array.from({ length: 200 }, (_, index) => ({ ...extracted.run, id: 'run_seed_' + index }));
+  await store.save(saved); await store.close();
+  const before = await readFile(path.join(folder, 'state.json'), 'utf8');
+  controller = await WorkspaceController.open({ directory: folder, extraction });
+  await assert.rejects(controller.dispatch('extract', { source_id: source.id }), /200 runs/);
+  assert.equal(calls, 1); assert.equal(await readFile(path.join(folder, 'state.json'), 'utf8'), before);
+  await controller.close(); controller = await WorkspaceController.open({ directory: folder, extraction });
+  assert.equal(controller.snapshot().metadata.runs.length, 200);
 });

@@ -297,7 +297,10 @@ $('import-file').addEventListener('change', event => {
   event.target.value = '';
   run(async () => {
     if (file.size > 256 * 1024) throw new Error('Transcript exceeds 256 KiB.');
-    const text = await file.text(); await app.importSource(importedDocument(text, { title: file.name }));
+    let text;
+    try { text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()); }
+    catch { throw new Error('Transcript must be valid UTF-8.'); }
+    await app.importSource(importedDocument(text, { title: file.name }));
   }, 'Transcript imported. Add a sourced candidate' + (local?.workspace.capabilities.extraction ? ' or run the configured local extractor.' : '; no extraction model was called.'));
 });
 document.querySelector('.file-button').addEventListener('keydown', event => {

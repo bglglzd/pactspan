@@ -8,6 +8,8 @@ Node22+ is required. No dependency installation is needed. `npm start -- --examp
 
 Import transcript JSON/TXT, inspect the source and add a manual candidate or use the configured local extractor. Prepared examples are authored, not model output. Model runs preserve raw count, unsupported predictions, configuration and response digests in `runs/`. Export a run before sharing it: it contains the actual transcript/request/response and is private application data.
 
+Each local workspace retains up to200 extraction runs. The limit refuses a new request before inference and preserves prior evidence. Export and choose a separate data directory to continue; the application never silently prunes its history. Transcript files must be valid UTF-8 and at most256KiB.
+
 Confirm sourced terms explicitly. Replacement references the current confirmed version; otherwise conflicting confirmed terms remain disputed. Unmapped ownership, unsupported quotes, uncertain required fields and missing condition decisions block execution. A prerequisite decision is a manager attestation, not third-party proof.
 
 Read the CRM comparison, approve one exact change, then execute that approval. Approval lasts at most one hour (UI: fifteen minutes). The server refuses a changed before-state rather than approving new values silently. A write ACK remains unverified. **Verify CRM state** uses a new reader request and records a receipt for the exact current version only. A later rollback leaves the previous receipt in history and disputes the current state.

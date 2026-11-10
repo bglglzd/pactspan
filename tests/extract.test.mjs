@@ -100,6 +100,8 @@ test('all predictions retain raw indices, with local quote spans and terms norma
   assert.equal(result.candidates[1].supported, true);
   assert.equal(result.candidates[1].evidence[0].start, 3);
   assert.equal(result.candidates[1].raw.evidence[0].start, null);
+  assert.deepEqual(result.candidates[1].unknown_fields, ['due']);
+  assert.deepEqual(result.candidates[1].raw.unknown_fields, []);
   assert.equal(result.candidates[1].terms.amount, '12000');
   assert.deepEqual(result.candidates[1].terms.conditions, [{ literal: 'After the review' }]);
   assert.equal(result.candidates[1].raw.terms.conditions[0].value, true);
